@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="145" height="22" viewBox="0 0 145 22" role="img" aria-labelledby="t d"><title id="t">Where We Are</title><desc id="d">Section label: Where We Are</desc><defs>
+<linearGradient id="brand" x1="0" y1="0" x2="1" y2="0">
+  <stop offset="0" stop-color="#3de3ff"/><stop offset=".34" stop-color="#4c6bff"/>
+  <stop offset=".66" stop-color="#9b5cff"/><stop offset="1" stop-color="#f47cf4"/>
+</linearGradient>
+<linearGradient id="button" x1="0" y1="0" x2="1" y2="0">
+  <stop offset="0" stop-color="#6fe9ff"/><stop offset=".34" stop-color="#7b8cff"/>
+  <stop offset=".66" stop-color="#b07cff"/><stop offset="1" stop-color="#f79cf7"/>
+</linearGradient>
+<linearGradient id="markTop" x1="0" y1="0" x2="1" y2=".6">
+  <stop offset="0" stop-color="#43e6ff"/><stop offset=".4" stop-color="#4c6bff"/>
+  <stop offset=".72" stop-color="#b07cff"/><stop offset="1" stop-color="#ff8af0"/>
+</linearGradient>
+<linearGradient id="markLow" x1="0" y1="1" x2="1" y2="0">
+  <stop offset="0" stop-color="#d6e0ff"/><stop offset="1" stop-color="#3b5bff"/>
+</linearGradient>
+<path id="g0a1b23a6" d="M2 0 0.1 -7.6H2.1L3.1 -3.6Q3.1 -3.5 3.1 -3.3Q3.2 -3.1 3.2 -2.9Q3.2 -2.7 3.3 -2.5H3.3Q3.3 -2.6 3.4 -2.8Q3.4 -2.9 3.4 -3.1Q3.4 -3.2 3.5 -3.4Q3.5 -3.5 3.5 -3.6L4.4 -7.6H6.5L7.4 -3.6Q7.4 -3.5 7.5 -3.3Q7.5 -3.1 7.5 -2.9Q7.6 -2.7 7.6 -2.5H7.7Q7.7 -2.6 7.7 -2.8Q7.7 -2.9 7.8 -3.1Q7.8 -3.2 7.8 -3.3Q7.8 -3.5 7.9 -3.6L8.8 -7.6H10.7L8.8 0H6.6L5.6 -4.2Q5.6 -4.3 5.6 -4.5Q5.5 -4.7 5.5 -4.9Q5.4 -5.1 5.4 -5.3H5.4Q5.3 -5.1 5.3 -4.9Q5.3 -4.7 5.2 -4.5Q5.2 -4.3 5.2 -4.2L4.2 0Z"/><path id="g469f2072" d="M0.8 0V-7.6H5.2Q6.1 -7.6 6.6 -7.2Q7.2 -6.9 7.5 -6.4Q7.7 -5.8 7.7 -5.2Q7.7 -4.4 7.4 -3.9Q7.1 -3.3 6.5 -3L8 0H5.8L4.5 -2.7H2.8V0ZM2.8 -4.1H4.8Q5.2 -4.1 5.5 -4.4Q5.7 -4.7 5.7 -5.1Q5.7 -5.4 5.6 -5.6Q5.5 -5.8 5.3 -5.9Q5.1 -6.1 4.8 -6.1H2.8Z"/><path id="gc195a459" d="M0.8 0V-7.6H7.1V-6H2.8V-4.6H6.5V-3.1H2.8V-1.5H7.2V0Z"/><path id="gd122712d" d="M0.1 0 2.9 -7.6H5.3L8.1 0H6L5.6 -1.3H2.6L2.1 0ZM3 -2.8H5.1L4.6 -4.4Q4.5 -4.5 4.5 -4.7Q4.4 -4.9 4.3 -5.1Q4.3 -5.3 4.2 -5.5Q4.2 -5.7 4.1 -5.8H4Q4 -5.6 3.9 -5.4Q3.8 -5.1 3.7 -4.8Q3.7 -4.6 3.6 -4.4Z"/><path id="gee38c195" d="M0.8 0V-7.6H2.8V-4.7H5.9V-7.6H7.8V0H5.9V-3H2.8V0Z"/></defs><polygon points="4,17 10,5 14,5 8,17" fill="url(#brand)"/><g fill="#8b4dff" ><use href="#g0a1b23a6" x="24.0" y="16.2"/><use href="#gee38c195" x="36.7" y="16.2"/><use href="#gc195a459" x="47.4" y="16.2"/><use href="#g469f2072" x="57.1" y="16.2"/><use href="#gc195a459" x="67.3" y="16.2"/><use href="#g0a1b23a6" x="81.0" y="16.2"/><use href="#gc195a459" x="93.8" y="16.2"/><use href="#gd122712d" x="107.5" y="16.2"/><use href="#g469f2072" x="117.7" y="16.2"/><use href="#gc195a459" x="127.9" y="16.2"/></g></svg>
