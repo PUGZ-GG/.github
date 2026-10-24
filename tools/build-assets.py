@@ -556,7 +556,7 @@ def tiers() -> str:
         shield_top = by - 8 - shield_h
         out.append(
             f'<rect x="{bx:.1f}" y="{by:.1f}" width="{bw:.1f}" height="{block_h}" rx="10" fill="{color}" fill-opacity=".09" stroke="{color}" stroke-opacity=".3"/>'
-            f'<rect x="{bx + 10:.1f}" y="{by + 1:.1f}" width="30" height="2" fill="{color}"/>'
+            f'<rect x="{cx - 15:.1f}" y="{by + 1:.1f}" width="30" height="2" fill="{color}"/>'
             + shield(cx, shield_top, shield_h, color, kind)
             + text(BODY_BOLD, name, 12.5, cx, base + 24, color, anchor="middle")
             + text(MONO, threshold, 11.5, cx, base + 42, MUTED, anchor="middle")
