@@ -1,6 +1,6 @@
 <div align="center">
 
-<a href="https://discord.gg/REPLACE_ME"><img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/banner.svg" alt="PUGZ. Pick-up games, run properly. Launching soon. Join the Discord." width="900"></a>
+<a href="https://discord.gg/wrreyrGnwv"><img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/banner.svg" alt="PUGZ. Pick-up games, run properly. Launching soon. Join the Discord." width="900"></a>
 
 <br>
 
@@ -176,7 +176,7 @@ flowchart LR
 
 <br>
 
-<a href="https://discord.gg/REPLACE_ME"><img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/cta.svg" alt="Your next match is one click away. Join the Discord, link your Embark name and take a seat in the queue." width="900"></a>
+<a href="https://discord.gg/wrreyrGnwv"><img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/cta.svg" alt="Your next match is one click away. Join the Discord, link your Embark name and take a seat in the queue." width="900"></a>
 
 <sub>Questions, bugs or ideas? Open a ticket in the Discord.</sub>
 

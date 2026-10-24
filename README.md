@@ -27,7 +27,7 @@ The script downloads the two brand fonts once into `tools/.fonts` (not committed
 
 ## The Discord invite
 
-The invite link is in `profile/README.md`, on the banner and on the closing call to action (search for `REPLACE_ME`). It is a placeholder until the real invite is set.
+The invite link is in `profile/README.md`, on the banner and on the closing call to action (search for `discord.gg`).
 
 ---
 
