@@ -4,7 +4,10 @@
 GitHub renders README images without our web fonts, so every piece of text here is converted to
 outlines with the real brand fonts (Archivo, JetBrains Mono). The colours and shapes follow the
 PUGZ design system ("Velocity"): deep navy, the cyan -> blue -> violet -> pink gradient and the
-logo's slanted strokes.
+logo's slanted strokes. The logo itself is the real mark, traced from the brand icon.
+
+Several graphics are animated with plain CSS (works inside <img>). Every animation has a visible
+resting state and switches off for people who prefer reduced motion.
 
 Usage:  pip install fonttools brotli && python3 tools/build-assets.py
 The fonts are downloaded once into tools/.fonts (not committed).
@@ -12,6 +15,7 @@ The fonts are downloaded once into tools/.fonts (not committed).
 
 from __future__ import annotations
 
+import math
 import urllib.request
 from pathlib import Path
 
@@ -29,14 +33,15 @@ CDN = "https://cdn.jsdelivr.net/npm/@fontsource-variable"
 INK_950, INK_925, INK_900, INK_850 = "#050516", "#070719", "#0d0d26", "#121233"
 TEXT, MUTED, FAINT = "#f0f0fb", "#a2a2c3", "#7c7ca0"
 CYAN, BLUE, VIOLET, VIOLET_600, PINK = "#3de3ff", "#4c6bff", "#9b5cff", "#8b4dff", "#f47cf4"
-GREEN, AMBER, INK_TEXT = "#63f0b5", "#ffcc4d", "#07071a"
-RANKS = [
-    ("Bronze", "#d79a6b"),
-    ("Silver", "#c3c8d8"),
-    ("Gold", "#ffd36b"),
-    ("Platinum", "#d6e4ff"),
-    ("Diamond", "#7fd8ff"),
-    ("Ruby", "#ff4d7d"),
+GREEN, RED, AMBER, GOLD, INK_TEXT = "#63f0b5", "#ff8fa3", "#ffcc4d", "#ffd36b", "#07071a"
+# The league colours the site uses for rank emblems (apps/web/client/src/styles.css).
+LEAGUES = [
+    ("Bronze", "B", "#d79a6b"),
+    ("Silver", "S", "#c3c8d8"),
+    ("Gold", "G", "#ffd36b"),
+    ("Platinum", "P", "#d6e4ff"),
+    ("Diamond", "D", "#7fd8ff"),
+    ("Ruby", "R", "#ff4d7d"),
 ]
 
 DISCORD_GLYPH = (
@@ -56,10 +61,24 @@ DISCORD_GLYPH = (
     "7 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z"
 )
 
-# The logo's two strokes (apps/web/client/src/brand/PugzMark.tsx), viewBox 170 290 940 730.
-MARK_VIEW = (170, 290, 940, 730)
-MARK_TOP = "M325 312 L1010 312 L1080 418 L835 742 L660 742 L800 516 L470 496 Z"
-MARK_LOW = "M482 562 L720 562 L540 868 L198 996 L470 592 Z"
+# The logo's two strokes, traced from the brand icon (pugz-icon.png) so the curves are the real
+# ones: the rounded bowl, the soft tip and the sharp counter. Image coordinates, viewBox below.
+MARK_VIEW = (180, 305, 912, 702)
+MARK_TOP = (
+    "M824 747.5C858.4 743.5 886.7 730.8 913.8 707C929 693.7 933 688.6 971.3 633.7C979.7 621.8 995.7 "
+    "598.8 1006.9 582.7C1040.5 534.7 1043 531.2 1054.7 514.1C1076.7 482.1 1085.3 459.8 1086.6 431C1089.6 "
+    "369 1048 320 984.4 310.5C972.7 308.8 347.3 308.1 341.5 309.8C322.6 315.4 314.1 333.8 323.3 349.2C328.5 "
+    "357.8 414.2 462.1 422.2 469.5C435.7 482 450.7 489.9 469.5 494.4C478.5 496.5 478.8 496.5 632.5 496.5C757.5 "
+    "496.5 787.1 496.7 789.5 497.8C799.3 502.1 803.9 513.3 799.8 523C799 524.9 774.7 562 745.8 605.5C661.4 "
+    "732.6 651.9 747.1 652.5 748.1C653.6 749.7 809.2 749.3 824 747.5Z"
+)
+MARK_LOW = (
+    "M248.5 984.2C272.2 974.9 328.4 952.7 373.5 935C498.6 885.9 492.6 888.4 507.6 878.3C524.5 867.1 534.7 "
+    "854.7 569.5 803C578.2 790.1 592.4 769.1 601 756.5C609.6 743.9 627.8 716.9 641.5 696.5C655.2 676.1 672 "
+    "651.2 678.9 641C721.5 577.7 722 576.8 722 572.2C722 566.8 719.8 562.5 715.7 560C711.3 557.3 534.1 556.9 "
+    "520.1 559.5C494.9 564.3 474.5 575.4 456.8 593.9C448.7 602.4 441.1 613.3 390.5 689.5C323.4 790.5 297.6 "
+    "829.4 252 898.5C182.9 1003.2 187.8 994.9 192.6 999.7C197 1004.1 201.1 1003 248.5 984.2Z"
+)
 
 
 # --- Text as outlines -----------------------------------------------------------------------------
@@ -91,8 +110,7 @@ class Face:
         scale = size / self.upem
         pen_x, parts = x, []
         for ch in text:
-            name = self._glyph(ch)
-            glyph = self.glyphs[name]
+            glyph = self.glyphs[self._glyph(ch)]
             pen = SVGPathPen(self.glyphs, ntos=lambda v: f"{v:.1f}".rstrip("0").rstrip("."))
             glyph.draw(TransformPen(pen, (scale, 0, 0, -scale, pen_x, y)))
             parts.append(pen.getCommands())
@@ -120,6 +138,7 @@ HEADING = Face("archivo", "archivo-latin-wdth-normal.woff2", {"wght": 700, "wdth
 BODY = Face("archivo", "archivo-latin-wdth-normal.woff2", {"wght": 500, "wdth": 100})
 BODY_BOLD = Face("archivo", "archivo-latin-wdth-normal.woff2", {"wght": 700, "wdth": 100})
 LABEL = Face("archivo", "archivo-latin-wdth-normal.woff2", {"wght": 800, "wdth": 100})
+BLACK = Face("archivo", "archivo-latin-wdth-normal.woff2", {"wght": 900, "wdth": 125})
 MONO = Face("jetbrains-mono", "jetbrains-mono-latin-wght-normal.woff2", {"wght": 600})
 
 
@@ -131,15 +150,8 @@ def text(face: Face, s: str, size: float, x: float, y: float, fill: str, *, trac
 
 
 # --- Shared SVG pieces ----------------------------------------------------------------------------
-def svg(width: int, height: int, title: str, desc: str, body: str, defs: str = "", style: str = "") -> str:
-    style_tag = f"<style>{style}</style>" if style else ""
-    return (
-        f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" '
-        f'viewBox="0 0 {width} {height}" role="img" aria-labelledby="t d">'
-        f'<title id="t">{title}</title><desc id="d">{desc}</desc>'
-        f"<defs>{GRADIENTS}{defs}</defs>{style_tag}{body}</svg>\n"
-    )
-
+REDUCED = "@media (prefers-reduced-motion:reduce){*{animation:none!important}}"
+PULSE_CSS = ".pulse{animation:pulse 2.2s ease-in-out infinite}@keyframes pulse{50%{opacity:.3}}"
 
 GRADIENTS = f"""
 <linearGradient id="brand" x1="0" y1="0" x2="1" y2="0">
@@ -159,31 +171,45 @@ GRADIENTS = f"""
 </linearGradient>
 """
 
+BLUR_FILTERS = (
+    '<filter id="glow-sm" x="-30%" y="-60%" width="160%" height="240%"><feGaussianBlur stdDeviation="9"/></filter>'
+    '<filter id="glow-lg" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="34"/></filter>'
+)
 
-def para(x: float, y: float, w: float, h: float, slant: float, **attrs: str) -> str:
+
+def svg(width: int, height: int, title: str, desc: str, body: str, defs: str = "", style: str = "") -> str:
+    style_tag = f"<style>{style}{REDUCED}</style>" if style else ""
+    return (
+        f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" '
+        f'viewBox="0 0 {width} {height}" role="img" aria-labelledby="t d">'
+        f'<title id="t">{title}</title><desc id="d">{desc}</desc>'
+        f"<defs>{GRADIENTS}{defs}</defs>{style_tag}{body}</svg>\n"
+    )
+
+
+def attrs(**kw: str) -> str:
+    return " ".join(f'{k.replace("_", "-")}="{v}"' for k, v in kw.items())
+
+
+def para(x: float, y: float, w: float, h: float, slant: float, **kw: str) -> str:
     """The brand's slanted parallelogram (a "/" lean), top edge shifted right by `slant`."""
     pts = f"{x + slant:.1f},{y:.1f} {x + w:.1f},{y:.1f} {x + w - slant:.1f},{y + h:.1f} {x:.1f},{y + h:.1f}"
-    extra = " ".join(f'{k.replace("_", "-")}="{v}"' for k, v in attrs.items())
-    return f'<polygon points="{pts}" {extra}/>'
+    return f'<polygon points="{pts}" {attrs(**kw)}/>'
 
 
-def mark(x: float, y: float, width: float, extra: str = "") -> str:
+def mark(x: float, y: float, width: float) -> str:
     vx, vy, vw, _ = MARK_VIEW
     s = width / vw
     return (
-        f'<g transform="translate({x} {y}) scale({s:.4f}) translate({-vx} {-vy})" {extra}>'
-        f'<path d="{MARK_TOP}" fill="url(#markTop)" stroke="url(#markTop)" stroke-width="26" stroke-linejoin="round"/>'
-        f'<path d="{MARK_LOW}" fill="url(#markLow)" stroke="url(#markLow)" stroke-width="26" stroke-linejoin="round"/>'
-        "</g>"
+        f'<g transform="translate({x} {y}) scale({s:.4f}) translate({-vx} {-vy})">'
+        f'<path d="{MARK_LOW}" fill="url(#markLow)"/><path d="{MARK_TOP}" fill="url(#markTop)"/></g>'
     )
 
 
 def button(x: float, y: float, label: str, w: float = 196, h: float = 46) -> str:
     """The primary button: brand-button fill, ink text, violet glow."""
-    size = 15
+    size, icon, gap = 15, 20, 10
     label_w = LABEL.width(label, size, 0.01)
-    icon = 20
-    gap = 10
     start = x + (w - (icon + gap + label_w)) / 2
     return (
         f'<rect x="{x}" y="{y + 6}" width="{w}" height="{h}" rx="12" fill="{VIOLET}" opacity=".45" filter="url(#glow-sm)"/>'
@@ -194,24 +220,16 @@ def button(x: float, y: float, label: str, w: float = 196, h: float = 46) -> str
     )
 
 
-BLUR_FILTERS = (
-    '<filter id="glow-sm" x="-30%" y="-60%" width="160%" height="240%"><feGaussianBlur stdDeviation="9"/></filter>'
-    '<filter id="glow-lg" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="34"/></filter>'
-)
-
-
-def tag(x: float, y: float, label: str, color: str, *, h: float = 24, dot: bool = False) -> tuple[str, float]:
+def tag(x: float, y: float, label: str, color: str, *, h: float = 24, dot: bool = False, size: float = 10.5,
+        cls: str = "") -> tuple[str, float]:
     """A slanted tag with tinted fill; returns (svg, width)."""
-    size = 10.5
     label_w = LABEL.width(label, size, 0.16)
     pad = 14 + (14 if dot else 0)
     w = label_w + pad * 2
-    shape = para(x, y, w, h, 6, fill=color, fill_opacity=".14", stroke=color, stroke_opacity=".45", stroke_width="1")
-    tx = x + pad + (14 if dot else 0)
-    parts = [shape]
+    parts = [para(x, y, w, h, 6, fill=color, fill_opacity=".14", stroke=color, stroke_opacity=".45", stroke_width="1")]
     if dot:
         parts.append(f'<circle class="pulse" cx="{x + pad + 3:.1f}" cy="{y + h / 2:.1f}" r="3.5" fill="{color}"/>')
-    parts.append(text(LABEL, label, size, tx, y + h / 2 + size * LABEL.cap / 2, color, tracking=0.16))
+    parts.append(text(LABEL, label, size, x + pad + (14 if dot else 0), y + h / 2 + size * LABEL.cap / 2, color, tracking=0.16))
     return "".join(parts), w
 
 
@@ -222,16 +240,50 @@ def panel(w: int, h: int, fill: str = INK_950, radius: int = 24) -> str:
     )
 
 
-def hairline(x: float, y: float, w: float = 64) -> str:
-    return f'<rect x="{x}" y="{y}" width="{w}" height="2" fill="url(#brand)"/>'
+def card(x: float, y: float, w: float, h: float, radius: int = 14, fill: str = INK_900) -> str:
+    return (
+        f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="{radius}" fill="{fill}" stroke="#fff" stroke-opacity=".08"/>'
+        f'<rect x="{x + radius}" y="{y + 1}" width="48" height="2" fill="url(#brand)"/>'
+    )
+
+
+def star(cx: float, cy: float, r: float) -> str:
+    pts = []
+    for i in range(10):
+        a = -math.pi / 2 + i * math.pi / 5
+        rad = r if i % 2 == 0 else r * 0.42
+        pts.append(f"{cx + rad * math.cos(a):.1f},{cy + rad * math.sin(a):.1f}")
+    return " ".join(pts)
+
+
+def smooth(points: list[tuple[float, float]]) -> str:
+    """A smooth line through the points (Catmull-Rom converted to cubic Beziers)."""
+    d = f"M{points[0][0]:.1f} {points[0][1]:.1f}"
+    for i in range(len(points) - 1):
+        p0 = points[max(i - 1, 0)]
+        p1, p2 = points[i], points[i + 1]
+        p3 = points[min(i + 2, len(points) - 1)]
+        c1 = (p1[0] + (p2[0] - p0[0]) / 6, p1[1] + (p2[1] - p0[1]) / 6)
+        c2 = (p2[0] - (p3[0] - p1[0]) / 6, p2[1] - (p3[1] - p1[1]) / 6)
+        d += f"C{c1[0]:.1f} {c1[1]:.1f} {c2[0]:.1f} {c2[1]:.1f} {p2[0]:.1f} {p2[1]:.1f}"
+    return d
+
+
+def cycle_css(names: str, count: int, seconds: float) -> str:
+    """CSS that lights element `.{names}0..N` one after another, in a loop (resting state: hidden)."""
+    step = seconds / count
+    rules = "".join(f".{names}{i}{{animation-delay:{i * step:.2f}s}}" for i in range(count))
+    return (
+        f".{names}{{opacity:0;animation:{names}Act {seconds}s ease-in-out infinite}}{rules}"
+        f"@keyframes {names}Act{{0%{{opacity:0}}5%{{opacity:1}}{int(100 / count) - 4}%{{opacity:1}}{int(100 / count)}%{{opacity:0}}100%{{opacity:0}}}}"
+    )
 
 
 # --- Assets ---------------------------------------------------------------------------------------
 def banner() -> str:
     w, h = 900, 400
     left = 48
-    word = "PUGZ"
-    word_size = 118
+    word, word_size = "PUGZ", 118
     word_w = DISPLAY.width(word, word_size, -0.025)
     shafts = "".join(
         f'<g class="shaft s{i}">{para(x, -20, sw, h + 40, 150, fill="url(#shaftFill)", opacity=op)}</g>'
@@ -239,10 +291,21 @@ def banner() -> str:
     )
     live, live_w = tag(left, 38, "LAUNCHING SOON", AMBER, dot=True)
     comm, _ = tag(left + live_w + 10, 38, "COMMUNITY PUGS", CYAN)
-    sub1 = "Queue on Discord. Play fair matches. Climb a rating"
-    sub2 = "that means something. Built for THE FINALS."
+    vx, vy, vw, vh = MARK_VIEW
+    mx, my, mw = 566, 84, 300
+    s = mw / vw
+    mark_inner = (
+        f'<g transform="translate({mx} {my}) scale({s:.4f}) translate({-vx} {-vy})">'
+        f'<path d="{MARK_LOW}" fill="url(#markLow)"/><path d="{MARK_TOP}" fill="url(#markTop)"/>'
+        '<g clip-path="url(#markClip)"><rect class="sheen" x="0" y="250" width="260" height="900" fill="url(#sheenFill)"/></g></g>'
+    )
+    glow_inner = (
+        f'<g transform="translate({mx} {my}) scale({s:.4f}) translate({-vx} {-vy})">'
+        f'<path d="{MARK_LOW}" fill="url(#markLow)"/><path d="{MARK_TOP}" fill="url(#markTop)"/></g>'
+    )
     body = (
         f'<clipPath id="card"><rect width="{w}" height="{h}" rx="24"/></clipPath>'
+        f'<clipPath id="markClip"><path d="{MARK_LOW}"/><path d="{MARK_TOP}"/></clipPath>'
         f'<rect width="{w}" height="{h}" rx="24" fill="{INK_950}"/>'
         '<g clip-path="url(#card)">'
         f'<circle cx="90" cy="20" r="260" fill="{CYAN}" opacity=".16" filter="url(#glow-lg)"/>'
@@ -251,14 +314,14 @@ def banner() -> str:
         f"{shafts}"
         f'<g opacity=".9">{para(560, 52, 250, 296, 70, fill="none", stroke="#fff", stroke_opacity=".07", stroke_width="1.5")}'
         f'{para(600, 52, 250, 296, 70, fill="none", stroke="#fff", stroke_opacity=".05", stroke_width="1.5")}</g>'
-        f'<g opacity=".55" filter="url(#glow-lg)">{mark(560, 90, 300)}</g>'
-        f'{mark(560, 90, 300)}'
+        f'<g opacity=".55" filter="url(#glow-lg)">{glow_inner}</g>'
+        f'<g class="float">{mark_inner}</g>'
         "</g>"
         f"{live}{comm}"
         + text(DISPLAY, word, word_size, left - 4, 188, "url(#wordFill)", tracking=-0.025)
         + text(HEADING, "Pick-up games, run properly.", 27, left, 238, TEXT)
-        + text(BODY, sub1, 15, left, 274, MUTED)
-        + text(BODY, sub2, 15, left, 296, MUTED)
+        + text(BODY, "Queue on Discord. Play fair matches. Climb a rating", 15, left, 274, MUTED)
+        + text(BODY, "that means something. Built for THE FINALS.", 15, left, 296, MUTED)
         + button(left, 322, "Join the Discord")
         + f'<rect x=".5" y=".5" width="{w - 1}" height="{h - 1}" rx="23.5" fill="none" stroke="#fff" stroke-opacity=".1"/>'
     )
@@ -270,27 +333,30 @@ def banner() -> str:
         '<linearGradient id="shaftFill" x1="0" y1="0" x2="0" y2="1">'
         f'<stop offset="0" stop-color="{VIOLET}" stop-opacity="0"/><stop offset=".5" stop-color="{VIOLET}" stop-opacity=".5"/>'
         f'<stop offset="1" stop-color="{CYAN}" stop-opacity="0"/></linearGradient>'
+        '<linearGradient id="sheenFill" x1="0" y1="0" x2="1" y2="0">'
+        '<stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".5" stop-color="#fff" stop-opacity=".55"/>'
+        '<stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>'
     )
     style = (
         ".shaft{animation:drift 13s ease-in-out infinite alternate}"
         ".s2{animation-duration:17s;animation-delay:-5s}.s3{animation-duration:11s;animation-delay:-3s}"
         ".s4{animation-duration:20s;animation-delay:-9s}.s5{animation-duration:15s;animation-delay:-7s}"
-        ".pulse{animation:pulse 2.2s ease-in-out infinite}"
+        ".float{animation:float 7s ease-in-out infinite alternate}"
+        ".sheen{transform:skewX(-20deg);animation:sheen 6s ease-in-out infinite}"
         "@keyframes drift{from{transform:translateX(-26px)}to{transform:translateX(30px)}}"
-        "@keyframes pulse{50%{opacity:.3}}"
-        "@media (prefers-reduced-motion:reduce){.shaft,.pulse{animation:none}}"
+        "@keyframes float{from{transform:translateY(-7px)}to{transform:translateY(7px)}}"
+        "@keyframes sheen{0%{transform:translateX(-520px) skewX(-20deg)}55%,100%{transform:translateX(1300px) skewX(-20deg)}}"
+        + PULSE_CSS
     )
     return svg(w, h, "PUGZ", "PUGZ: pick-up games for THE FINALS, run properly. Launching soon. Join the Discord.", body, defs, style)
 
 
 def eyebrow(label: str) -> str:
     """Section label: the slash glyph, then tracked uppercase text. Violet so it reads on light and dark."""
-    size = 11
-    tracking = 0.18
-    tw = LABEL.width(label, size, tracking)
-    w, h = int(tw + 34), 22
+    size, tracking = 11, 0.18
+    w, h = int(LABEL.width(label, size, tracking) + 34), 22
     body = (
-        f'<polygon points="4,17 10,5 14,5 8,17" fill="url(#brand)"/>'
+        '<polygon points="4,17 10,5 14,5 8,17" fill="url(#brand)"/>'
         + text(LABEL, label, size, 24, 16.2, VIOLET_600, tracking=tracking)
     )
     return svg(w, h, label.title(), f"Section label: {label.title()}", body)
@@ -303,10 +369,14 @@ def divider() -> str:
         f'<stop offset="0" stop-color="{CYAN}" stop-opacity="0"/><stop offset=".2" stop-color="{CYAN}"/>'
         f'<stop offset=".5" stop-color="{VIOLET}"/><stop offset=".8" stop-color="{PINK}"/>'
         f'<stop offset="1" stop-color="{PINK}" stop-opacity="0"/></linearGradient>'
+        '<linearGradient id="glint" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity="0"/>'
+        '<stop offset=".5" stop-color="#fff"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>'
         + para(0, 3, w, 2, 0, fill="url(#fade)")
         + para(w / 2 - 22, 0, 44, 8, 6, fill=VIOLET_600)
+        + '<rect class="glint" x="-120" y="2.5" width="120" height="3" fill="url(#glint)"/>'
     )
-    return svg(w, 8, "Divider", "A thin brand-gradient divider with a slanted notch.", body)
+    style = ".glint{animation:glint 7s ease-in-out infinite}@keyframes glint{0%{transform:translateX(0)}60%,100%{transform:translateX(1020px)}}"
+    return svg(w, 8, "Divider", "A thin brand-gradient divider with a slanted notch.", body, "", style)
 
 
 FLOW = [
@@ -330,7 +400,9 @@ def flow() -> str:
         tag_svg, _ = tag(x + rw - 16 - tag_w, y + (row_h - 22) / 2, where, color, h=22)
         rows.append(
             f'<rect x="{x}" y="{y}" width="{rw}" height="{row_h}" rx="14" fill="{INK_900}" stroke="#fff" stroke-opacity=".08"/>'
-            + hairline(x + 14, y + 1, 48)
+            f'<g class="step step{i}"><rect x="{x}" y="{y}" width="{rw}" height="{row_h}" rx="14" fill="{VIOLET}" fill-opacity=".1" stroke="url(#brand)" stroke-width="1.5"/>'
+            f"{para(x + 4, y + 10, 6, row_h - 20, 2, fill='url(#brand)')}</g>"
+            + f'<rect x="{x + 14}" y="{y + 1}" width="48" height="2" fill="url(#brand)"/>'
             + para(x + 16, y + (row_h - 34) / 2, 58, 34, 8, fill=VIOLET_600, fill_opacity=".2", stroke=VIOLET, stroke_opacity=".5")
             + text(MONO, num, 15, x + 16 + 29, y + row_h / 2 + 5.3, CYAN, anchor="middle")
             + text(HEADING, title, 18, x + 92, y + 26, TEXT)
@@ -338,33 +410,280 @@ def flow() -> str:
             + tag_svg
         )
     body = panel(w, h, INK_925) + "".join(rows)
-    return svg(w, h, "How a match works", "Five steps: queue, lobby, match, result, rank. " + " ".join(f"{t}: {d}" for _, t, d, _ in FLOW), body)
+    return svg(w, h, "How a match works", "Five steps: queue, lobby, match, result, rank. " + " ".join(f"{t}: {d}" for _, t, d, _ in FLOW),
+               body, "", cycle_css("step", len(FLOW), 10))
 
 
-def ranks() -> str:
+def rating() -> str:
+    """The PUG rating: the real rules (ADR 0040) drawn like the profile's PUG card."""
+    w, h = 900, 336
+    d = DISPLAY
+    # Left: the starting rating.
+    left = (
+        text(LABEL, "PUG RATING", 11, 48, 62, MUTED, tracking=0.14)
+        + text(d, "1,000", 76, 44, 140, "url(#numFill)", tracking=-0.025)
+        + text(BODY, "Every season starts here.", 14, 48, 166, MUTED)
+    )
+    # Right: an illustrative rating line, the way the profile draws it.
+    cx0, cx1, cy0, cy1 = 372, 852, 56, 168
+    ys = [0.46, 0.4, 0.52, 0.6, 0.55, 0.66, 0.7, 0.62, 0.74, 0.8, 0.77, 0.9]
+    pts = [(cx0 + (cx1 - cx0) * i / (len(ys) - 1), cy1 - (cy1 - cy0) * v) for i, v in enumerate(ys)]
+    line = smooth(pts)
+    area = f"{line}L{pts[-1][0]:.1f} {cy1 + 8}L{pts[0][0]:.1f} {cy1 + 8}Z"
+    grid = "".join(
+        f'<line x1="{cx0}" x2="{cx1}" y1="{y}" y2="{y}" stroke="#fff" stroke-opacity=".07" stroke-dasharray="3 5"/>'
+        for y in (cy0 + 8, (cy0 + cy1) / 2, cy1)
+    )
+    chart = (
+        text(LABEL, "RATING THIS SEASON", 11, cx0, 40, MUTED, tracking=0.14)
+        + grid
+        + f'<path class="fillfade" d="{area}" fill="url(#areaFill)"/>'
+        + f'<path class="drawline" pathLength="1" d="{line}" fill="none" stroke="url(#brand)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>'
+        + f'<g class="enddot"><circle cx="{pts[-1][0]:.1f}" cy="{pts[-1][1]:.1f}" r="9" fill="{PINK}" opacity=".25"/>'
+        f'<circle cx="{pts[-1][0]:.1f}" cy="{pts[-1][1]:.1f}" r="4.5" fill="{PINK}" stroke="{INK_925}" stroke-width="2"/></g>'
+    )
+    # Bottom: the three rules that decide how far a result moves you.
+    tiles_data = [
+        ("×1.0", "2–0 RESULT", "The full move, up or down."),
+        ("×0.7", "2–1 RESULT", "A close match moves you less."),
+        ("×1.5", "FIRST 10 MATCHES", "Placements move faster."),
+    ]
+    tw, tgap, ty, th = (w - 96 - 2 * 14) / 3, 14, 202, 100
+    tiles = ""
+    for i, (val, label, hint) in enumerate(tiles_data):
+        x = 48 + i * (tw + tgap)
+        tiles += (
+            f'<rect x="{x}" y="{ty}" width="{tw}" height="{th}" rx="14" fill="#fff" fill-opacity=".03" stroke="#fff" stroke-opacity=".06"/>'
+            + text(MONO, val, 26, x + 18, ty + 40, TEXT)
+            + text(LABEL, label, 11, x + 18, ty + 62, MUTED, tracking=0.14)
+            + text(BODY, hint, 13, x + 18, ty + 84, FAINT)
+        )
+    body = panel(w, h, INK_925) + card(1, 1, w - 2, h - 2, 24, "none") + left + chart + tiles
+    defs = (
+        f'<linearGradient id="numFill" gradientUnits="userSpaceOnUse" x1="48" y1="0" x2="300" y2="0">'
+        f'<stop offset="0" stop-color="{CYAN}"/><stop offset=".45" stop-color="{BLUE}"/><stop offset="1" stop-color="{PINK}"/></linearGradient>'
+        f'<linearGradient id="areaFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="{VIOLET}" stop-opacity=".38"/>'
+        f'<stop offset="1" stop-color="{VIOLET}" stop-opacity="0"/></linearGradient>'
+    )
+    style = (
+        ".drawline{animation:draw 9s ease-in-out infinite}"
+        ".fillfade{animation:fillfade 9s ease-in-out infinite}.enddot{animation:enddot 9s ease-in-out infinite}"
+        "@keyframes draw{0%{stroke-dasharray:1;stroke-dashoffset:1;opacity:1}38%{stroke-dasharray:1;stroke-dashoffset:0}"
+        "88%{stroke-dasharray:1;stroke-dashoffset:0;opacity:1}97%{stroke-dasharray:1;stroke-dashoffset:0;opacity:0}"
+        "100%{stroke-dasharray:1;stroke-dashoffset:1;opacity:0}}"
+        "@keyframes fillfade{0%,8%{opacity:0}40%{opacity:1}88%{opacity:1}97%,100%{opacity:0}}"
+        "@keyframes enddot{0%,36%{opacity:0}42%{opacity:1}88%{opacity:1}97%,100%{opacity:0}}"
+    )
+    return svg(w, h, "The PUG rating", "The PUG rating starts at 1,000 every season. A 2-0 result moves it by the full amount, a 2-1 by 0.7 of it, and your first 10 matches of a season move it 1.5 times faster. Illustration of a rating line over a season.", body, defs, style)
+
+
+def leagues() -> str:
+    """THE FINALS leagues as the profile shows them: slanted emblem, then the league written out."""
     w, h = 900, 150
     items = []
     start, step = 48, 136
-    for i, (name, color) in enumerate(RANKS):
+    for i, (name, letter, color) in enumerate(LEAGUES):
         x = start + i * step
+        grad = f"em{i}"
         items.append(
-            para(x, 96, 14, 22, 5, fill=color)
-            + text(BODY_BOLD, name, 14, x + 26, 112, color)
+            f'<linearGradient id="{grad}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".7"/>'
+            f'<stop offset="1" stop-color="{color}"/></linearGradient>'
         )
+        items.append(
+            f'<g class="gem gem{i}">{para(x - 3, 91, 50, 44, 10, fill=color, opacity=".45", filter="url(#glow-sm)")}</g>'
+            + para(x, 94, 44, 38, 9, fill=f"url(#{grad})")
+            + text(BLACK, letter, 17, x + 22, 119.5, INK_TEXT, anchor="middle")
+            + text(BODY_BOLD, name, 13.5, x + 54, 118.5, color)
+        )
+    gems_defs = "".join(i for i in items if i.startswith("<linearGradient"))
+    gems = "".join(i for i in items if not i.startswith("<linearGradient"))
     body = (
         panel(w, h, INK_925)
-        + hairline(24, 1, 64)
-        + text(HEADING, "Every rank, one community.", 22, 48, 54, TEXT)
-        + text(BODY, "From Bronze to Ruby. Your THE FINALS rank sits on your profile, next to its name.", 14, 48, 78, MUTED)
-        + "".join(items)
+        + card(1, 1, w - 2, h - 2, 24, "none")
+        + text(HEADING, "Your THE FINALS rank sits next to it.", 21, 48, 50, TEXT)
+        + text(BODY, "Your league shows on your profile and the leaderboard, always with its name written out.", 14, 48, 74, MUTED)
+        + gems
     )
-    return svg(w, h, "Every rank, one community", "Bronze, Silver, Gold, Platinum, Diamond and Ruby ranks are shown on player profiles.", body)
+    style = (
+        ".gem{opacity:.0;animation:gem 7.2s ease-in-out infinite}"
+        + "".join(f".gem{i}{{animation-delay:{i * 0.6:.1f}s}}" for i in range(6))
+        + "@keyframes gem{0%{opacity:0}10%{opacity:1}28%{opacity:0}100%{opacity:0}}"
+    )
+    return svg(w, h, "Your THE FINALS rank sits next to your rating", "The six THE FINALS leagues, Bronze, Silver, Gold, Platinum, Diamond and Ruby, shown as rank emblems.", body, BLUR_FILTERS + gems_defs, style)
+
+
+def tournaments() -> str:
+    w, h = 900, 400
+    # Stage stepper along the top: the real tournament states.
+    stages = [("REGISTRATION", CYAN), ("CHECK-IN", VIOLET), ("LIVE", GREEN), ("COMPLETED", GOLD)]
+    x, stepper, overlays = 48, "", ""
+    for i, (label, color) in enumerate(stages):
+        base, tw = tag(x, 26, label, color, h=26, dot=(label == "LIVE"), size=10.5)
+        stepper += base
+        overlays += f'<g class="stage stage{i}">{para(x - 2, 24, tw + 4, 30, 6, fill=color, fill_opacity=".28", stroke=color, stroke_width="1.5")}</g>'
+        x += tw + 26
+        if i < len(stages) - 1:
+            stepper += f'<polyline points="{x - 20},{39} {x - 12},{39} {x - 16},{35} {x - 12},{39} {x - 16},{43}" fill="none" stroke="{FAINT}" stroke-width="1.5" stroke-linecap="round"/>'
+    # Bracket: 8 seeds, quarter-finals -> semi-finals -> final -> champion.
+    sw, sh = 168, 26
+    cols = [48, 262, 476]
+    top, pitch = 92, 68
+    qf = [top + i * pitch + 28 for i in range(4)]  # centres of the four quarter-finals
+    sf = [(qf[0] + qf[1]) / 2, (qf[2] + qf[3]) / 2]
+    fn = (sf[0] + sf[1]) / 2
+    seeds = [("Seed 1", "Seed 8"), ("Seed 4", "Seed 5"), ("Seed 3", "Seed 6"), ("Seed 2", "Seed 7")]
+    winners = {"qf": [0, 1, 0, 0]}
+
+    def slot(xx: float, cy: float, label: str, hot: bool, placeholder: bool = False) -> str:
+        yy = cy - sh / 2
+        stroke = 'url(#brand)' if hot else "#fff"
+        sop = "1" if hot else ".1"
+        fill = f'<rect x="{xx}" y="{yy}" width="{sw}" height="{sh}" rx="8" fill="{INK_900}" stroke="{stroke}" stroke-opacity="{sop}" stroke-width="{1.4 if hot else 1}"/>'
+        col = TEXT if hot else (FAINT if placeholder else MUTED)
+        return fill + text(BODY_BOLD, label, 12, xx + 12, cy + 4.2, col)
+
+    lines_dim, lines_hot, slots = "", "", ""
+    for i, (a, b) in enumerate(seeds):
+        c = qf[i]
+        win = winners["qf"][i]
+        slots += slot(cols[0], c - 15, a, win == 0) + slot(cols[0], c + 15, b, win == 1)
+        # connector to the semi-final
+        target = sf[i // 2]
+        mid = cols[0] + sw + 22
+        path = f"M{cols[0] + sw} {c - 15 + (30 if win else 0)}H{mid}V{target - (15 if i % 2 == 0 else -15)}H{cols[1]}"
+        if i == 0:
+            lines_hot += f'<path d="{path}" class="flow" fill="none" stroke="url(#brand)" stroke-width="2" stroke-dasharray="7 6"/>'
+        else:
+            lines_dim += f'<path d="{path}" fill="none" stroke="#fff" stroke-opacity=".14" stroke-width="1.5"/>'
+    semis = [("Seed 1", "Seed 5"), ("Seed 3", "Seed 2")]
+    for j, (a, b) in enumerate(semis):
+        c = sf[j]
+        slots += slot(cols[1], c - 15, a, j == 0) + slot(cols[1], c + 15, b, False)
+        target = fn
+        mid = cols[1] + sw + 22
+        path = f"M{cols[1] + sw} {c - 15}H{mid}V{target - (15 if j == 0 else -15)}H{cols[2]}"
+        if j == 0:
+            lines_hot += f'<path d="{path}" class="flow" fill="none" stroke="url(#brand)" stroke-width="2" stroke-dasharray="7 6"/>'
+        else:
+            lines_dim += f'<path d="{path}" fill="none" stroke="#fff" stroke-opacity=".14" stroke-width="1.5"/>'
+    slots += slot(cols[2], fn - 15, "Seed 1", True) + slot(cols[2], fn + 15, "Winner SF2", False, True)
+    champ_x = cols[2] + sw + 44
+    # A flat line has no bounding box, so a gradient can't paint it: this last leg is gold.
+    lines_hot += f'<path d="M{cols[2] + sw} {fn - 15}H{champ_x}" class="flow" fill="none" stroke="{GOLD}" stroke-width="2" stroke-dasharray="7 6"/>'
+    live_tag, _ = tag(cols[1], sf[1] - 15 - sh / 2 - 26, "LIVE", GREEN, h=20, dot=True, size=9.5)
+    # Round labels.
+    labels = "".join(
+        text(LABEL, name, 10.5, x0, 80, FAINT, tracking=0.16)
+        for name, x0 in (("QUARTER-FINALS", cols[0]), ("SEMI-FINALS", cols[1]), ("FINAL", cols[2]))
+    )
+    # Champion card.
+    cw, ch = 900 - champ_x - 40, 104
+    cy = fn - ch / 2
+    champion = (
+        f'<rect x="{champ_x}" y="{cy}" width="{cw}" height="{ch}" rx="14" fill="{INK_900}" stroke="{GOLD}" stroke-opacity=".5"/>'
+        f'<rect x="{champ_x + 14}" y="{cy + 1}" width="48" height="2" fill="{GOLD}"/>'
+        + para(champ_x + 16, cy + 22, 22, 26, 6, fill=GOLD)
+        + text(LABEL, "CHAMPION", 11, champ_x + 48, cy + 40, GOLD, tracking=0.16)
+        + "".join(text(BODY, line, 12, champ_x + 16, cy + 68 + i * 16, MUTED) for i, line in enumerate(BODY.wrap("Recorded on every profile, forever.", 12, cw - 32)))
+    )
+    body = panel(w, h, INK_925) + stepper + overlays + labels + lines_dim + lines_hot + slots + live_tag + champion
+    style = (
+        cycle_css("stage", len(stages), 8)
+        + ".flow{animation:flow 1.4s linear infinite}@keyframes flow{to{stroke-dashoffset:-26}}"
+        + PULSE_CSS
+    )
+    return svg(w, h, "Tournaments", "A tournament moves from registration to check-in to live to completed. A bracket of eight seeds runs quarter-finals, semi-finals and a final, and the champion is recorded on every profile.", body, "", style)
+
+
+def coaching() -> str:
+    w, h = 900, 372
+    # Left: a coach card.
+    lx, ly, lw, lh = 40, 36, 400, 236
+    left = card(lx, ly, lw, lh)
+    avatar = (
+        f'<circle cx="{lx + 54}" cy="{ly + 58}" r="29" fill="none" stroke="url(#brand)" stroke-width="3"/>'
+        f'<circle cx="{lx + 54}" cy="{ly + 58}" r="26" fill="{INK_850}"/>'
+        + mark(lx + 38, ly + 46, 32)
+    )
+    verified, _ = tag(lx + 100, ly + 62, "VERIFIED", CYAN, h=20, size=9.5)
+    star_row = "".join(
+        f'<g class="star star{i}"><polygon points="{star(lx + 112 + i * 22, ly + 122, 9)}" fill="{GOLD}"/></g>'
+        f'<polygon points="{star(lx + 112 + i * 22, ly + 122, 9)}" fill="none" stroke="{GOLD}" stroke-opacity=".5" stroke-width="1.2"/>'
+        for i in range(5)
+    )
+    chips, cx, cy_ = "", lx + 24, ly + 152
+    for label in ["Light", "Medium", "Heavy", "Aim", "Game sense", "Team play", "VOD review"]:
+        cw_ = BODY_BOLD.width(label, 11.5) + 22
+        if cx + cw_ > lx + lw - 20:
+            cx, cy_ = lx + 24, cy_ + 30
+        chips += (
+            f'<rect x="{cx}" y="{cy_}" width="{cw_}" height="24" rx="12" fill="#fff" fill-opacity=".05" stroke="#fff" stroke-opacity=".12"/>'
+            + text(BODY_BOLD, label, 11.5, cx + 11, cy_ + 16, TEXT)
+        )
+        cx += cw_ + 8
+    left += (
+        avatar
+        + text(HEADING, "Verified coach", 19, lx + 100, ly + 52, TEXT)
+        + verified
+        + text(BODY, "Reviews", 12, lx + 24, ly + 126, MUTED)
+        + star_row
+        + text(BODY, "Only after a finished session.", 11.5, lx + 230, ly + 126, FAINT)
+        + chips
+    )
+    # Right: availability, the next free slot pulses.
+    rx, ry, rw, rh = 470, 36, 390, 236
+    right = card(rx, ry, rw, rh) + text(LABEL, "NEXT AVAILABLE", 11, rx + 24, ry + 38, MUTED, tracking=0.14)
+    days = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"]
+    taken = {(0, 1), (0, 4), (1, 0), (1, 2), (2, 3), (3, 1), (3, 5), (4, 4), (2, 6), (0, 2), (1, 6)}
+    times = ["10:00", "14:00", "18:00", "21:00"]
+    gx0, gy0, cellw, cellh, gapx, gapy = rx + 78, ry + 58, 34, 28, 6, 8
+    for j, day in enumerate(days):
+        right += text(LABEL, day, 9, gx0 + j * (cellw + gapx) + cellw / 2, gy0 - 6, FAINT, tracking=0.1, anchor="middle")
+    for r, t in enumerate(times):
+        right += text(MONO, t, 11, rx + 24, gy0 + r * (cellh + gapy) + cellh / 2 + 4, FAINT)
+        for j in range(7):
+            x, y = gx0 + j * (cellw + gapx), gy0 + r * (cellh + gapy)
+            if (r, j) in taken:
+                right += f'<rect x="{x}" y="{y}" width="{cellw}" height="{cellh}" rx="7" fill="#fff" fill-opacity=".03"/>'
+            else:
+                right += f'<rect x="{x}" y="{y}" width="{cellw}" height="{cellh}" rx="7" fill="{VIOLET_600}" fill-opacity=".22" stroke="{VIOLET}" stroke-opacity=".5"/>'
+    nx, ny = gx0 + 2 * (cellw + gapx), gy0 + 0 * (cellh + gapy)
+    right += (
+        f'<g class="slot"><rect x="{nx - 2}" y="{ny - 2}" width="{cellw + 4}" height="{cellh + 4}" rx="9" fill="{CYAN}" fill-opacity=".25" stroke="{CYAN}" stroke-width="1.5"/></g>'
+        + text(LABEL, "FREE", 9, nx + cellw / 2, ny + cellh / 2 + 3.2, CYAN, tracking=0.1, anchor="middle")
+    )
+    # Bottom: the booking journey.
+    steps = ["REQUESTED", "CONFIRMED", "PAID", "COMPLETED", "REVIEWED"]
+    sx, stepper, overlays = 40, "", ""
+    total = sum(LABEL.width(s_, 10, 0.16) + 28 for s_ in steps) + 18 * (len(steps) - 1)
+    sx = (w - total) / 2
+    for i, label in enumerate(steps):
+        base, tw = tag(sx, 304, label, VIOLET if i < 4 else GOLD, h=26, size=10)
+        stepper += base
+        overlays += f'<g class="stage stage{i}">{para(sx - 2, 302, tw + 4, 30, 6, fill=CYAN, fill_opacity=".25", stroke=CYAN, stroke_width="1.5")}</g>'
+        sx += tw + 18
+        if i < len(steps) - 1:
+            stepper += f'<polyline points="{sx - 13},{317} {sx - 7},{317} {sx - 10},{314} {sx - 7},{317} {sx - 10},{320}" fill="none" stroke="{FAINT}" stroke-width="1.4" stroke-linecap="round"/>'
+    caption = text(BODY, "Pay securely on the site. Card details never touch our servers.", 13, w / 2, 352, MUTED, anchor="middle")
+    body = panel(w, h, INK_925) + left + right + stepper + overlays + caption
+    style = (
+        cycle_css("stage", len(steps), 10)
+        + ".star{animation:star 5s ease-in-out infinite backwards}"
+        + "".join(f".star{i}{{animation-delay:{i * 0.25:.2f}s}}" for i in range(5))
+        + "@keyframes star{0%{opacity:0}12%{opacity:1}80%{opacity:1}95%,100%{opacity:0}}"
+        + ".slot{animation:slot 2.4s ease-in-out infinite}@keyframes slot{50%{opacity:.35}}"
+    )
+    return svg(w, h, "Coaching", "A verified coach with specialties and reviews, a calendar showing the next free slot, and a booking that moves from requested to confirmed, paid, completed and reviewed.", body, "", style)
 
 
 def cta() -> str:
     w, h = 900, 250
     headline = "Your next match is one click away."
     size = DISPLAY.fit(headline, 31, w - 96, -0.02)
+    shafts = "".join(
+        f'<g class="shaft s{i}">{para(x, -20, sw, h + 40, 70, fill="url(#shaftFill)", opacity=op)}</g>'
+        for i, (x, sw, op) in enumerate([(120, 26, ".5"), (230, 70, ".3"), (640, 18, ".6"), (720, 90, ".28")], 1)
+    )
     body = (
         f'<clipPath id="card"><rect width="{w}" height="{h}" rx="28"/></clipPath>'
         f'<rect width="{w}" height="{h}" rx="28" fill="{INK_900}"/>'
@@ -372,16 +691,25 @@ def cta() -> str:
         f'<circle cx="160" cy="250" r="190" fill="{VIOLET}" opacity=".38" filter="url(#glow-lg)"/>'
         f'<circle cx="760" cy="10" r="190" fill="{CYAN}" opacity=".2" filter="url(#glow-lg)"/>'
         f'<circle cx="860" cy="250" r="150" fill="{PINK}" opacity=".18" filter="url(#glow-lg)"/>'
-        f'<g opacity=".8">{para(40, -10, 80, 270, 70, fill="none", stroke="#fff", stroke_opacity=".06", stroke_width="1.5")}'
-        f'{para(w - 130, -10, 80, 270, 70, fill="none", stroke="#fff", stroke_opacity=".06", stroke_width="1.5")}</g>'
-        "</g>"
+        f"{shafts}</g>"
         f'<rect x="1" y="1" width="{w - 2}" height="{h - 2}" rx="27" fill="none" stroke="url(#brand)" stroke-opacity=".55" stroke-width="1.5"/>'
         + text(LABEL, "JOIN THE COMMUNITY", 11, w / 2, 56, CYAN, tracking=0.18, anchor="middle")
         + text(DISPLAY, headline, size, w / 2, 108, TEXT, tracking=-0.02, anchor="middle")
         + text(BODY, "Join the Discord, link your Embark name and take a seat in the queue.", 15, w / 2, 144, MUTED, anchor="middle")
         + button((w - 210) / 2, 168, "Join the Discord", w=210, h=48)
     )
-    return svg(w, h, "Join the Discord", "Your next match is one click away. Join the Discord, link your Embark name and take a seat in the queue.", body, BLUR_FILTERS)
+    defs = (
+        BLUR_FILTERS
+        + '<linearGradient id="shaftFill" x1="0" y1="0" x2="0" y2="1">'
+        f'<stop offset="0" stop-color="{VIOLET}" stop-opacity="0"/><stop offset=".5" stop-color="{VIOLET}" stop-opacity=".5"/>'
+        f'<stop offset="1" stop-color="{CYAN}" stop-opacity="0"/></linearGradient>'
+    )
+    style = (
+        ".shaft{animation:drift 14s ease-in-out infinite alternate}.s2{animation-duration:18s;animation-delay:-4s}"
+        ".s3{animation-duration:12s;animation-delay:-8s}.s4{animation-duration:21s;animation-delay:-6s}"
+        "@keyframes drift{from{transform:translateX(-24px)}to{transform:translateX(28px)}}"
+    )
+    return svg(w, h, "Join the Discord", "Your next match is one click away. Join the Discord, link your Embark name and take a seat in the queue.", body, defs, style)
 
 
 def footer_wordmark() -> str:
@@ -390,9 +718,8 @@ def footer_wordmark() -> str:
     size = DISPLAY.fit(word, 300, w - 48, -0.03)
     cap = size * DISPLAY.cap
     h = int(cap + 36)
-    base = 18 + cap
     x = (w - DISPLAY.width(word, size, -0.03)) / 2
-    d = DISPLAY.outline(word, size, x, base, -0.03)
+    d = DISPLAY.outline(word, size, x, 18 + cap, -0.03)
     body = (
         f'<path d="{d}" fill="none" stroke="#fff" stroke-opacity=".12" stroke-width="1.4"/>'
         f'<path d="{d}" fill="none" stroke="url(#wordStroke)" stroke-width="2.2" stroke-linejoin="round"/>'
@@ -407,10 +734,7 @@ def footer_wordmark() -> str:
 
 def mark_file() -> str:
     vx, vy, vw, vh = MARK_VIEW
-    body = (
-        f'<path d="{MARK_TOP}" fill="url(#markTop)" stroke="url(#markTop)" stroke-width="26" stroke-linejoin="round"/>'
-        f'<path d="{MARK_LOW}" fill="url(#markLow)" stroke="url(#markLow)" stroke-width="26" stroke-linejoin="round"/>'
-    )
+    body = f'<path d="{MARK_LOW}" fill="url(#markLow)"/><path d="{MARK_TOP}" fill="url(#markTop)"/>'
     out = svg(vw, vh, "PUGZ mark", "The PUGZ P mark: two slanted strokes in the brand gradient.", body)
     return out.replace(f'viewBox="0 0 {vw} {vh}"', f'viewBox="{vx} {vy} {vw} {vh}"')
 
@@ -420,6 +744,9 @@ EYEBROWS = {
     "eyebrow-flow": "HOW A MATCH WORKS",
     "eyebrow-fair": "BUILT TO BE FAIR",
     "eyebrow-rating": "RATINGS AND SEASONS",
+    "eyebrow-teams": "TEAMS AND SCRIMS",
+    "eyebrow-tournaments": "TOURNAMENTS",
+    "eyebrow-coaching": "COACHING",
     "eyebrow-status": "WHERE WE ARE",
     "eyebrow-stack": "UNDER THE HOOD",
 }
@@ -431,15 +758,21 @@ def main() -> None:
         "banner.svg": banner(),
         "divider.svg": divider(),
         "flow.svg": flow(),
-        "ranks.svg": ranks(),
+        "rating.svg": rating(),
+        "leagues.svg": leagues(),
+        "tournaments.svg": tournaments(),
+        "coaching.svg": coaching(),
         "cta.svg": cta(),
         "wordmark.svg": footer_wordmark(),
         "pugz-mark.svg": mark_file(),
         **{f"{name}.svg": eyebrow(label) for name, label in EYEBROWS.items()},
     }
+    for stale in OUT.glob("*.svg"):
+        if stale.name not in files:
+            stale.unlink()
     for name, content in files.items():
         (OUT / name).write_text(content, encoding="utf-8")
-        print(f"{name:24s} {len(content) / 1024:6.1f} KB")
+        print(f"{name:26s} {len(content) / 1024:6.1f} KB")
 
 
 if __name__ == "__main__":

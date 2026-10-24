@@ -6,7 +6,7 @@
 
 **PUGZ** is a community for pick-up games in *THE FINALS*.<br>
 A Discord bot runs the queues, lobbies and matches. A website keeps score.<br>
-Everything in between is built to be fast, fair and restart-proof.
+Teams, tournaments and coaching grow out of the same platform. Everything is built to be fast, fair and restart-proof.
 
 <br>
 
@@ -32,6 +32,7 @@ Everything in between is built to be fast, fair and restart-proof.
 - **Live matches.** Team voice channels, team panels, substitutes and a button to call staff.
 - **Results without arguments.** One team reports, the other confirms. Disputes go to staff, who can set, void or correct a result with a reason on record.
 - **Rematches.** Run it back with the same teams or shuffled, or go straight back to the queue.
+- **Tournaments and scrims.** Sign up your team, check in, and get pinged when it is your match.
 - **Support.** Tickets in private channels, player reports with the match attached, full transcripts.
 
 </td>
@@ -43,6 +44,7 @@ Everything in between is built to be fast, fair and restart-proof.
 - **Leaderboards by season.** Podium, movement since yesterday, form and player search.
 - **Player profiles.** PUG rating, match history, your THE FINALS rank, linked Steam, Twitch and Embark accounts, and a bio.
 - **Match pages.** The full story of every game, from the pop to the final score.
+- **Teams, tournaments and coaching.** Rosters, live brackets and a coach directory, all tied to the profile you already have.
 - **A staff portal.** Manage live and finished matches, queues, bans and tickets. Access follows Discord roles, and every change lands in an audit log.
 - **One login.** Sign in with Discord. No new account to make.
 
@@ -90,7 +92,11 @@ Everything in between is built to be fast, fair and restart-proof.
 
 ## A rating that means something
 
-<img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/ranks.svg" alt="Every rank, one community. Bronze, Silver, Gold, Platinum, Diamond and Ruby." width="900">
+<img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/rating.svg" alt="The PUG rating starts at 1,000 every season. A 2-0 result moves it by the full amount, a 2-1 by 0.7 of it, and your first 10 matches of a season move it 1.5 times faster." width="900">
+
+<br><br>
+
+<img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/leagues.svg" alt="Your THE FINALS rank sits next to your rating: Bronze, Silver, Gold, Platinum, Diamond and Ruby." width="900">
 
 </div>
 
@@ -101,6 +107,97 @@ Everything in between is built to be fast, fair and restart-proof.
 - **Leaving costs you.** Leave a running match and you take the loss if your team loses.
 - **Mistakes get fixed.** Corrections, voids and late disputes recalculate the season automatically.
 - **Seasons are fresh starts.** Staff start each season, and a match counts for the season it began in, so a new season never reshuffles old results.
+
+<div align="center">
+
+<br>
+
+<img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/divider.svg" alt="" width="900">
+
+<br>
+
+<img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/eyebrow-teams.svg" alt="Teams and scrims">
+
+## Play with your people
+
+</div>
+
+<table>
+<tr>
+<td width="50%" valign="top">
+
+### Teams
+**Your squad, on the record.**
+
+- **Rosters.** A captain, players and subs, with your team tag on every profile.
+- **Team pages.** Season stats, recent matches, trophies, links and a recruiting note.
+- **Find a team.** Filter for teams that are recruiting, then apply in Discord.
+
+</td>
+<td width="50%" valign="top">
+
+### Scrims
+**Practice that counts.**
+
+- **Schedule from Discord.** Agree a time with another team and get a reminder and a ready-made match channel.
+- **Find opponents.** Match up with teams of a similar level.
+- **Everything is saved.** Every scrim lands in your team's match history.
+
+</td>
+</tr>
+</table>
+
+<div align="center">
+
+<br>
+
+<img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/divider.svg" alt="" width="900">
+
+<br>
+
+<img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/eyebrow-tournaments.svg" alt="Tournaments">
+
+## Brackets run by the bot
+
+<img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/tournaments.svg" alt="A tournament moves from registration to check-in to live to completed. A bracket of eight seeds runs quarter-finals, semi-finals and a final, and the champion is recorded on every profile." width="900">
+
+</div>
+
+<br>
+
+Community tournaments run by the bot: sign up in Discord, check in before the start, and follow every bracket on the site as results come in.
+
+- **Sign up in one click.** Register your team in Discord. Check-in opens before the start, and a waitlist holds the spare teams.
+- **Real formats.** Groups into single elimination, with live standings: wins, losses, round difference and who has qualified.
+- **Pinged when it counts.** The bot tells your team when its match is up.
+- **Live brackets.** Seeds, scores and upcoming matches on the site, updated as results land.
+- **Prizes and history.** Prize pools are shown up front. Champions are recorded on team and player profiles forever.
+
+<div align="center">
+
+<br>
+
+<img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/divider.svg" alt="" width="900">
+
+<br>
+
+<img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/eyebrow-coaching.svg" alt="Coaching">
+
+## Learn from the best
+
+<img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/coaching.svg" alt="A verified coach with specialties and reviews, a calendar showing the next free slot, and a booking that moves from requested to confirmed, paid, completed and reviewed." width="900">
+
+</div>
+
+<br>
+
+One-on-one sessions and VOD reviews with verified top players. Pick a coach, book a time and leave with a plan.
+
+- **Verified coaches.** Proven peak league, real reviews and clear specialties: Light, Medium, Heavy, aim, game sense, team play and VOD review.
+- **Book a time that works.** Live availability with the next free slot up front, and packages that say how long they run and what is included.
+- **Pay securely.** Checkout runs through Stripe, and coaches are paid out through it. Card details never touch our servers.
+- **VOD reviews.** Share a clip and get timestamped feedback.
+- **Honest reviews.** Only players who finished a session can review, and coaches can reply.
 
 <div align="center">
 
@@ -129,10 +226,10 @@ PUGZ is in **pre-launch**. The core platform is built and being tested end to en
 | Player profiles and linked accounts | Web | In testing |
 | Support tickets and transcripts | Discord, web | In testing |
 | Staff portal | Web | In testing |
-| Custom scrims | Discord, web | **Next** |
-| Teams and scrim scheduling | Discord, web | Planned |
-| Tournaments | Discord, web | Planned |
-| Coaching | Web | Planned |
+| Custom scrims | Discord, web | Planned |
+| Teams and scrim scheduling | Discord, web | In testing |
+| Tournaments | Discord, web | In progress |
+| Coaching | Web | In testing |
 
 <div align="center">
 
@@ -169,6 +266,7 @@ flowchart LR
 | **Website** | Fastify 5, React 19, Vite, Tailwind CSS v4 |
 | **Database** | PostgreSQL 18, Prisma |
 | **Background jobs** | pg-boss, running on the same database |
+| **Payments** | Stripe Connect for coaching |
 | **Quality** | vitest integration tests against a real database, including restarts and races |
 | **Designed for** | 100+ players in queues and matches at once |
 
