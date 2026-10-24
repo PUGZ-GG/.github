@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="940" height="730" viewBox="170 290 940 730" role="img" aria-labelledby="t d"><title id="t">PUGZ mark</title><desc id="d">The PUGZ P mark: two slanted strokes in the brand gradient.</desc><defs>
+<linearGradient id="brand" x1="0" y1="0" x2="1" y2="0">
+  <stop offset="0" stop-color="#3de3ff"/><stop offset=".34" stop-color="#4c6bff"/>
+  <stop offset=".66" stop-color="#9b5cff"/><stop offset="1" stop-color="#f47cf4"/>
+</linearGradient>
+<linearGradient id="button" x1="0" y1="0" x2="1" y2="0">
+  <stop offset="0" stop-color="#6fe9ff"/><stop offset=".34" stop-color="#7b8cff"/>
+  <stop offset=".66" stop-color="#b07cff"/><stop offset="1" stop-color="#f79cf7"/>
+</linearGradient>
+<linearGradient id="markTop" x1="0" y1="0" x2="1" y2=".6">
+  <stop offset="0" stop-color="#43e6ff"/><stop offset=".4" stop-color="#4c6bff"/>
+  <stop offset=".72" stop-color="#b07cff"/><stop offset="1" stop-color="#ff8af0"/>
+</linearGradient>
+<linearGradient id="markLow" x1="0" y1="1" x2="1" y2="0">
+  <stop offset="0" stop-color="#d6e0ff"/><stop offset="1" stop-color="#3b5bff"/>
+</linearGradient>
+</defs><path d="M325 312 L1010 312 L1080 418 L835 742 L660 742 L800 516 L470 496 Z" fill="url(#markTop)" stroke="url(#markTop)" stroke-width="26" stroke-linejoin="round"/><path d="M482 562 L720 562 L540 868 L198 996 L470 592 Z" fill="url(#markLow)" stroke="url(#markLow)" stroke-width="26" stroke-linejoin="round"/></svg>
