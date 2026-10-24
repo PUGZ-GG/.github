@@ -1,6 +1,6 @@
 <div align="center">
 
-<a href="https://discord.gg/Sa5j37WDR"><img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/banner.svg" alt="PUGZ. Pick-up games, run properly. Launching soon. Join the Discord." width="900"></a>
+<a href="https://discord.gg/Sa5j37WDR"><img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/banner.svg?v=d952a3e6" alt="PUGZ. Pick-up games, run properly. Launching soon. Join the Discord." width="900"></a>
 
 <br>
 
@@ -10,11 +10,11 @@ Teams, tournaments and coaching grow out of the same platform. Everything is bui
 
 <br>
 
-<img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/divider.svg" alt="" width="900">
+<img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/divider.svg?v=d319395b" alt="" width="900">
 
 <br>
 
-<img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/eyebrow-platform.svg" alt="The platform">
+<img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/eyebrow-platform.svg?v=eeaa2df6" alt="The platform">
 
 ## One community. Two surfaces. Always in sync.
 
@@ -56,21 +56,21 @@ Teams, tournaments and coaching grow out of the same platform. Everything is bui
 
 <br>
 
-<img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/eyebrow-flow.svg" alt="How a match works">
+<img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/eyebrow-flow.svg?v=2b23bc1d" alt="How a match works">
 
 ## From queue to leaderboard
 
-<img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/flow.svg" alt="How a match works. 1. Queue: join from Discord or the site. 2. Lobby: the queue pops, join the voice channel to ready up, then vote the map. 3. Match: team voice channels, a host and a lobby code. 4. Result: one team reports, the other confirms, disputes go to staff. 5. Rank: your rating, the season and the leaderboard move with every result." width="900">
+<img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/flow.svg?v=eeba9a46" alt="How a match works. 1. Queue: join from Discord or the site. 2. Lobby: the queue pops, join the voice channel to ready up, then vote the map. 3. Match: team voice channels, a host and a lobby code. 4. Result: one team reports, the other confirms, disputes go to staff. 5. Rank: your rating, the season and the leaderboard move with every result." width="900">
 
 <sub>Every step is recorded. If the bot restarts mid-match, it picks up exactly where it left off.</sub>
 
 <br><br>
 
-<img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/divider.svg" alt="" width="900">
+<img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/divider.svg?v=d319395b" alt="" width="900">
 
 <br>
 
-<img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/eyebrow-fair.svg" alt="Built to be fair">
+<img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/eyebrow-fair.svg?v=e0b407e2" alt="Built to be fair">
 
 ## Fair by design, not by promise
 
@@ -88,15 +88,15 @@ Teams, tournaments and coaching grow out of the same platform. Everything is bui
 
 <br>
 
-<img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/eyebrow-rating.svg" alt="Ratings and seasons">
+<img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/eyebrow-rating.svg?v=5b4fddf8" alt="Ratings and seasons">
 
 ## A rating that means something
 
-<img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/rating.svg" alt="How the PUG rating works. Each scoreline is worth its own points, beating a stronger team pays more, your first matches of a season move your rating further, and your rank changes the moment you cross a threshold." width="900">
+<img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/rating.svg?v=303f5c43" alt="How the PUG rating works. Each scoreline is worth its own points, beating a stronger team pays more, your first matches of a season move your rating further, and your rank changes the moment you cross a threshold." width="900">
 
 <br><br>
 
-<img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/tiers.svg" alt="The PUG rating ladder: Rookie below 750, Prospect 750, Contender 850, Challenger 950, Pro 1050, Elite 1150, Star 1250, All-Star 1350, Superstar 1500 and Legend 1650." width="900">
+<img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/tiers.svg?v=41348d5b" alt="The PUG rating ladder: Rookie below 750, Prospect 750, Contender 850, Challenger 950, Pro 1050, Elite 1150, Star 1250, All-Star 1350, Superstar 1500 and Legend 1650." width="900">
 
 </div>
 
@@ -114,11 +114,11 @@ Teams, tournaments and coaching grow out of the same platform. Everything is bui
 
 <br>
 
-<img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/divider.svg" alt="" width="900">
+<img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/divider.svg?v=d319395b" alt="" width="900">
 
 <br>
 
-<img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/eyebrow-teams.svg" alt="Teams and scrims">
+<img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/eyebrow-teams.svg?v=5aea2e9c" alt="Teams and scrims">
 
 ## Play with your people
 
@@ -155,15 +155,15 @@ Teams, tournaments and coaching grow out of the same platform. Everything is bui
 
 <br>
 
-<img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/divider.svg" alt="" width="900">
+<img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/divider.svg?v=d319395b" alt="" width="900">
 
 <br>
 
-<img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/eyebrow-tournaments.svg" alt="Tournaments">
+<img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/eyebrow-tournaments.svg?v=7dc8483d" alt="Tournaments">
 
 ## Brackets run by the bot
 
-<img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/tournaments.svg" alt="A tournament moves from registration to check-in to live to completed. A bracket of eight seeds runs quarter-finals, semi-finals and a final, and the champion is recorded on every profile." width="900">
+<img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/tournaments.svg?v=ed2915ae" alt="A tournament moves from registration to check-in to live to completed. A bracket of eight seeds runs quarter-finals, semi-finals and a final, and the champion is recorded on every profile." width="900">
 
 </div>
 
@@ -182,15 +182,15 @@ Community tournaments run by the bot: sign up in Discord or on the site, check i
 
 <br>
 
-<img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/divider.svg" alt="" width="900">
+<img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/divider.svg?v=d319395b" alt="" width="900">
 
 <br>
 
-<img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/eyebrow-coaching.svg" alt="Coaching">
+<img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/eyebrow-coaching.svg?v=19dd4b98" alt="Coaching">
 
 ## Learn from the best
 
-<img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/coaching.svg" alt="A verified coach with specialties and reviews, a calendar showing the next free slot, and a booking that moves from requested to confirmed, paid, completed and reviewed." width="900">
+<img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/coaching.svg?v=14771547" alt="A verified coach with specialties and reviews, a calendar showing the next free slot, and a booking that moves from requested to confirmed, paid, completed and reviewed." width="900">
 
 </div>
 
@@ -208,11 +208,11 @@ One-on-one sessions and VOD reviews with verified top players. Pick a coach, boo
 
 <br>
 
-<img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/divider.svg" alt="" width="900">
+<img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/divider.svg?v=d319395b" alt="" width="900">
 
 <br>
 
-<img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/eyebrow-status.svg" alt="Where we are">
+<img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/eyebrow-status.svg?v=be4177f2" alt="Where we are">
 
 ## Where we are
 
@@ -240,11 +240,11 @@ PUGZ is in **pre-launch**. The core platform is built and being tested end to en
 
 <br>
 
-<img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/divider.svg" alt="" width="900">
+<img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/divider.svg?v=d319395b" alt="" width="900">
 
 <br>
 
-<img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/eyebrow-stack.svg" alt="Under the hood">
+<img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/eyebrow-stack.svg?v=75a1a06c" alt="Under the hood">
 
 ## Under the hood
 
@@ -254,7 +254,7 @@ Three programs share one database. The bot is the only writer of match data, so 
 
 <div align="center">
 
-<img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/architecture.svg" alt="How PUGZ fits together. Players and staff reach the website through Cloudflare and Nginx on the main droplet, and Discord talks to the bot over its gateway. The website sends commands to the bot and gets responses back. The website, the bot and the worker share one PostgreSQL database with change notifications. The worker, on its own droplet, processes the job queue and syncs with Embark, Steam, Twitch, Stripe, Resend and Liquipedia. A nightly encrypted backup goes off-site." width="900">
+<img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/architecture.svg?v=b8d423fe" alt="How PUGZ fits together. Players and staff reach the website through Cloudflare and Nginx on the main droplet, and Discord talks to the bot over its gateway. The website sends commands to the bot and gets responses back. The website, the bot and the worker share one PostgreSQL database with change notifications. The worker, on its own droplet, processes the job queue and syncs with Embark, Steam, Twitch, Stripe, Resend and Liquipedia. A nightly encrypted backup goes off-site." width="900">
 
 </div>
 
@@ -275,13 +275,13 @@ Three programs share one database. The bot is the only writer of match data, so 
 
 <br>
 
-<a href="https://discord.gg/Sa5j37WDR"><img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/cta.svg" alt="Your next match is one click away. Join the Discord, link your Embark name and take a seat in the queue." width="900"></a>
+<a href="https://discord.gg/Sa5j37WDR"><img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/cta.svg?v=32de9f15" alt="Your next match is one click away. Join the Discord, link your Embark name and take a seat in the queue." width="900"></a>
 
 <sub>Questions, bugs or ideas? Open a ticket in the Discord.</sub>
 
 <br><br>
 
-<img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/wordmark.svg" alt="PUGZ" width="900">
+<img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/wordmark.svg?v=11237dbb" alt="PUGZ" width="900">
 
 <br>
 

@@ -170,6 +170,10 @@ def text(face: Face, s: str, size: float, x: float, y: float, fill: str, *, trac
     """Text as references to outlined glyphs, so each letter's outline is stored once per SVG."""
     width = face.width(s, size, tracking)
     pen_x = {"start": x, "middle": x - width / 2, "end": x - width}[anchor]
+    if fill.startswith("url("):
+        # A gradient has to span the whole text in one coordinate space, which shared glyph
+        # references can't do (each would sample the gradient from its own origin).
+        return f'<path d="{face.outline(s, size, pen_x, y, tracking)}" fill="{fill}" {extra}/>'
     uses = []
     for ch in s:
         gid, advance = face.glyph(ch, size)
@@ -344,8 +348,6 @@ def banner() -> str:
         f'<circle cx="700" cy="190" r="250" fill="{VIOLET}" opacity=".42" filter="url(#glow-lg)"/>'
         f'<circle cx="860" cy="400" r="170" fill="{PINK}" opacity=".2" filter="url(#glow-lg)"/>'
         f"{shafts}"
-        f'<g opacity=".9">{para(560, 52, 250, 296, 70, fill="none", stroke="#fff", stroke_opacity=".07", stroke_width="1.5")}'
-        f'{para(600, 52, 250, 296, 70, fill="none", stroke="#fff", stroke_opacity=".05", stroke_width="1.5")}</g>'
         f'<g opacity=".55" filter="url(#glow-lg)">{glow_inner}</g>'
         f'<g class="float">{mark_inner}</g>'
         "</g>"
@@ -993,6 +995,25 @@ EYEBROWS = {
 }
 
 
+def stamp_readme() -> None:
+    """Add `?v=<hash>` to every graphic in the profile README.
+
+    GitHub caches README images by URL for a long time. The hash changes whenever a graphic does, so
+    a redrawn graphic is fetched fresh instead of the old one being served from the cache.
+    """
+    readme = ROOT / "profile" / "README.md"
+    original = readme.read_text(encoding="utf-8")
+
+    def stamp(match: re.Match[str]) -> str:
+        name = match.group(1)
+        digest = hashlib.md5((OUT / f"{name}.svg").read_bytes()).hexdigest()[:8]
+        return f"profile/assets/{name}.svg?v={digest}"
+
+    stamped = re.sub(r"profile/assets/([a-z0-9-]+)\.svg(?:\?v=[0-9a-f]+)?", stamp, original)
+    if stamped != original:
+        readme.write_text(stamped, encoding="utf-8")
+
+
 def main() -> None:
     OUT.mkdir(parents=True, exist_ok=True)
     files = {
@@ -1015,6 +1036,7 @@ def main() -> None:
     for name, content in files.items():
         (OUT / name).write_text(content, encoding="utf-8")
         print(f"{name:26s} {len(content) / 1024:6.1f} KB")
+    stamp_readme()
 
 
 if __name__ == "__main__":
