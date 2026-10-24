@@ -15,8 +15,11 @@ The fonts are downloaded once into tools/.fonts (not committed).
 
 from __future__ import annotations
 
+import hashlib
 import math
+import re
 import urllib.request
+from xml.sax.saxutils import escape
 from pathlib import Path
 
 from fontTools.pens.svgPathPen import SVGPathPen
@@ -34,14 +37,19 @@ INK_950, INK_925, INK_900, INK_850 = "#050516", "#070719", "#0d0d26", "#121233"
 TEXT, MUTED, FAINT = "#f0f0fb", "#a2a2c3", "#7c7ca0"
 CYAN, BLUE, VIOLET, VIOLET_600, PINK = "#3de3ff", "#4c6bff", "#9b5cff", "#8b4dff", "#f47cf4"
 GREEN, RED, AMBER, GOLD, INK_TEXT = "#63f0b5", "#ff8fa3", "#ffcc4d", "#ffd36b", "#07071a"
-# The league colours the site uses for rank emblems (apps/web/client/src/styles.css).
-LEAGUES = [
-    ("Bronze", "B", "#d79a6b"),
-    ("Silver", "S", "#c3c8d8"),
-    ("Gold", "G", "#ffd36b"),
-    ("Platinum", "P", "#d6e4ff"),
-    ("Diamond", "D", "#7fd8ff"),
-    ("Ruby", "R", "#ff4d7d"),
+# The PUG rating ladder as it is set for the current season (PUG settings, Ratings): a name, the
+# rating it starts at and its colour. Staff can change all of it per season.
+TIERS = [  # lowest first
+    ("Rookie", "<750", "#748192", "rookie"),
+    ("Prospect", "750+", "#658CB9", "prospect"),
+    ("Contender", "850+", "#449ED7", "contender"),
+    ("Challenger", "950+", "#26B7D3", "challenger"),
+    ("Pro", "1050+", "#25CFBF", "pro"),
+    ("Elite", "1150+", "#64DE8C", "elite"),
+    ("Star", "1250+", "#98E36B", "star"),
+    ("All-Star", "1350+", "#D8DF44", "allstar"),
+    ("Superstar", "1500+", "#FFD547", "superstar"),
+    ("Legend", "1650+", "#FF7F16", "legend"),
 ]
 
 DISCORD_GLYPH = (
@@ -90,6 +98,7 @@ class Face:
         path = FONTS / filename
         if not path.exists():
             urllib.request.urlretrieve(f"{CDN}/{family}/files/{filename}", path)
+        self.tag = f"{filename}{sorted(axes.items())}"
         self.font = instancer.instantiateVariableFont(TTFont(path), axes, inplace=False)
         self.glyphs = self.font.getGlyphSet()
         self.cmap = self.font.getBestCmap()
@@ -117,6 +126,17 @@ class Face:
             pen_x += glyph.width * scale + tracking * size
         return "".join(parts)
 
+    def glyph(self, ch: str, size: float) -> tuple[str, float]:
+        """The id of an outlined glyph at the origin (defined once per SVG, see `svg`) and its advance."""
+        scale = size / self.upem
+        gid = "g" + hashlib.md5(f"{self.tag}|{size:.3f}|{ch}".encode()).hexdigest()[:8]
+        if gid not in GLYPH_DEFS:
+            glyph = self.glyphs[self._glyph(ch)]
+            pen = SVGPathPen(self.glyphs, ntos=lambda v: f"{v:.1f}".rstrip("0").rstrip("."))
+            glyph.draw(TransformPen(pen, (scale, 0, 0, -scale, 0, 0)))
+            GLYPH_DEFS[gid] = pen.getCommands()
+        return gid, self.glyphs[self._glyph(ch)].width * scale
+
     def fit(self, text: str, size: float, max_width: float, tracking: float = 0.0) -> float:
         width = self.width(text, size, tracking)
         return size if width <= max_width else size * max_width / width
@@ -133,6 +153,9 @@ class Face:
         return lines + [line] if line else lines
 
 
+GLYPH_DEFS: dict[str, str] = {}
+
+
 DISPLAY = Face("archivo", "archivo-latin-wdth-normal.woff2", {"wght": 800, "wdth": 125})
 HEADING = Face("archivo", "archivo-latin-wdth-normal.woff2", {"wght": 700, "wdth": 112})
 BODY = Face("archivo", "archivo-latin-wdth-normal.woff2", {"wght": 500, "wdth": 100})
@@ -144,9 +167,16 @@ MONO = Face("jetbrains-mono", "jetbrains-mono-latin-wght-normal.woff2", {"wght":
 
 def text(face: Face, s: str, size: float, x: float, y: float, fill: str, *, tracking: float = 0.0,
          anchor: str = "start", extra: str = "") -> str:
+    """Text as references to outlined glyphs, so each letter's outline is stored once per SVG."""
     width = face.width(s, size, tracking)
-    x0 = {"start": x, "middle": x - width / 2, "end": x - width}[anchor]
-    return f'<path d="{face.outline(s, size, x0, y, tracking)}" fill="{fill}" {extra}/>'
+    pen_x = {"start": x, "middle": x - width / 2, "end": x - width}[anchor]
+    uses = []
+    for ch in s:
+        gid, advance = face.glyph(ch, size)
+        if ch != " ":
+            uses.append(f'<use href="#{gid}" x="{pen_x:.1f}" y="{y:.1f}"/>')
+        pen_x += advance + tracking * size
+    return f'<g fill="{fill}" {extra}>{"".join(uses)}</g>'
 
 
 # --- Shared SVG pieces ----------------------------------------------------------------------------
@@ -179,11 +209,13 @@ BLUR_FILTERS = (
 
 def svg(width: int, height: int, title: str, desc: str, body: str, defs: str = "", style: str = "") -> str:
     style_tag = f"<style>{style}{REDUCED}</style>" if style else ""
+    used = sorted(set(re.findall(r'href="#(g[0-9a-f]{8})"', body)))
+    glyph_defs = "".join(f'<path id="{g}" d="{GLYPH_DEFS[g]}"/>' for g in used)
     return (
         f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" '
         f'viewBox="0 0 {width} {height}" role="img" aria-labelledby="t d">'
-        f'<title id="t">{title}</title><desc id="d">{desc}</desc>'
-        f"<defs>{GRADIENTS}{defs}</defs>{style_tag}{body}</svg>\n"
+        f'<title id="t">{escape(title)}</title><desc id="d">{escape(desc)}</desc>'
+        f"<defs>{GRADIENTS}{defs}{glyph_defs}</defs>{style_tag}{body}</svg>\n"
     )
 
 
@@ -415,18 +447,10 @@ def flow() -> str:
 
 
 def rating() -> str:
-    """The PUG rating: the real rules (ADR 0040) drawn like the profile's PUG card."""
-    w, h = 900, 336
-    d = DISPLAY
-    # Left: the starting rating.
-    left = (
-        text(LABEL, "PUG RATING", 11, 48, 62, MUTED, tracking=0.14)
-        + text(d, "1,000", 76, 44, 140, "url(#numFill)", tracking=-0.025)
-        + text(BODY, "Every season starts here.", 14, 48, 166, MUTED)
-    )
-    # Right: an illustrative rating line, the way the profile draws it.
-    cx0, cx1, cy0, cy1 = 372, 852, 56, 168
-    ys = [0.46, 0.4, 0.52, 0.6, 0.55, 0.66, 0.7, 0.62, 0.74, 0.8, 0.77, 0.9]
+    """How the PUG rating works (ADR 0040, 0042, 0048): drawn like the profile's rating chart."""
+    w, h = 900, 350
+    cx0, cx1, cy0, cy1 = 48, 852, 74, 166
+    ys = [0.42, 0.36, 0.5, 0.58, 0.52, 0.64, 0.7, 0.6, 0.74, 0.8, 0.76, 0.9]
     pts = [(cx0 + (cx1 - cx0) * i / (len(ys) - 1), cy1 - (cy1 - cy0) * v) for i, v in enumerate(ys)]
     line = smooth(pts)
     area = f"{line}L{pts[-1][0]:.1f} {cy1 + 8}L{pts[0][0]:.1f} {cy1 + 8}Z"
@@ -435,33 +459,32 @@ def rating() -> str:
         for y in (cy0 + 8, (cy0 + cy1) / 2, cy1)
     )
     chart = (
-        text(LABEL, "RATING THIS SEASON", 11, cx0, 40, MUTED, tracking=0.14)
+        text(LABEL, "RATING THIS SEASON", 11, cx0, 50, MUTED, tracking=0.14)
         + grid
         + f'<path class="fillfade" d="{area}" fill="url(#areaFill)"/>'
         + f'<path class="drawline" pathLength="1" d="{line}" fill="none" stroke="url(#brand)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>'
         + f'<g class="enddot"><circle cx="{pts[-1][0]:.1f}" cy="{pts[-1][1]:.1f}" r="9" fill="{PINK}" opacity=".25"/>'
         f'<circle cx="{pts[-1][0]:.1f}" cy="{pts[-1][1]:.1f}" r="4.5" fill="{PINK}" stroke="{INK_925}" stroke-width="2"/></g>'
     )
-    # Bottom: the three rules that decide how far a result moves you.
-    tiles_data = [
-        ("×1.0", "2–0 RESULT", "The full move, up or down."),
-        ("×0.7", "2–1 RESULT", "A close match moves you less."),
-        ("×1.5", "FIRST 10 MATCHES", "Placements move faster."),
+    rules = [
+        ("01", "Every scoreline", "2-0 and 2-1 wins, 1-2 and 0-2 losses. Each is worth its own points."),
+        ("02", "Upsets pay", "Beat a stronger team and you gain more. Staff tune how much."),
+        ("03", "Fast placements", "Your first matches of a season move your rating further."),
+        ("04", "Exact ranks", "Cross a threshold and your rank changes right away."),
     ]
-    tw, tgap, ty, th = (w - 96 - 2 * 14) / 3, 14, 202, 100
+    gap = 12
+    tw, ty, th = (w - 96 - 3 * gap) / 4, 204, 126
     tiles = ""
-    for i, (val, label, hint) in enumerate(tiles_data):
-        x = 48 + i * (tw + tgap)
+    for i, (num, title, hint) in enumerate(rules):
+        x = 48 + i * (tw + gap)
         tiles += (
             f'<rect x="{x}" y="{ty}" width="{tw}" height="{th}" rx="14" fill="#fff" fill-opacity=".03" stroke="#fff" stroke-opacity=".06"/>'
-            + text(MONO, val, 26, x + 18, ty + 40, TEXT)
-            + text(LABEL, label, 11, x + 18, ty + 62, MUTED, tracking=0.14)
-            + text(BODY, hint, 13, x + 18, ty + 84, FAINT)
+            + text(MONO, num, 13, x + 16, ty + 28, CYAN)
+            + text(HEADING, title, 16, x + 16, ty + 52, TEXT)
+            + "".join(text(BODY, line_, 12.5, x + 16, ty + 74 + j * 16, MUTED) for j, line_ in enumerate(BODY.wrap(hint, 12.5, tw - 32)))
         )
-    body = panel(w, h, INK_925) + card(1, 1, w - 2, h - 2, 24, "none") + left + chart + tiles
+    body = panel(w, h, INK_925) + card(1, 1, w - 2, h - 2, 24, "none") + chart + tiles
     defs = (
-        f'<linearGradient id="numFill" gradientUnits="userSpaceOnUse" x1="48" y1="0" x2="300" y2="0">'
-        f'<stop offset="0" stop-color="{CYAN}"/><stop offset=".45" stop-color="{BLUE}"/><stop offset="1" stop-color="{PINK}"/></linearGradient>'
         f'<linearGradient id="areaFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="{VIOLET}" stop-opacity=".38"/>'
         f'<stop offset="1" stop-color="{VIOLET}" stop-opacity="0"/></linearGradient>'
     )
@@ -474,42 +497,260 @@ def rating() -> str:
         "@keyframes fillfade{0%,8%{opacity:0}40%{opacity:1}88%{opacity:1}97%,100%{opacity:0}}"
         "@keyframes enddot{0%,36%{opacity:0}42%{opacity:1}88%{opacity:1}97%,100%{opacity:0}}"
     )
-    return svg(w, h, "The PUG rating", "The PUG rating starts at 1,000 every season. A 2-0 result moves it by the full amount, a 2-1 by 0.7 of it, and your first 10 matches of a season move it 1.5 times faster. Illustration of a rating line over a season.", body, defs, style)
+    return svg(w, h, "How the PUG rating works", "Your PUG rating moves with every result: each scoreline is worth its own points, beating a stronger team pays more, your first matches of a season move it further, and your rank changes the moment you cross a threshold. Illustration of a rating line over a season.", body, defs, style)
 
 
-def leagues() -> str:
-    """THE FINALS leagues as the profile shows them: slanted emblem, then the league written out."""
-    w, h = 900, 150
-    items = []
-    start, step = 48, 136
-    for i, (name, letter, color) in enumerate(LEAGUES):
-        x = start + i * step
-        grad = f"em{i}"
-        items.append(
-            f'<linearGradient id="{grad}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".7"/>'
-            f'<stop offset="1" stop-color="{color}"/></linearGradient>'
+def mix(hex_color: str, other: str, t: float) -> str:
+    """`hex_color` moved `t` of the way towards `other`."""
+    a = [int(hex_color[i:i + 2], 16) for i in (1, 3, 5)]
+    b = [int(other[i:i + 2], 16) for i in (1, 3, 5)]
+    return "#" + "".join(f"{round(x + (y - x) * t):02x}" for x, y in zip(a, b))
+
+
+SHIELD_BODY = "M24 3L42 9V27C42 40 34 49 24 54C14 49 6 40 6 27V9Z"
+SPARKLE = "M24 17C25.2 24 27 26 34 28C27 30 25.2 32 24 39C22.8 32 21 30 14 28C21 26 22.8 24 24 17Z"
+WING_L = "M7 13C1 10-2 18 3 25C4 21 6 19 9 18Z"
+WING_R = "M41 13C47 10 50 18 45 25C44 21 42 19 39 18Z"
+CROWN = "M13 8L14-3L19 4L24-7L29 4L34-3L35 8Z"
+
+
+def shield(cx: float, top: float, height: float, color: str, kind: str) -> str:
+    """A rank shield in the style of the season's rank icons: tinted body, strong outline, a darker mark."""
+    s = height / 56
+    dark = mix(color, "#000000", 0.38)
+    fill = mix(color, "#ffffff", 0.58)
+    wings = kind in ("legend", "superstar", "allstar", "star", "elite")
+    glyph = {
+        "sparkle": f'<path d="{SPARKLE}" fill="{dark}"/>',
+        "chevron": f'<polyline points="14,34 24,25 34,34" fill="none" stroke="{dark}" stroke-width="4.6" stroke-linecap="round" stroke-linejoin="round"/>',
+        "chevron-low": f'<polyline points="14,36 24,27 34,36" fill="none" stroke="{dark}" stroke-width="4.6" stroke-linecap="round" stroke-linejoin="round"/>',
+        "equals": f'<rect x="15" y="23" width="18" height="4.6" rx="2.3" fill="{dark}"/><rect x="15" y="31" width="18" height="4.6" rx="2.3" fill="{dark}"/>',
+        "dash": f'<rect x="18" y="32" width="12" height="3.6" rx="1.8" fill="{dark}"/>',
+    }[{"legend": "sparkle", "superstar": "sparkle", "allstar": "sparkle", "star": "sparkle", "elite": "sparkle",
+       "pro": "sparkle", "challenger": "chevron", "contender": "equals", "prospect": "chevron-low", "rookie": "dash"}[kind]]
+    parts = ""
+    if wings:
+        parts += f'<path d="{WING_L}" fill="{color}"/><path d="{WING_R}" fill="{color}"/>'
+    if kind == "legend":
+        parts += f'<path d="{CROWN}" fill="{color}"/>'
+    parts += f'<path d="{SHIELD_BODY}" fill="{fill}" stroke="{color}" stroke-width="3.4" stroke-linejoin="round"/>' + glyph
+    return f'<g transform="translate({cx - 24 * s:.1f} {top:.1f}) scale({s:.3f})">{parts}</g>'
+
+
+def tiers() -> str:
+    """The rating ladder: ten ranks, lowest to highest, each with its threshold. A highlight climbs it."""
+    w, h = 900, 372
+    n = len(TIERS)
+    col_w = (w - 96) / n
+    base, shield_h = 306, 52
+    out = [
+        text(HEADING, "Climb the ladder.", 22, 48, 54, TEXT)
+        + text(BODY, "Ranks are Discord roles. Cross a threshold and your rank changes right away.", 14, 48, 78, MUTED)
+    ]
+    glow_defs = ""
+    glows = ""
+    for i, (name, threshold, color, kind) in enumerate(TIERS):
+        cx = 48 + col_w * (i + 0.5)
+        block_h = 26 + i * 15
+        bx, by, bw = cx - col_w / 2 + 5, base - block_h, col_w - 10
+        shield_top = by - 8 - shield_h
+        out.append(
+            f'<rect x="{bx:.1f}" y="{by:.1f}" width="{bw:.1f}" height="{block_h}" rx="10" fill="{color}" fill-opacity=".09" stroke="{color}" stroke-opacity=".3"/>'
+            f'<rect x="{bx + 10:.1f}" y="{by + 1:.1f}" width="30" height="2" fill="{color}"/>'
+            + shield(cx, shield_top, shield_h, color, kind)
+            + text(BODY_BOLD, name, 12.5, cx, base + 24, color, anchor="middle")
+            + text(MONO, threshold, 11.5, cx, base + 42, MUTED, anchor="middle")
         )
-        items.append(
-            f'<g class="gem gem{i}">{para(x - 3, 91, 50, 44, 10, fill=color, opacity=".45", filter="url(#glow-sm)")}</g>'
-            + para(x, 94, 44, 38, 9, fill=f"url(#{grad})")
-            + text(BLACK, letter, 17, x + 22, 119.5, INK_TEXT, anchor="middle")
-            + text(BODY_BOLD, name, 13.5, x + 54, 118.5, color)
+        glow_defs += f'<radialGradient id="g{i}"><stop offset="0" stop-color="{color}" stop-opacity=".55"/><stop offset="1" stop-color="{color}" stop-opacity="0"/></radialGradient>'
+        glows += (
+            f'<g class="climb climb{i}"><circle cx="{cx:.1f}" cy="{shield_top + shield_h / 2:.1f}" r="46" fill="url(#g{i})"/>'
+            f'<rect x="{bx:.1f}" y="{by:.1f}" width="{bw:.1f}" height="{block_h}" rx="10" fill="{color}" fill-opacity=".16" stroke="{color}" stroke-width="1.5"/></g>'
         )
-    gems_defs = "".join(i for i in items if i.startswith("<linearGradient"))
-    gems = "".join(i for i in items if not i.startswith("<linearGradient"))
-    body = (
-        panel(w, h, INK_925)
-        + card(1, 1, w - 2, h - 2, 24, "none")
-        + text(HEADING, "Your THE FINALS rank sits next to it.", 21, 48, 50, TEXT)
-        + text(BODY, "Your league shows on your profile and the leaderboard, always with its name written out.", 14, 48, 74, MUTED)
-        + gems
+    body = panel(w, h, INK_925) + card(1, 1, w - 2, h - 2, 24, "none") + glows + "".join(out)
+    style = cycle_css("climb", n, 14)
+    return svg(w, h, "The PUG rating ladder", "Ten ranks from Rookie to Legend, set per season by staff: " + ", ".join(f"{t[0]} {t[1]}" for t in TIERS) + ". Ranks are Discord roles and change the moment your rating crosses a threshold.", body, glow_defs, style)
+
+
+# --- Architecture diagram -------------------------------------------------------------------------
+A_BLUE, A_AMBER, A_GREEN, A_VIOLET, A_RED, A_TEAL, A_GRAY = "#4c9bff", "#ffcc4d", "#3ee6a0", "#c27cff", "#ff5f7d", "#2dd4bf", "#a2a2c3"
+ARROW_KEYS = {"blue": A_BLUE, "amber": A_AMBER, "green": A_GREEN, "violet": A_VIOLET, "red": A_RED, "teal": A_TEAL, "gray": A_GRAY}
+
+
+def arrow_defs() -> str:
+    return "".join(
+        f'<marker id="m-{k}" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">'
+        f'<path d="M0 0L10 5L0 10z" fill="{c}"/></marker>'
+        for k, c in ARROW_KEYS.items()
     )
+
+
+def arrow(d: str, key: str, *, dashed: bool = False, both: bool = False, packets: bool = False, reverse: bool = False) -> str:
+    color = ARROW_KEYS[key]
+    marks = f'marker-end="url(#m-{key})"' + (f' marker-start="url(#m-{key})"' if both else "")
+    dash = ' stroke-dasharray="6 5" class="dashflow"' if dashed else ""
+    out = f'<path d="{d}" fill="none" stroke="{color}" stroke-width="2" stroke-linejoin="round" {marks}{dash}/>'
+    if packets:
+        cls = "pk pkr" if reverse else "pk"
+        out += f'<path class="{cls}" d="{d}" fill="none" stroke="#fff" stroke-opacity=".9" stroke-width="3" stroke-linecap="round" stroke-dasharray="0.1 28"/>'
+    return out
+
+
+def pill(cx: float, cy: float, label: str, key: str) -> str:
+    color = ARROW_KEYS[key]
+    pw = BODY_BOLD.width(label, 11) + 20
+    return (
+        f'<rect x="{cx - pw / 2:.1f}" y="{cy - 10}" width="{pw:.1f}" height="20" rx="10" fill="{INK_950}" stroke="{color}" stroke-opacity=".9"/>'
+        + text(BODY_BOLD, label, 11, cx, cy + 3.9, color, anchor="middle")
+    )
+
+
+def icon_users(x: float, y: float) -> str:
+    c = "#b8c4ff"
+    return (
+        f'<circle cx="{x + 10}" cy="{y + 9}" r="5.5" fill="{c}"/><path d="M{x + 1} {y + 26}C{x + 1} {y + 16} {x + 19} {y + 16} {x + 19} {y + 26}Z" fill="{c}"/>'
+        f'<circle cx="{x + 22}" cy="{y + 11}" r="4.5" fill="{c}" opacity=".7"/><path d="M{x + 16} {y + 26}C{x + 17} {y + 19} {x + 29} {y + 19} {x + 31} {y + 26}Z" fill="{c}" opacity=".7"/>'
+    )
+
+
+def icon_cloud(x: float, y: float, color: str, solid: bool = True) -> str:
+    d = "M8 24C3 24 1 18 6 16C6 9 15 7 18 12C23 8 30 13 27 19C32 20 31 24 26 24Z"
+    paint = f'fill="{color}"' if solid else f'fill="none" stroke="{color}" stroke-width="2.2" stroke-linejoin="round"'
+    return f'<g transform="translate({x} {y - 1})"><path d="{d}" {paint}/></g>'
+
+
+def icon_discord(x: float, y: float) -> str:
+    return f'<g transform="translate({x} {y}) scale({30 / 24})"><path d="{DISCORD_GLYPH}" fill="#5865F2"/></g>'
+
+
+def icon_window(x: float, y: float) -> str:
+    return (
+        f'<rect x="{x + 1}" y="{y + 3}" width="28" height="24" rx="4" fill="none" stroke="{A_BLUE}" stroke-width="2.2"/>'
+        f'<line x1="{x + 1}" x2="{x + 29}" y1="{y + 10}" y2="{y + 10}" stroke="{A_BLUE}" stroke-width="2.2"/>'
+        f'<circle cx="{x + 6}" cy="{y + 6.6}" r="1.2" fill="{A_BLUE}"/><circle cx="{x + 10}" cy="{y + 6.6}" r="1.2" fill="{A_BLUE}"/>'
+    )
+
+
+def icon_gear(x: float, y: float) -> str:
+    teeth = "".join(f'<rect x="-2.6" y="-14" width="5.2" height="6" rx="1.2" fill="{A_BLUE}" transform="rotate({a})"/>' for a in range(0, 360, 45))
+    return (
+        f'<g transform="translate({x + 15} {y + 15})">{teeth}'
+        f'<circle r="9.5" fill="none" stroke="{A_BLUE}" stroke-width="5"/><circle r="3.6" fill="{INK_900}"/></g>'
+    )
+
+
+def icon_db(x: float, y: float) -> str:
+    c = A_BLUE
+    return (
+        f'<ellipse cx="{x + 15}" cy="{y + 6}" rx="12" ry="4.5" fill="none" stroke="{c}" stroke-width="2.4"/>'
+        f'<path d="M{x + 3} {y + 6}V{y + 24}C{x + 3} {y + 29} {x + 27} {y + 29} {x + 27} {y + 24}V{y + 6}" fill="none" stroke="{c}" stroke-width="2.4"/>'
+        f'<path d="M{x + 3} {y + 15}C{x + 3} {y + 20} {x + 27} {y + 20} {x + 27} {y + 15}" fill="none" stroke="{c}" stroke-width="2.4"/>'
+    )
+
+
+def icon_nginx(x: float, y: float) -> str:
+    hexa = "15,2 27,8.5 27,21.5 15,28 3,21.5 3,8.5"
+    return (
+        f'<g transform="translate({x} {y})"><polygon points="{hexa}" fill="#1fa85a"/></g>'
+        + text(BLACK, "N", 15, x + 15, y + 20.5, "#fff", anchor="middle")
+    )
+
+
+def icon_drop(x: float, y: float) -> str:
+    return f'<path transform="translate({x} {y})" d="M12 1C12 1 3 11 3 17A9 9 0 0 0 21 17C21 11 12 1 12 1ZM12 21a4 4 0 0 1-4-4" fill="{A_BLUE}"/>'
+
+
+def node(x: float, y: float, w: float, h: float, title: str, lines: list[str], icon: str, *, inline: bool = False,
+         title_size: float = 17) -> str:
+    out = card(x, y, w, h, 14)
+    if inline:
+        out += icon + text(HEADING, title, title_size, x + 64, y + 32, TEXT)
+        tx, ty0 = x + 64, y + 53
+    else:
+        out += icon + text(HEADING, title, title_size, x + 58, y + 36, TEXT)
+        tx, ty0 = x + 18, y + 70
+    for i, line_ in enumerate(lines):
+        size = BODY.fit(line_, 12.5, x + w - 14 - tx)
+        out += text(BODY, line_, size, tx, ty0 + i * 19, MUTED)
+    return out
+
+
+def container(x: float, y: float, w: float, h: float, title: str) -> str:
+    return (
+        f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="18" fill="{A_BLUE}" fill-opacity=".05" stroke="{A_BLUE}" stroke-opacity=".5" stroke-width="1.4"/>'
+        + icon_drop(x + 18, y + 14)
+        + text(HEADING, title, 17, x + 50, y + 33, "#dfe6ff")
+    )
+
+
+def architecture() -> str:
+    w, h = 900, 812
+    r1y, r1h = 20, 80
+    # Row 1: Cloudflare, players, Discord.
+    cf = node(24, r1y, 228, r1h, "Cloudflare", ["DNS and DDoS protection", "Proxy and caching"], icon_cloud(42, r1y + 24, "#f6821f"), inline=True)
+    us = node(292, r1y, 252, r1h, "Players and staff", ["Website visitors", "Players, teams, coaches, admins"], icon_users(310, r1y + 22), inline=True)
+    dc = node(584, r1y, 292, r1h, "Discord", ["Gateway (events)", "OAuth and REST API"], icon_discord(602, r1y + 22), inline=True)
+    # Containers.
+    my, mh = 134, 346
+    main = container(24, my, 628, mh, "Main droplet")
+    work = container(672, my, 204, mh, "Worker droplet")
+    nginx = card(44, 176, 500, 50, 12) + icon_nginx(58, 186) + text(HEADING, "Nginx", 16, 98, 207, TEXT) + text(BODY, "TLS termination · Static files · Reverse proxy", 12.5, 164, 206.5, MUTED)
+    web = node(44, 280, 212, 160, "Website", ["Public site · Player area", "Admin portal · API", "Discord login · Live updates", "Stripe checkout and webhooks"], icon_window(60, 292))
+    bot = node(420, 280, 212, 160, "Bot", ["Discord connection", "Queues · Matches · Results", "Stats · Seasons · Rank roles", "Tournaments · Scrims · Tickets", "Coaching · Moderation"], icon_discord(436, 292))
+    wrk = node(688, 236, 172, 204, "Worker", ["Job queue (pg-boss)", "Embark · Steam · Twitch", "Webhook processing", "Season detection", "Cleanup · nightly rebuilds", "Retries · dead-letter queue"], icon_gear(702, 244), title_size=17)
+    # Row 3: database, backup, external services, legend.
+    db = node(260, 530, 380, 108, "PostgreSQL 18", ["Primary data store · one schema per domain", "One login per program · job queue (pg-boss)"], icon_db(276, 546))
+    bk = node(24, 672, 212, 108, "Nightly backup", ["Daily encrypted dump", "Off-site · weekly restore test"], icon_cloud(40, 680, "#9fb0ff", solid=False), title_size=16)
+    ex = node(716, 530, 160, 126, "External", ["Embark · Steam · Twitch", "Stripe · Resend", "Liquipedia"], icon_cloud(732, 546, A_GRAY, solid=False), title_size=16)
+
+    arrows = (
+        # Traffic in and out (blue).
+        arrow("M292 60H252", "blue", both=True) + arrow("M544 60H584", "blue", both=True)
+        + arrow("M230 100V176", "blue", packets=True) + pill(230, 142, "HTTPS", "blue")
+        + arrow("M149 226V280", "blue", packets=True)
+        + arrow("M606 100V280", "blue", both=True) + pill(606, 188, "Events / API", "blue")
+        # Web and bot talk through commands and responses (amber).
+        + arrow("M256 336H420", "amber", packets=True) + pill(338, 336, "Commands", "amber")
+        + arrow("M420 386H256", "amber", packets=True) + pill(338, 386, "Responses", "amber")
+        # Database: notifications (green dashed) and reads and writes (violet).
+        + arrow("M214 440V552H260", "violet", both=True) + pill(214, 494, "Read / Write", "violet")
+        + arrow("M260 594H120V440", "green", dashed=True) + pill(120, 532, "LISTEN / NOTIFY", "green")
+        + arrow("M560 440V530", "violet", both=True) + pill(560, 500, "Read / Write", "violet")
+        + arrow("M470 530V440", "green", dashed=True) + pill(470, 466, "LISTEN / NOTIFY", "green")
+        # Worker: process jobs from the queue (red), sync with the outside world (gray).
+        + arrow("M696 440V590H640", "red", packets=True, reverse=True) + pill(696, 520, "Process jobs", "red")
+        + arrow("M796 440V530", "gray", both=True) + pill(796, 492, "Sync", "gray")
+        # Backups (teal dashed).
+        + arrow("M260 622H130V672", "teal", dashed=True) + pill(195, 622, "Backup (daily)", "teal")
+    )
+    # Legend.
+    lx, ly, lw, lh = 260, 672, 616, 108
+    legend = card(lx, ly, lw, lh, 14) + text(HEADING, "Legend", 14, lx + 18, ly + 26, TEXT)
+    items = [
+        ("blue", False, "Users and external traffic"), ("amber", False, "Web and bot commands"), ("violet", False, "Database read / write"),
+        ("green", True, "Database notifications"), ("red", False, "Job queue"), ("teal", True, "Backups"),
+    ]
+    for i, (key, dashed, label) in enumerate(items):
+        cx = lx + 18 + (i % 3) * 198
+        cy = ly + 54 + (i // 3) * 28
+        dash = ' stroke-dasharray="6 5"' if dashed else ""
+        legend += (
+            f'<line x1="{cx}" x2="{cx + 30}" y1="{cy}" y2="{cy}" stroke="{ARROW_KEYS[key]}" stroke-width="2"{dash} marker-end="url(#m-{key})"/>'
+            + text(BODY, label, 12, cx + 40, cy + 4, MUTED)
+        )
+    body = panel(w, h, INK_950) + main + work + cf + us + dc + nginx + web + bot + wrk + db + bk + ex + arrows + legend
     style = (
-        ".gem{opacity:.0;animation:gem 7.2s ease-in-out infinite}"
-        + "".join(f".gem{i}{{animation-delay:{i * 0.6:.1f}s}}" for i in range(6))
-        + "@keyframes gem{0%{opacity:0}10%{opacity:1}28%{opacity:0}100%{opacity:0}}"
+        ".pk{animation:pk 1.5s linear infinite}.pkr{animation-direction:reverse}"
+        "@keyframes pk{to{stroke-dashoffset:-28.1}}"
+        ".dashflow{animation:dash 1.2s linear infinite}@keyframes dash{to{stroke-dashoffset:-11}}"
+        "@media (prefers-reduced-motion:reduce){.pk{display:none}}"
     )
-    return svg(w, h, "Your THE FINALS rank sits next to your rating", "The six THE FINALS leagues, Bronze, Silver, Gold, Platinum, Diamond and Ruby, shown as rank emblems.", body, BLUR_FILTERS + gems_defs, style)
+    desc = (
+        "How PUGZ fits together. Players and staff reach the website through Cloudflare and Nginx on the main droplet, and Discord talks to the bot "
+        "over its gateway. The website sends commands to the bot and gets responses back. The website, the bot and the worker all use one PostgreSQL "
+        "database with change notifications; the worker, on its own droplet, processes the job queue and syncs with Embark, Steam, Twitch, Stripe, "
+        "Resend and Liquipedia. A nightly encrypted backup goes off-site."
+    )
+    return svg(w, h, "PUGZ architecture", desc, body, arrow_defs(), style)
 
 
 def tournaments() -> str:
@@ -759,7 +1000,8 @@ def main() -> None:
         "divider.svg": divider(),
         "flow.svg": flow(),
         "rating.svg": rating(),
-        "leagues.svg": leagues(),
+        "tiers.svg": tiers(),
+        "architecture.svg": architecture(),
         "tournaments.svg": tournaments(),
         "coaching.svg": coaching(),
         "cta.svg": cta(),
