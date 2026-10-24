@@ -32,7 +32,7 @@ Teams, tournaments and coaching grow out of the same platform. Everything is bui
 - **Live matches.** Team voice channels, team panels, substitutes and a button to call staff.
 - **Results without arguments.** One team reports, the other confirms. Disputes go to staff, who can set, void or correct a result with a reason on record.
 - **Rematches.** Run it back with the same teams or shuffled, or go straight back to the queue.
-- **Tournaments and scrims.** Sign up your team, check in, and get pinged when it is your match.
+- **Tournaments and scrims.** Brackets, match rooms and scrim blocks, all run by the bot.
 - **Support.** Tickets in private channels, player reports with the match attached, full transcripts.
 
 </td>
@@ -92,21 +92,23 @@ Teams, tournaments and coaching grow out of the same platform. Everything is bui
 
 ## A rating that means something
 
-<img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/rating.svg" alt="The PUG rating starts at 1,000 every season. A 2-0 result moves it by the full amount, a 2-1 by 0.7 of it, and your first 10 matches of a season move it 1.5 times faster." width="900">
+<img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/rating.svg" alt="How the PUG rating works. Each scoreline is worth its own points, beating a stronger team pays more, your first matches of a season move your rating further, and your rank changes the moment you cross a threshold." width="900">
 
 <br><br>
 
-<img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/leagues.svg" alt="Your THE FINALS rank sits next to your rating: Bronze, Silver, Gold, Platinum, Diamond and Ruby." width="900">
+<img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/tiers.svg" alt="The PUG rating ladder: Rookie below 750, Prospect 750, Contender 850, Challenger 950, Pro 1050, Elite 1150, Star 1250, All-Star 1350, Superstar 1500 and Legend 1650." width="900">
 
 </div>
 
 <br>
 
-- **Every season starts at 1000.** A 2-0 moves your PUG rating more than a 2-1.
-- **Placements are quick.** The first 10 matches of a season move faster, so you find your level fast.
+- **Your rank is a Discord role.** It shows separately in the member list with its threshold in the name, like Pro (1050+). Rank changes are quiet: the role, a badge on your profile and the leaderboard, and one line on the post-match panel.
+- **Exact thresholds.** Cross a floor and you move up or down straight away, with no buffer.
+- **Staff tune every season.** The starting rating, what each scoreline is worth, team strength, placements, the ranks and their colours are set per season. Change a rule and the whole season recalculates.
+- **Be ranked in a few matches.** Play a handful and you appear on the leaderboard.
 - **Leaving costs you.** Leave a running match and you take the loss if your team loses.
 - **Mistakes get fixed.** Corrections, voids and late disputes recalculate the season automatically.
-- **Seasons are fresh starts.** Staff start each season, and a match counts for the season it began in, so a new season never reshuffles old results.
+- **Seasons are fresh starts.** Everyone starts unranked, rank roles are cleared and re-earned, and past seasons stay browsable with their own ranks. A match counts for the season it began in.
 
 <div align="center">
 
@@ -129,9 +131,10 @@ Teams, tournaments and coaching grow out of the same platform. Everything is bui
 ### Teams
 **Your squad, on the record.**
 
-- **Rosters.** A captain, players and subs, with your team tag on every profile.
-- **Team pages.** Season stats, recent matches, trophies, links and a recruiting note.
-- **Find a team.** Filter for teams that are recruiting, then apply in Discord.
+- **Rosters.** A captain, players and subs, with your team tag on every profile. Players apply or join by invite link.
+- **Team pages.** Season stats, recent matches, trophies, a career timeline and a recruiting note.
+- **Stay in touch.** Team chat and an inbox that also reaches you by Discord DM.
+- **Connections.** Connect two teams and they can challenge each other directly.
 
 </td>
 <td width="50%" valign="top">
@@ -139,9 +142,10 @@ Teams, tournaments and coaching grow out of the same platform. Everything is bui
 ### Scrims
 **Practice that counts.**
 
-- **Schedule from Discord.** Agree a time with another team and get a reminder and a ready-made match channel.
-- **Find opponents.** Match up with teams of a similar level.
-- **Everything is saved.** Every scrim lands in your team's match history.
+- **Find opponents.** Post when your team is free, send requests and challenges, and set a minimum rank.
+- **3v3 and 12 Mans.** Both formats, with stand-ins when someone drops.
+- **Run by the bot.** Each scrim gets a category, a locked text channel and a voice channel per side.
+- **Fair after the fact.** Blind behaviour ratings keep the scrim scene honest, and every scrim lands in your team's history.
 
 </td>
 </tr>
@@ -165,13 +169,14 @@ Teams, tournaments and coaching grow out of the same platform. Everything is bui
 
 <br>
 
-Community tournaments run by the bot: sign up in Discord, check in before the start, and follow every bracket on the site as results come in.
+Community tournaments run by the bot: sign up in Discord or on the site, check in before the start, and follow every bracket as results come in.
 
-- **Sign up in one click.** Register your team in Discord. Check-in opens before the start, and a waitlist holds the spare teams.
-- **Real formats.** Groups into single elimination, with live standings: wins, losses, round difference and who has qualified.
-- **Pinged when it counts.** The bot tells your team when its match is up.
-- **Live brackets.** Seeds, scores and upcoming matches on the site, updated as results land.
-- **Prizes and history.** Prize pools are shown up front. Champions are recorded on team and player profiles forever.
+- **Every format.** Single and double elimination, round robin and Swiss, or groups into playoffs. Seeding and brackets are automatic.
+- **Sign up your team.** Register on the site or with a join code in Discord. Check-in opens before the start, and a waitlist holds the spare teams.
+- **A room for every match.** Report, confirm or dispute the result, with a map veto where the format calls for it.
+- **Entry fees.** Optional. The captain pays on the site, the spot is held while they do, and a failed or cancelled entry is refunded automatically.
+- **Host your own.** Other communities can run their tournaments with the PUGZ bot on their own server.
+- **Prizes and history.** Prize pools are shown up front. Champions get a role and are recorded on team and player profiles forever.
 
 <div align="center">
 
@@ -193,10 +198,10 @@ Community tournaments run by the bot: sign up in Discord, check in before the st
 
 One-on-one sessions and VOD reviews with verified top players. Pick a coach, book a time and leave with a plan.
 
-- **Verified coaches.** Proven peak league, real reviews and clear specialties: Light, Medium, Heavy, aim, game sense, team play and VOD review.
-- **Book a time that works.** Live availability with the next free slot up front, and packages that say how long they run and what is included.
-- **Pay securely.** Checkout runs through Stripe, and coaches are paid out through it. Card details never touch our servers.
-- **VOD reviews.** Share a clip and get timestamped feedback.
+- **Staff-approved coaches.** Every coach is reviewed first, with a proven peak league, real reviews and clear specialties: Light, Medium, Heavy, aim, game sense, team play and VOD review.
+- **Book a time that works.** Coaches publish weekly availability, you see the next free slot up front and book instantly. Packages say how long they run and what is included.
+- **Pay securely.** Checkout runs through Stripe and card details never touch our servers. The coach sells the session and PUGZ takes a fee. The coach is paid once you confirm the session, and a reported problem is settled before any money moves.
+- **Talk it through.** Chat with your coach about the booking before the session.
 - **Honest reviews.** Only players who finished a session can review, and coaches can reply.
 
 <div align="center">
@@ -245,19 +250,15 @@ PUGZ is in **pre-launch**. The core platform is built and being tested end to en
 
 </div>
 
-Three programs share one database. The bot is the only writer of match data, so the website can ask for a change but never make one behind the bot's back.
+Three programs share one database. The bot is the only writer of match data, so the website can ask for a change but never make one behind the bot's back. Changes travel as commands from the website to the bot and as database notifications to everyone, and slow work goes through a durable job queue.
 
-```mermaid
-%%{init: {'theme':'base','themeVariables':{'primaryColor':'#0d0d26','primaryTextColor':'#f0f0fb','primaryBorderColor':'#9b5cff','lineColor':'#4c6bff','secondaryColor':'#121233','tertiaryColor':'#070719','fontFamily':'system-ui, sans-serif'}}}%%
-flowchart LR
-  P([Players and staff]) --> D[Discord]
-  P --> W[Website and staff portal]
-  D --> B[Bot]
-  W -- commands --> B
-  B --> DB[(PostgreSQL)]
-  W --> DB
-  J[Worker] --> DB
-```
+<div align="center">
+
+<img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/architecture.svg" alt="How PUGZ fits together. Players and staff reach the website through Cloudflare and Nginx on the main droplet, and Discord talks to the bot over its gateway. The website sends commands to the bot and gets responses back. The website, the bot and the worker share one PostgreSQL database with change notifications. The worker, on its own droplet, processes the job queue and syncs with Embark, Steam, Twitch, Stripe, Resend and Liquipedia. A nightly encrypted backup goes off-site." width="900">
+
+</div>
+
+<br>
 
 | Layer | Technology |
 |---|---|
@@ -284,8 +285,10 @@ flowchart LR
 
 <br>
 
-<sub>PUGZ is an independent community project. Not affiliated with Embark Studios.</sub><br>
-<sub>THE FINALS and Embark Studios are trademarks of their respective owners.</sub><br>
+<sub>PUGZ is an independent community project. Not affiliated with Embark Studios.</sub>
+
+<sub>THE FINALS and Embark Studios are trademarks of their respective owners.</sub>
+
 <sub>&copy; 2026 PUGZ</sub>
 
 </div>
