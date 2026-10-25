@@ -4,11 +4,11 @@
 
 <br>
 
-**PUGZ** is a community platform at its core for pick-up games in *THE FINALS*.<br>
-Join queues and play matches through Discord, then track your rating, results and match history on the website.<br>
+**PUGZ** is a community platform at its core for pick-up games in *THE FINALS*.<br><br>
+Join queues and play matches through Discord, then track your rating, results and match history on the website.<br><br>
 The platform also brings together team management, scrim scheduling, tournaments and coaching. Features are in testing or development; the status of each area is listed below.
 
-For the future we have plans to expand to allow the bot in servers of other communities, creating an ecosystem with global leaderboards, server competitions and much more.
+For the future we have plans to expand and allow the bot in servers of other communities, creating a global ecosystem with shared queues, leaderboards, server competitions and much more.
 
 <br>
 
@@ -201,6 +201,8 @@ Third-party tournament organizers also host tournaments on PUGZ with real prize 
 <br>
 
 Coaching on PUGZ is built for both sides: players who want to improve, and coaches looking for a place to offer paid sessions. Coaches set their own schedules, accept or decline sessions and choose their own prices. PUGZ provides the infrastructure and the players to make it work.
+
+<br>
 
 Browse staff-approved coaches for one-on-one sessions and VOD reviews. Compare their experience, specialties, packages and availability before booking.
 
