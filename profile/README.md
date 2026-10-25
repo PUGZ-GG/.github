@@ -62,8 +62,6 @@ For the future we have plans to expand and allow the bot in servers of other com
 
 ## From queue to leaderboard
 
-<img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/queues.svg?v=4664fbc7" alt="The same queue on the website and in Discord, kept in sync. On the Play page you queue up for 3v3 EMEA: the ring goes from 2/6 to 3/6 and you appear in the queue block below it, while the Discord queue embed shows you joining 3v3 EMEA at the same moment. A player who joins from Discord shows up on the website too. The embed also lists 1v1 EMEA, 3v3 AMER and 1v1 AMER, where other players join and leave and a queue pops into a match." width="900">
-
 <img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/flow.svg?v=eeba9a46" alt="How a match works. 1. Queue: join from Discord or the site. 2. Lobby: the queue pops, join the voice channel to ready up, then vote the map. 3. Match: team voice channels, a host and a lobby code. 4. Result: one team reports, the other confirms, disputes go to staff. 5. Rank: your rating, the season and the leaderboard move with every result." width="900">
 
 <sub>Match progress is saved so active matches can resume after a bot restart.</sub>
