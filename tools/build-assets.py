@@ -955,52 +955,6 @@ def cta() -> str:
     return svg(w, h, "Join the Discord", "Join the PUGZ Discord for launch updates, community discussions and access when public queues open.", body, defs, style)
 
 
-def welcome() -> str:
-    """The header image of the bot's welcome DM (apps/bot/assets/welcome-dm.jpg in PugsBot).
-
-    Discord shows it as an image and rounds its corners itself, so it has square corners and no
-    animation.
-    """
-    w, h = 1200, 480
-    left = 64
-    shafts = "".join(
-        para(x, -20, sw, h + 40, 180, fill="url(#shaftFill)", opacity=op)
-        for x, sw, op in [(560, 40, ".55"), (670, 110, ".35"), (830, 26, ".7"), (920, 140, ".28"), (1100, 56, ".45")]
-    )
-    status, status_w = tag(left, 56, "IN PRE-LAUNCH TESTING", AMBER, h=30, dot=True, size=13)
-    game, _ = tag(left + status_w + 12, 56, "THE FINALS", CYAN, h=30, size=13)
-    line1, line2 = "Welcome to", "PUGZ."
-    size = 132
-    word_w = DISPLAY.width(line2, size, -0.025)
-    body = (
-        f'<clipPath id="card"><rect width="{w}" height="{h}"/></clipPath>'
-        f'<rect width="{w}" height="{h}" fill="{INK_950}"/>'
-        '<g clip-path="url(#card)">'
-        f'<circle cx="120" cy="30" r="300" fill="{CYAN}" opacity=".16" filter="url(#glow-lg)"/>'
-        f'<circle cx="930" cy="230" r="300" fill="{VIOLET}" opacity=".42" filter="url(#glow-lg)"/>'
-        f'<circle cx="1150" cy="480" r="200" fill="{PINK}" opacity=".2" filter="url(#glow-lg)"/>'
-        f"{shafts}"
-        f'<g opacity=".55" filter="url(#glow-lg)">{mark(770, 92, 360)}</g>'
-        f"{mark(770, 92, 360)}"
-        "</g>"
-        f"{status}{game}"
-        + text(HEADING, line1, 44, left, 186, TEXT)
-        + text(DISPLAY, line2, size, left - 4, 306, "url(#wordFill)", tracking=-0.025)
-        + text(HEADING, "Pick-up games for THE FINALS.", 30, left, 370, TEXT)
-        + text(BODY, "Queue in Discord. Track your rating on the website.", 19, left, 410, MUTED)
-    )
-    defs = (
-        BLUR_FILTERS
-        + f'<linearGradient id="wordFill" gradientUnits="userSpaceOnUse" x1="{left}" y1="0" x2="{left + word_w}" y2="0">'
-        f'<stop offset="0" stop-color="{CYAN}"/><stop offset=".34" stop-color="{BLUE}"/>'
-        f'<stop offset=".66" stop-color="{VIOLET}"/><stop offset="1" stop-color="{PINK}"/></linearGradient>'
-        '<linearGradient id="shaftFill" x1="0" y1="0" x2="0" y2="1">'
-        f'<stop offset="0" stop-color="{VIOLET}" stop-opacity="0"/><stop offset=".5" stop-color="{VIOLET}" stop-opacity=".5"/>'
-        f'<stop offset="1" stop-color="{CYAN}" stop-opacity="0"/></linearGradient>'
-    )
-    return svg(w, h, "Welcome to PUGZ", "Welcome to PUGZ. Pick-up games for THE FINALS. In pre-launch testing.", body, defs)
-
-
 def footer_wordmark() -> str:
     w = 900
     word = "PUGZ"
@@ -1074,7 +1028,6 @@ def main() -> None:
         "cta.svg": cta(),
         "wordmark.svg": footer_wordmark(),
         "pugz-mark.svg": mark_file(),
-        "welcome-dm.svg": welcome(),
         **{f"{name}.svg": eyebrow(label) for name, label in EYEBROWS.items()},
     }
     for stale in OUT.glob("*.svg"):
