@@ -325,7 +325,7 @@ def banner() -> str:
         f'<g class="shaft s{i}">{para(x, -20, sw, h + 40, 150, fill="url(#shaftFill)", opacity=op)}</g>'
         for i, (x, sw, op) in enumerate([(430, 34, ".55"), (520, 90, ".35"), (650, 22, ".7"), (730, 120, ".28"), (860, 46, ".45")], 1)
     )
-    live, live_w = tag(left, 38, "LAUNCHING SOON", AMBER, dot=True)
+    live, live_w = tag(left, 38, "IN PRE-LAUNCH TESTING", AMBER, dot=True)
     comm, _ = tag(left + live_w + 10, 38, "COMMUNITY PUGS", CYAN)
     vx, vy, vw, vh = MARK_VIEW
     mx, my, mw = 566, 84, 300
@@ -353,9 +353,9 @@ def banner() -> str:
         "</g>"
         f"{live}{comm}"
         + text(DISPLAY, word, word_size, left - 4, 188, "url(#wordFill)", tracking=-0.025)
-        + text(HEADING, "Pick-up games, run properly.", 27, left, 238, TEXT)
-        + text(BODY, "Queue on Discord. Play fair matches. Climb a rating", 15, left, 274, MUTED)
-        + text(BODY, "that means something. Built for THE FINALS.", 15, left, 296, MUTED)
+        + text(HEADING, "Pick-up games for THE FINALS.", 27, left, 238, TEXT)
+        + text(BODY, "Play matches through Discord. Track your rating,", 15, left, 274, MUTED)
+        + text(BODY, "results and match history on the website.", 15, left, 296, MUTED)
         + button(left, 322, "Join the Discord")
         + f'<rect x=".5" y=".5" width="{w - 1}" height="{h - 1}" rx="23.5" fill="none" stroke="#fff" stroke-opacity=".1"/>'
     )
@@ -382,7 +382,7 @@ def banner() -> str:
         "@keyframes sheen{0%{transform:translateX(-520px) skewX(-20deg)}55%,100%{transform:translateX(1300px) skewX(-20deg)}}"
         + PULSE_CSS
     )
-    return svg(w, h, "PUGZ", "PUGZ: pick-up games for THE FINALS, run properly. Launching soon. Join the Discord.", body, defs, style)
+    return svg(w, h, "PUGZ", "PUGZ. Pick-up games for THE FINALS. In pre-launch testing. Join the Discord.", body, defs, style)
 
 
 def eyebrow(label: str) -> str:
@@ -921,7 +921,7 @@ def coaching() -> str:
 
 def cta() -> str:
     w, h = 900, 250
-    headline = "Your next match is one click away."
+    headline = "Join the PUGZ Discord."
     size = DISPLAY.fit(headline, 31, w - 96, -0.02)
     shafts = "".join(
         f'<g class="shaft s{i}">{para(x, -20, sw, h + 40, 70, fill="url(#shaftFill)", opacity=op)}</g>'
@@ -938,7 +938,7 @@ def cta() -> str:
         f'<rect x="1" y="1" width="{w - 2}" height="{h - 2}" rx="27" fill="none" stroke="url(#brand)" stroke-opacity=".55" stroke-width="1.5"/>'
         + text(LABEL, "JOIN THE COMMUNITY", 11, w / 2, 56, CYAN, tracking=0.18, anchor="middle")
         + text(DISPLAY, headline, size, w / 2, 108, TEXT, tracking=-0.02, anchor="middle")
-        + text(BODY, "Join the Discord, link your Embark name and take a seat in the queue.", 15, w / 2, 144, MUTED, anchor="middle")
+        + text(BODY, "For launch updates, community discussions and access when public queues open.", 15, w / 2, 144, MUTED, anchor="middle")
         + button((w - 210) / 2, 168, "Join the Discord", w=210, h=48)
     )
     defs = (
@@ -952,7 +952,7 @@ def cta() -> str:
         ".s3{animation-duration:12s;animation-delay:-8s}.s4{animation-duration:21s;animation-delay:-6s}"
         "@keyframes drift{from{transform:translateX(-24px)}to{transform:translateX(28px)}}"
     )
-    return svg(w, h, "Join the Discord", "Your next match is one click away. Join the Discord, link your Embark name and take a seat in the queue.", body, defs, style)
+    return svg(w, h, "Join the Discord", "Join the PUGZ Discord for launch updates, community discussions and access when public queues open.", body, defs, style)
 
 
 def footer_wordmark() -> str:
@@ -990,7 +990,7 @@ EYEBROWS = {
     "eyebrow-teams": "TEAMS AND SCRIMS",
     "eyebrow-tournaments": "TOURNAMENTS",
     "eyebrow-coaching": "COACHING",
-    "eyebrow-status": "WHERE WE ARE",
+    "eyebrow-status": "DEVELOPMENT STATUS",
     "eyebrow-stack": "UNDER THE HOOD",
 }
 
