@@ -325,7 +325,7 @@ def banner() -> str:
         f'<g class="shaft s{i}">{para(x, -20, sw, h + 40, 150, fill="url(#shaftFill)", opacity=op)}</g>'
         for i, (x, sw, op) in enumerate([(430, 34, ".55"), (520, 90, ".35"), (650, 22, ".7"), (730, 120, ".28"), (860, 46, ".45")], 1)
     )
-    live, live_w = tag(left, 38, "IN PRE-LAUNCH TESTING", AMBER, dot=True)
+    live, live_w = tag(left, 38, "CLOSED BETA", PINK, dot=True)
     comm, _ = tag(left + live_w + 10, 38, "COMMUNITY PUGS", CYAN)
     vx, vy, vw, vh = MARK_VIEW
     mx, my, mw = 566, 84, 300
@@ -382,7 +382,7 @@ def banner() -> str:
         "@keyframes sheen{0%{transform:translateX(-520px) skewX(-20deg)}55%,100%{transform:translateX(1300px) skewX(-20deg)}}"
         + PULSE_CSS
     )
-    return svg(w, h, "PUGZ", "PUGZ. Pick-up games for THE FINALS. In pre-launch testing. Join the Discord.", body, defs, style)
+    return svg(w, h, "PUGZ", "PUGZ. Pick-up games for THE FINALS. In closed beta. Join the Discord.", body, defs, style)
 
 
 def eyebrow(label: str) -> str:

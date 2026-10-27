@@ -1,6 +1,6 @@
 <div align="center">
 
-<a href="https://pugz.gg"><img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/banner.svg?v=6218add2" alt="PUGZ. Pick-up games for THE FINALS. In pre-launch testing. Join the Discord." width="900"></a>
+<a href="https://pugz.gg"><img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/banner.svg?v=a551a20a" alt="PUGZ. Pick-up games for THE FINALS. In closed beta. Join the Discord." width="900"></a>
 
 <br>
 
