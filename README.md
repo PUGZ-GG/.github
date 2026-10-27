@@ -25,9 +25,9 @@ python3 tools/build-assets.py
 
 The script downloads the two brand fonts once into `tools/.fonts` (not committed) and rewrites `profile/assets/`. Commit the result.
 
-## The Discord invite
+## Banner links
 
-The invite link is in `profile/README.md`, on the banner and on the closing call to action (search for `discord.gg`).
+The top banner and the closing call to action in `profile/README.md` link to the website, https://pugz.gg (search for `pugz.gg`).
 
 ---
 

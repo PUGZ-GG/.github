@@ -1,6 +1,6 @@
 <div align="center">
 
-<a href="https://discord.gg/Sa5j37WDR"><img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/banner.svg?v=6218add2" alt="PUGZ. Pick-up games for THE FINALS. In pre-launch testing. Join the Discord." width="900"></a>
+<a href="https://pugz.gg"><img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/banner.svg?v=6218add2" alt="PUGZ. Pick-up games for THE FINALS. In pre-launch testing. Join the Discord." width="900"></a>
 
 <br>
 
@@ -284,7 +284,7 @@ The website, Discord bot and background worker share a PostgreSQL database. The 
 
 <br>
 
-<a href="https://discord.gg/Sa5j37WDR"><img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/cta.svg?v=8b941803" alt="Join the PUGZ Discord for launch updates, community discussions and access when public queues open." width="900"></a>
+<a href="https://pugz.gg"><img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/cta.svg?v=8b941803" alt="Join the PUGZ Discord for launch updates, community discussions and access when public queues open." width="900"></a>
 
 <sub>Questions, bugs or ideas? Open a ticket in the Discord.</sub>
 
