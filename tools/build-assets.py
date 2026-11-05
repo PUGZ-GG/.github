@@ -325,7 +325,7 @@ def banner() -> str:
         f'<g class="shaft s{i}">{para(x, -20, sw, h + 40, 150, fill="url(#shaftFill)", opacity=op)}</g>'
         for i, (x, sw, op) in enumerate([(430, 34, ".55"), (520, 90, ".35"), (650, 22, ".7"), (730, 120, ".28"), (860, 46, ".45")], 1)
     )
-    live, live_w = tag(left, 38, "IN PRE-LAUNCH TESTING", AMBER, dot=True)
+    live, live_w = tag(left, 38, "IN CLOSED BETA", AMBER, dot=True)
     comm, _ = tag(left + live_w + 10, 38, "COMMUNITY PUGS", CYAN)
     vx, vy, vw, vh = MARK_VIEW
     mx, my, mw = 566, 84, 300
@@ -382,7 +382,7 @@ def banner() -> str:
         "@keyframes sheen{0%{transform:translateX(-520px) skewX(-20deg)}55%,100%{transform:translateX(1300px) skewX(-20deg)}}"
         + PULSE_CSS
     )
-    return svg(w, h, "PUGZ", "PUGZ. Pick-up games for THE FINALS. In pre-launch testing. Join the Discord.", body, defs, style)
+    return svg(w, h, "PUGZ", "PUGZ. Pick-up games for THE FINALS. In closed beta. Join the Discord.", body, defs, style)
 
 
 def eyebrow(label: str) -> str:
@@ -413,39 +413,118 @@ def divider() -> str:
     return svg(w, 8, "Divider", "A thin brand-gradient divider with a slanted notch.", body, "", style)
 
 
+# The brand gradient, one colour per queue slot (as on the Discord queue panel).
+SLOT_COLORS = [CYAN, "#45a8ff", BLUE, "#7663ff", VIOLET, PINK]
+
 FLOW = [
     ("01", "Queue", "Join from Discord or the site. One click in, one click out.", "DISCORD · WEB"),
-    ("02", "Lobby", "The queue pops. Join the voice channel to ready up, then vote the map.", "DISCORD"),
-    ("03", "Match", "Team voice channels, a host and a lobby code. Staff are one click away.", "DISCORD · WEB"),
+    ("02", "Lobby", "The queue pops. Ready up in voice, then vote the map.", "DISCORD"),
+    ("03", "Match", "Team voice channels, a host and a lobby code.", "DISCORD · WEB"),
     ("04", "Result", "One team reports, the other confirms. Disputes go to staff.", "DISCORD · WEB"),
-    ("05", "Rank", "Your rating, the season and the leaderboard move with every result.", "WEB · DISCORD"),
+    ("05", "Rank", "Your rating, the season and the leaderboard move.", "WEB · DISCORD"),
 ]
 
 
+def tick(x: float, y: float, color: str, s: float = 1.0) -> str:
+    return (f'<polyline points="{x - 3.5 * s:.1f},{y:.1f} {x - 1 * s:.1f},{y + 2.6 * s:.1f} {x + 3.8 * s:.1f},{y - 2.8 * s:.1f}" '
+            f'fill="none" stroke="{color}" stroke-width="{1.8 * s:.1f}" stroke-linecap="round" stroke-linejoin="round"/>')
+
+
+def flow_visual(i: int, cx: float, top: float) -> str:
+    """A small picture of each step, drawn in the space under the step's title."""
+    if i == 0:  # Queue: the six slots fill up in the brand gradient.
+        sw, gap = 15, 4
+        x0 = cx - (6 * sw + 5 * gap) / 2
+        out = "".join(para(x0 + s * (sw + gap), top + 8, sw, 22, 5, fill=SLOT_COLORS[s]) for s in range(6))
+        a, b = BODY_BOLD.width("6/6", 13), BODY.width(" · pops", 12)
+        return out + text(BODY_BOLD, "6/6", 13, cx - (a + b) / 2, top + 52, TEXT) + text(BODY, " · pops", 12, cx - (a + b) / 2 + a, top + 52, PINK)
+    if i == 1:  # Lobby: everyone ready, then the map vote.
+        out = ""
+        for s in range(6):
+            x = cx - 47.5 + s * 19
+            out += f'<circle cx="{x:.1f}" cy="{top + 16}" r="7.5" fill="{GREEN}" fill-opacity=".16" stroke="{GREEN}" stroke-opacity=".7"/>' + tick(x, top + 16, GREEN, 0.9)
+        out += text(LABEL, "MAP VOTE", 8.5, cx - 52, top + 44, FAINT, tracking=0.14)
+        out += f'<rect x="{cx - 52}" y="{top + 50}" width="104" height="6" rx="3" fill="#fff" fill-opacity=".08"/>'
+        out += f'<rect x="{cx - 52}" y="{top + 50}" width="70" height="6" rx="3" fill="url(#brand)"/>'
+        return out
+    if i == 2:  # Match: two teams of three, and the lobby code.
+        out = ""
+        for side, (x, color) in enumerate(((cx - 58, CYAN), (cx + 12, PINK))):
+            out += para(x, top + 4, 46, 30, 7, fill=color, fill_opacity=".12", stroke=color, stroke_opacity=".6")
+            out += "".join(f'<circle cx="{x + 11 + d * 12:.1f}" cy="{top + 19}" r="3.6" fill="{color}"/>' for d in range(3))
+        out += text(LABEL, "VS", 10, cx, top + 23, TEXT, anchor="middle", tracking=0.08)
+        return out + text(MONO, "CODE 4F7K2Q", 10.5, cx, top + 54, FAINT, anchor="middle")
+    if i == 3:  # Result: the score, reported and confirmed.
+        out = text(DISPLAY, "2–1", 26, cx, top + 30, TEXT, anchor="middle")
+        x0 = cx - (12 + BODY.width("Confirmed", 11)) / 2
+        for r, label in enumerate(("Reported", "Confirmed")):
+            y = top + 46 + r * 15
+            out += tick(x0 + 4, y - 4, GREEN, 0.8) + text(BODY, label, 11, x0 + 12, y, MUTED)
+        return out
+    # Rank: up a rank, with the points gained.
+    name, _, color, kind = TIERS[4]
+    out = shield(cx - 22, top, 40, color, kind)
+    out += f'<polyline points="{cx + 6},{top + 16} {cx + 12},{top + 10} {cx + 18},{top + 16}" fill="none" stroke="{GREEN}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>'
+    out += text(MONO, "+14", 17, cx + 24, top + 22, GREEN)
+    return out + text(BODY_BOLD, name, 12, cx - 22, top + 56, color, anchor="middle") + text(BODY, "rank up", 11, cx + 8, top + 38, MUTED)
+
+
 def flow() -> str:
-    w, pad, row_h, gap = 900, 22, 60, 10
-    h = pad * 2 + len(FLOW) * row_h + (len(FLOW) - 1) * gap
-    rows = []
-    for i, (num, title, desc, where) in enumerate(FLOW):
-        y = pad + i * (row_h + gap)
-        x, rw = pad, w - pad * 2
+    """How a match works, as a pipeline: five steps on a track, a marker running through them."""
+    w, h = 900, 362
+    n, gap = len(FLOW), 12
+    cw = (w - 96 - (n - 1) * gap) / n
+    cy, ch, track_y = 84, 252, 50
+    centres = [48 + i * (cw + gap) + cw / 2 for i in range(n)]
+    # The track along the top, with the step numbers on it.
+    out = (
+        f'<line x1="{centres[0]:.1f}" x2="{centres[-1]:.1f}" y1="{track_y}" y2="{track_y}" stroke="#fff" stroke-opacity=".1" stroke-width="2"/>'
+        f'<rect x="{centres[0]:.1f}" y="{track_y - 1}" width="{centres[-1] - centres[0]:.1f}" height="2" fill="url(#brand)" opacity=".55"/>'
+    )
+    for i, c in enumerate(centres):
+        out += f'<line x1="{c:.1f}" x2="{c:.1f}" y1="{track_y + 13}" y2="{cy}" stroke="#fff" stroke-opacity=".1" stroke-dasharray="2 3"/>'
+    nodes, cards, lit = "", "", ""
+    for i, ((num, title, desc, where), c) in enumerate(zip(FLOW, centres)):
+        x = c - cw / 2
+        nodes += (
+            para(c - 26, track_y - 13, 52, 26, 7, fill=INK_850, stroke=VIOLET, stroke_opacity=".55")
+            + text(MONO, num, 13, c, track_y + 4.6, CYAN, anchor="middle")
+        )
+        lit += f'<g class="step step{i}">{para(c - 28, track_y - 15, 56, 30, 7, fill=VIOLET_600, fill_opacity=".45", stroke="url(#brand)", stroke_width="1.5")}' \
+               + text(MONO, num, 13, c, track_y + 4.6, TEXT, anchor="middle") \
+               + f'<rect x="{x:.1f}" y="{cy}" width="{cw:.1f}" height="{ch}" rx="14" fill="{VIOLET}" fill-opacity=".09" stroke="url(#brand)" stroke-width="1.5"/></g>'
         color = CYAN if "·" in where else VIOLET
-        _, tag_w = tag(0, 0, where, color, h=22)
-        tag_svg, _ = tag(x + rw - 16 - tag_w, y + (row_h - 22) / 2, where, color, h=22)
-        rows.append(
-            f'<rect x="{x}" y="{y}" width="{rw}" height="{row_h}" rx="14" fill="{INK_900}" stroke="#fff" stroke-opacity=".08"/>'
-            f'<g class="step step{i}"><rect x="{x}" y="{y}" width="{rw}" height="{row_h}" rx="14" fill="{VIOLET}" fill-opacity=".1" stroke="url(#brand)" stroke-width="1.5"/>'
-            f"{para(x + 4, y + 10, 6, row_h - 20, 2, fill='url(#brand)')}</g>"
-            + f'<rect x="{x + 14}" y="{y + 1}" width="48" height="2" fill="url(#brand)"/>'
-            + para(x + 16, y + (row_h - 34) / 2, 58, 34, 8, fill=VIOLET_600, fill_opacity=".2", stroke=VIOLET, stroke_opacity=".5")
-            + text(MONO, num, 15, x + 16 + 29, y + row_h / 2 + 5.3, CYAN, anchor="middle")
-            + text(HEADING, title, 18, x + 92, y + 26, TEXT)
-            + text(BODY, desc, 13.5, x + 92, y + 46, MUTED)
+        tag_w = LABEL.width(where, 9, 0.16) + 28
+        tag_svg, _ = tag(c - tag_w / 2, cy + ch - 36, where, color, h=20, size=9)
+        lines = BODY.wrap(desc, 12, cw - 28)
+        cards += (
+            f'<rect x="{x:.1f}" y="{cy}" width="{cw:.1f}" height="{ch}" rx="14" fill="{INK_900}" stroke="#fff" stroke-opacity=".08"/>'
+            f'<rect x="{x + 14:.1f}" y="{cy + 1}" width="40" height="2" fill="url(#brand)"/>'
+            + text(HEADING, title, 18, c, cy + 34, TEXT, anchor="middle")
+            + flow_visual(i, c, cy + 50)
+            + "".join(text(BODY, line, 12, c, cy + 140 + k * 16, MUTED, anchor="middle") for k, line in enumerate(lines))
             + tag_svg
         )
-    body = panel(w, h, INK_925) + "".join(rows)
+    # The runner: a glowing marker that stops at each step while it is lit.
+    step = 100 / n
+    frames = []
+    for i in range(n):
+        dx = centres[i] - centres[0]
+        frames.append(f"{i * step:.0f}%{{transform:translateX({dx:.1f}px);opacity:1}}")
+        frames.append(f"{i * step + step * .7:.0f}%{{transform:translateX({dx:.1f}px);opacity:1}}")
+    end = centres[-1] - centres[0]
+    runner_css = (
+        ".runner{animation:run 10s ease-in-out infinite}"
+        f"@keyframes run{{{''.join(frames)}96%{{transform:translateX({end:.1f}px);opacity:0}}100%{{transform:translateX(0);opacity:0}}}}"
+    )
+    runner = (
+        f'<g class="runner"><circle cx="{centres[0]:.1f}" cy="{track_y}" r="14" fill="{CYAN}" opacity=".35" filter="url(#glow-sm)"/>'
+        f'<circle cx="{centres[0]:.1f}" cy="{track_y}" r="4.5" fill="#fff"/></g>'
+    )
+    body = panel(w, h, INK_925) + out + runner + cards + nodes + lit
+    style = cycle_css("step", n, 10) + runner_css
     return svg(w, h, "How a match works", "Five steps: queue, lobby, match, result, rank. " + " ".join(f"{t}: {d}" for _, t, d, _ in FLOW),
-               body, "", cycle_css("step", len(FLOW), 10))
+               body, BLUR_FILTERS, style)
 
 
 def rating() -> str:
@@ -702,7 +781,7 @@ def architecture() -> str:
     # Row 3: database, backup, external services, legend.
     db = node(260, 530, 380, 108, "PostgreSQL 18", ["Primary data store · one schema per domain", "One login per program · job queue (pg-boss)"], icon_db(276, 546))
     bk = node(24, 672, 212, 108, "Nightly backup", ["Daily encrypted dump", "Off-site · weekly restore test"], icon_cloud(40, 680, "#9fb0ff", solid=False), title_size=16)
-    ex = node(716, 530, 160, 126, "External", ["Embark · Steam · Twitch", "Stripe · Resend", "Liquipedia"], icon_cloud(732, 546, A_GRAY, solid=False), title_size=16)
+    ex = node(732, 530, 144, 126, "External", ["Embark · Steam · Twitch", "Stripe · Resend", "Liquipedia"], icon_cloud(748, 546, A_GRAY, solid=False), title_size=16)
 
     arrows = (
         # Traffic in and out (blue).
@@ -719,8 +798,11 @@ def architecture() -> str:
         + arrow("M560 440V530", "violet", both=True) + pill(560, 500, "Read / Write", "violet")
         + arrow("M470 530V440", "green", dashed=True) + pill(470, 466, "LISTEN / NOTIFY", "green")
         # Worker: process jobs from the queue (red), sync with the outside world (gray).
-        + arrow("M696 440V590H640", "red", packets=True, reverse=True) + pill(696, 520, "Process jobs", "red")
-        + arrow("M796 440V530", "gray", both=True) + pill(796, 492, "Sync", "gray")
+        # The worker picks jobs up from the queue in the database and writes the results back.
+        + arrow("M640 612H712V440", "red", packets=True)
+        + arrow("M690 440V584H640", "red", packets=True)
+        + pill(701, 500, "Pick up · process jobs", "red")
+        + arrow("M804 440V530", "gray", both=True) + pill(804, 492, "Sync", "gray")
         # Backups (teal dashed).
         + arrow("M260 622H130V672", "teal", dashed=True) + pill(195, 622, "Backup (daily)", "teal")
     )
@@ -836,6 +918,229 @@ def tournaments() -> str:
         + PULSE_CSS
     )
     return svg(w, h, "Tournaments", "A tournament moves from registration to check-in to live to completed. A bracket of eight seeds runs quarter-finals, semi-finals and a final, and the champion is recorded on every profile.", body, "", style)
+
+
+# The league (docs/plans/2026-11-02-league-format.md): divisions, prizes and rank limits as announced.
+DIVISIONS = [
+    ("DIVISION 1", "Open to every rank", 4),
+    ("DIVISION 2", "No Ruby", 3),
+    ("DIVISION 3", "Diamond 4 at most", 2),
+    ("DIVISION 4", "Platinum 1 at most", 1),
+]
+
+
+def league() -> str:
+    """A league season: the calendar along the top, four divisions of eight with promotion and relegation."""
+    w, h = 900, 428
+    # Season stepper: one highlight walks through the season.
+    stages = [("SIGN-UPS", CYAN), ("PLACEMENT", VIOLET), ("WEEKS 1–7", BLUE), ("SEMI-FINALS", PINK), ("FINALS NIGHT", GOLD)]
+    x, stepper, overlays = 48, "", ""
+    for i, (label, color) in enumerate(stages):
+        base, tw = tag(x, 26, label, color, h=26, size=10.5)
+        stepper += base
+        overlays += f'<g class="stage stage{i}">{para(x - 2, 24, tw + 4, 30, 6, fill=color, fill_opacity=".28", stroke=color, stroke_width="1.5")}</g>'
+        x += tw + 26
+        if i < len(stages) - 1:
+            stepper += f'<polyline points="{x - 20},{39} {x - 12},{39} {x - 16},{35} {x - 12},{39} {x - 16},{43}" fill="none" stroke="{FAINT}" stroke-width="1.5" stroke-linecap="round"/>'
+    # Divisions: eight teams each, finalists move up, the bottom two move down.
+    rx, rw, top, rh, gap = 128, 724, 84, 62, 14
+    slot_w, slot_h, slot_gap, slot_x0 = 40, 24, 8, 328
+    rows, marks = "", ""
+    centres = []
+    for d, (name, limit, prize) in enumerate(DIVISIONS):
+        y = top + d * (rh + gap)
+        centres.append(y + rh / 2)
+        rows += (
+            f'<rect x="{rx}" y="{y}" width="{rw}" height="{rh}" rx="14" fill="{INK_900}" stroke="#fff" stroke-opacity=".08"/>'
+            f'<rect x="{rx + 14}" y="{y + 1}" width="48" height="2" fill="url(#brand)"/>'
+            + text(LABEL, name, 11, rx + 20, y + 27, TEXT, tracking=0.16)
+            + text(BODY, limit, 12.5, rx + 20, y + 46, MUTED)
+            + text(LABEL, "PRIZE", 9.5, rx + rw - 20, y + 25, FAINT, tracking=0.16, anchor="end")
+            + text(DISPLAY, "€€€€", 19, rx + rw - 20, y + 48, "#fff", tracking=0.12, anchor="end", extra='fill-opacity=".12"')
+            + "".join(text(DISPLAY, "€", 19, rx + rw - 20 - DISPLAY.width("€€€€", 19, 0.12) + k * (DISPLAY.width("€", 19) + 0.12 * 19), y + 48, GOLD) for k in range(prize))
+        )
+        for s in range(8):
+            sx, sy = slot_x0 + s * (slot_w + slot_gap), y + (rh - slot_h) / 2
+            if s == 0:
+                color = GOLD  # the champion, who also moves up (except from Division 1)
+            elif s == 1 and d > 0:
+                color = GREEN  # the other finalist
+            elif s > 5 and d < len(DIVISIONS) - 1:
+                color = RED
+            else:
+                color = None
+            if color:
+                rows += para(sx, sy, slot_w, slot_h, 6, fill=color, fill_opacity=".14", stroke=color, stroke_opacity=".55")
+                marks += f'<g class="hl">{para(sx, sy, slot_w, slot_h, 6, fill=color, fill_opacity=".35", stroke=color, stroke_width="1.5")}</g>'
+            else:
+                rows += para(sx, sy, slot_w, slot_h, 6, fill="#fff", fill_opacity=".04", stroke="#fff", stroke_opacity=".12")
+    # Movement between divisions, in the left gutter: up (green) and down (red), dashes run with the arrow.
+    moves = ""
+    for d in range(len(DIVISIONS) - 1):
+        upper, lower = centres[d], centres[d + 1]
+        ux, dx = 72, 100
+        moves += (
+            f'<path d="M{ux} {lower - 4}V{upper + 12}" fill="none" stroke="{GREEN}" stroke-width="2" stroke-dasharray="6 5" class="move"/>'
+            f'<polygon points="{ux - 6},{upper + 14} {ux + 6},{upper + 14} {ux},{upper + 4}" fill="{GREEN}"/>'
+            f'<path d="M{dx} {upper + 4}V{lower - 12}" fill="none" stroke="{RED}" stroke-width="2" stroke-dasharray="6 5" class="move"/>'
+            f'<polygon points="{dx - 6},{lower - 14} {dx + 6},{lower - 14} {dx},{lower - 4}" fill="{RED}"/>'
+        )
+    # Legend.
+    items = [(GOLD, "The champion wins the prize"), (GREEN, "Both finalists move up"), (RED, "Bottom teams move down")]
+    lx, legend = 128, ""
+    for color, label in items:
+        legend += para(lx, 392, 22, 14, 4, fill=color, fill_opacity=".3", stroke=color) + text(BODY, label, 12.5, lx + 30, 404, MUTED)
+        lx += 30 + BODY.width(label, 12.5) + 28
+    body = panel(w, h, INK_925) + stepper + overlays + rows + marks + moves + legend
+    style = (
+        cycle_css("stage", len(stages), 10)
+        + ".hl{animation:hl 2.6s ease-in-out infinite}@keyframes hl{50%{opacity:.2}}"
+        + ".move{animation:move 1.2s linear infinite}@keyframes move{to{stroke-dashoffset:-11}}"
+    )
+    desc = (
+        "A league season runs from sign-ups and a placement weekend through seven weeks of matches to the semi-finals "
+        "and Finals Night. Four divisions of eight teams: "
+        + "; ".join(f"{n.title()}, {l.lower()}" for n, l, _ in DIVISIONS)
+        + ". Every division has a cash prize, highest in Division 1"
+        + ". The two finalists of each division move up, the bottom teams move down."
+    )
+    return svg(w, h, "The PUGZ League", desc, body, "", style)
+
+
+# Tiered queues: in progress, so only the idea is shown (no thresholds or numbers yet).
+QUEUE_TIERS = [  # tier, colour, how the count moves over one loop: (players, from %, to %)
+    ("S", "#ff4d7d", [(1, 0, 18), (2, 18, 42), (1, 42, 66), (2, 66, 84), (1, 84, 100)]),  # one joins, leaves, joins
+    ("A", CYAN, [(3, 0, 14), (4, 14, 34), (5, 34, 52), (4, 52, 72), (3, 72, 100)]),  # two join, two leave
+    ("B", "#d6e0ff", [(5, 0, 30), (6, 30, 46), (0, 46, 58), (2, 58, 72), (4, 72, 86), (5, 86, 100)]),  # pops, fills again
+]
+QUEUE_LOOP = 14  # seconds
+
+
+def window_css(name: str, start: int, end: int) -> str:
+    """Keyframes that show an element only between `start`% and `end`% of the loop."""
+    show = f"{start}%{{opacity:1}}" if start else "0%{opacity:1}"
+    before = f"0%,{start - 1}%{{opacity:0}}" if start else ""
+    after = f"{end - 1}%{{opacity:1}}{end}%,100%{{opacity:0}}" if end < 100 else "100%{opacity:1}"
+    return f".{name}{{animation:{name} {QUEUE_LOOP}s linear infinite}}@keyframes {name}{{{before}{show}{after}}}"
+
+
+def queues() -> str:
+    """The queue panel, by tier: three 3v3 queues filling up. Still in progress, so only the idea is shown."""
+    w, h = 900, 352
+    out = (
+        text(HEADING, "Queue in your tier.", 22, 48, 54, TEXT)
+        + text(BODY, "Press Join and you are put in your tier's queue. Your tier is set when a season starts.", 14, 48, 78, MUTED)
+    )
+    # The panel: a Discord message with the violet accent bar down its left edge.
+    px, py, pw_, ph = 48, 104, 804, 200
+    out += (
+        f'<rect x="{px}" y="{py}" width="{pw_}" height="{ph}" rx="12" fill="{INK_900}" stroke="#fff" stroke-opacity=".08"/>'
+        f'<rect x="{px}" y="{py}" width="5" height="{ph}" rx="2.5" fill="{VIOLET}"/>'
+        + text(HEADING, "3v3 · Final Round", 16, px + 28, py + 36, TEXT)
+        + text(BODY, "balanced by PUG rating", 12.5, px + 28 + HEADING.width("3v3 · Final Round", 16) + 10, py + 36, FAINT)
+    )
+    slot_w, slot_h, slot_gap = 34, 26, 6
+    states_css = ""
+    for r, (letter, color, states) in enumerate(QUEUE_TIERS):
+        y = py + 58 + r * 44
+        out += para(px + 28, y, 40, slot_h, 6, fill=color, fill_opacity=".12", stroke=color, stroke_width="1.5")
+        out += text(LABEL, letter, 13, px + 48, y + 18, color, anchor="middle")
+        sx0 = px + 84
+        cx = sx0 + 6 * (slot_w + slot_gap) + 10
+        base = min(p for p, _, _ in states)  # always in the queue during the loop
+        for s in range(6):
+            sx = sx0 + s * (slot_w + slot_gap)
+            if s < base:
+                out += para(sx, y, slot_w, slot_h, 8, fill=SLOT_COLORS[s])
+            else:
+                out += para(sx, y, slot_w, slot_h, 8, fill="#fff", fill_opacity=".03", stroke="#fff", stroke_opacity=".16")
+        # Each state: the players above the base, the count and a note. The first state is the resting one.
+        for k, (players, start, end) in enumerate(states):
+            name = f"q{r}s{k}"
+            group = "".join(para(sx0 + s * (slot_w + slot_gap), y, slot_w, slot_h, 8, fill=SLOT_COLORS[s]) for s in range(base, players))
+            group += text(BODY_BOLD, f"{players}/6", 15, cx, y + 19, TEXT)
+            if players == 5:  # one player short: the last slot blinks
+                group += f'<g class="join">{para(sx0 + 5 * (slot_w + slot_gap), y, slot_w, slot_h, 8, fill=SLOT_COLORS[5])}</g>'
+                group += text(BODY, "· 1 more to pop", 14, cx + 40, y + 19, PINK)
+            elif players == 6:
+                group += text(BODY, "· popped, lobby open", 14, cx + 40, y + 19, GREEN)
+            hidden = ' opacity="0"' if k else ""
+            out += f'<g class="{name}"{hidden}>{group}</g>'
+            states_css += window_css(name, start, end)
+    # Join button, in the brand style, on the right of the panel.
+    out += (
+        f'<rect x="{px + pw_ - 196}" y="{py + 76}" width="168" height="44" rx="10" fill="url(#button)"/>'
+        + para(px + pw_ - 172, py + 89, 8, 18, 4, fill=INK_TEXT) + para(px + pw_ - 161, py + 89, 8, 18, 4, fill=INK_TEXT)
+        + text(LABEL, "Join 3v3", 15, px + pw_ - 145, py + 104, INK_TEXT)
+        + text(BODY, "Your tier is on /stats", 12.5, px + pw_ - 112, py + 144, FAINT, anchor="middle")
+    )
+    out += text(BODY, "Each tier gets its own leaderboard and its own prizes.", 13, w / 2, 334, MUTED, anchor="middle")
+    body = panel(w, h, INK_925) + card(1, 1, w - 2, h - 2, 24, "none") + out
+    style = ".join{animation:join 2.2s ease-in-out infinite}@keyframes join{0%,100%{opacity:0}50%{opacity:.85}}" + states_css + PULSE_CSS
+    return svg(w, h, "Tiered queues", "A 3v3 queue for each tier, S, A and B, with players joining and leaving like on the queue panel in Discord. Press Join and you are put in your tier's queue; your tier is set when a season starts. Each tier gets its own leaderboard and its own prizes.", body, "", style)
+
+
+def servers() -> str:
+    """PUGZ on other servers: community servers feed one PUGZ, which feeds a shared leaderboard."""
+    w, h = 900, 344
+    # Left: community servers, each with its own queue.
+    names = [("Your server", CYAN, 4), ("Community", VIOLET, 2), ("Organiser", PINK, 5)]
+    lx, lw, ch = 48, 236, 72
+    hub_x, hub_y = 452, 158
+    out, paths = "", ""
+    for i, (name, color, filled) in enumerate(names):
+        y = 34 + i * 88
+        out += card(lx, y, lw, ch)
+        out += (f'<rect x="{lx + 16}" y="{y + 16}" width="40" height="40" rx="12" fill="{color}" fill-opacity=".16" stroke="{color}" stroke-opacity=".6"/>'
+                + text(DISPLAY, name[0], 18, lx + 36, y + 43, color, anchor="middle"))
+        out += text(HEADING, name, 15, lx + 70, y + 31, TEXT)
+        for s in range(6):
+            sx = lx + 70 + s * 17
+            if s < filled:
+                out += para(sx, y + 41, 13, 14, 4, fill=SLOT_COLORS[s])
+            else:
+                out += para(sx, y + 41, 13, 14, 4, fill="#fff", fill_opacity=".04", stroke="#fff", stroke_opacity=".16")
+        out += text(BODY_BOLD, f"{filled}/6", 11.5, lx + 178, y + 52, MUTED)
+        sy = y + ch / 2
+        d = f"M{lx + lw} {sy:.1f}C{lx + lw + 70} {sy:.1f} {hub_x - 110} {hub_y:.1f} {hub_x - 52} {hub_y:.1f}"
+        paths += (f'<path d="{d}" fill="none" stroke="{color}" stroke-opacity=".35" stroke-width="2"/>'
+                  f'<path class="pk" style="animation-delay:-{i * 0.45:.2f}s" d="{d}" fill="none" stroke="#fff" stroke-opacity=".9" stroke-width="3" stroke-linecap="round" stroke-dasharray="0.1 22"/>')
+    # Centre: PUGZ.
+    hub = (
+        f'<circle cx="{hub_x}" cy="{hub_y}" r="70" fill="{VIOLET}" opacity=".35" filter="url(#glow-lg)"/>'
+        f'<circle class="ring" cx="{hub_x}" cy="{hub_y}" r="52" fill="none" stroke="url(#brand)" stroke-width="2"/>'
+        f'<circle cx="{hub_x}" cy="{hub_y}" r="50" fill="{INK_900}"/>'
+        + mark(hub_x - 29, hub_y - 54 * MARK_VIEW[3] / MARK_VIEW[2] / 2, 54)
+        + text(LABEL, "PUGZ", 12, hub_x, hub_y + 78, TEXT, tracking=0.2, anchor="middle")
+        + text(BODY, "One profile · one rating", 12, hub_x, hub_y + 96, MUTED, anchor="middle")
+    )
+    # Right: the shared leaderboard across servers.
+    rx, rw, ry, rh = 616, 236, 34, 248
+    d = f"M{hub_x + 52} {hub_y}H{rx}"
+    paths += (f'<path d="{d}" fill="none" stroke="#fff" stroke-opacity=".25" stroke-width="2"/>'
+              f'<path class="pk" d="{d}" fill="none" stroke="#fff" stroke-opacity=".9" stroke-width="3" stroke-linecap="round" stroke-dasharray="0.1 22"/>')
+    board = card(rx, ry, rw, rh) + text(LABEL, "SHARED LEADERBOARD", 10.5, rx + 20, ry + 32, MUTED, tracking=0.16)
+    rows = [("Your server", CYAN, .92), ("Organiser", PINK, .74), ("Community", VIOLET, .58), ("PUGZ", BLUE, .44)]
+    for k, (name, color, share) in enumerate(rows):
+        y = ry + 62 + k * 44
+        board += (text(MONO, f"{k + 1:02d}", 12, rx + 20, y + 4, FAINT)
+                  + text(BODY_BOLD, name, 13, rx + 50, y + 4, TEXT)
+                  + f'<rect x="{rx + 50}" y="{y + 12}" width="{rw - 70}" height="6" rx="3" fill="#fff" fill-opacity=".06"/>'
+                  + f'<rect class="bar bar{k}" x="{rx + 50}" y="{y + 12}" width="{(rw - 70) * share:.1f}" height="6" rx="3" fill="{color}"/>')
+    planned, tw = tag(0, 0, "PLANNED · AFTER LAUNCH", AMBER, dot=True)
+    planned, _ = tag(hub_x - tw / 2, 28, "PLANNED · AFTER LAUNCH", AMBER, dot=True)
+    caption = text(BODY, "PUGs in your own server: your community and your staff, with one profile and one shared leaderboard.", 13, w / 2, 324, MUTED, anchor="middle")
+    body = panel(w, h, INK_925) + card(1, 1, w - 2, h - 2, 24, "none") + paths + out + hub + board + planned + caption
+    style = (
+        PULSE_CSS
+        + ".pk{animation:pk 1.6s linear infinite}@keyframes pk{to{stroke-dashoffset:-22.1}}"
+        ".ring{animation:ring 3s ease-in-out infinite}@keyframes ring{50%{opacity:.35}}"
+        ".bar{transform-box:fill-box;transform-origin:left;animation:bar 6s ease-in-out infinite}"
+        ".bar1{animation-delay:-1.5s}.bar2{animation-delay:-3s}.bar3{animation-delay:-4.5s}"
+        "@keyframes bar{50%{transform:scaleX(.86)}}"
+        "@media (prefers-reduced-motion:reduce){.pk{display:none}}"
+    )
+    return svg(w, h, "PUGs on your server", "Planned, after the public launch: community servers run their own PUGZ queues and matches. Every server feeds one PUGZ, so players keep one profile and one rating, and servers compete on a shared leaderboard.", body, BLUR_FILTERS, style)
 
 
 def coaching() -> str:
@@ -986,13 +1291,26 @@ EYEBROWS = {
     "eyebrow-platform": "THE PLATFORM",
     "eyebrow-flow": "HOW A MATCH WORKS",
     "eyebrow-fair": "BUILT TO BE FAIR",
-    "eyebrow-rating": "RATINGS AND SEASONS",
+    "eyebrow-rating": "RATINGS, SEASONS AND QUEUES",
     "eyebrow-teams": "TEAMS AND SCRIMS",
     "eyebrow-tournaments": "TOURNAMENTS",
+    "eyebrow-league": "LEAGUE",
     "eyebrow-coaching": "COACHING",
+    "eyebrow-servers": "FOR ORGANISERS",
     "eyebrow-status": "DEVELOPMENT STATUS",
     "eyebrow-stack": "UNDER THE HOOD",
 }
+
+
+# Status badges for the status table. A dark backing keeps them readable on GitHub's light theme too.
+BADGES = {"badge-in-testing": ("IN TESTING", "#63f0b5"), "badge-in-progress": ("IN PROGRESS", "#3de3ff"), "badge-planned": ("PLANNED", "#ffcc4d")}
+
+
+def badge(label: str, color: str) -> str:
+    _, tw = tag(0, 0, label, color, h=22, dot=True, size=9.5)
+    w, h = int(tw + 4), 24
+    body = para(2, 1, tw, 22, 6, fill=INK_900) + tag(2, 1, label, color, h=22, dot=True, size=9.5)[0]
+    return svg(w, h, label.title(), f"Status: {label.lower()}", body, "", PULSE_CSS)
 
 
 def stamp_readme() -> None:
@@ -1024,11 +1342,15 @@ def main() -> None:
         "tiers.svg": tiers(),
         "architecture.svg": architecture(),
         "tournaments.svg": tournaments(),
+        "league.svg": league(),
+        "queues.svg": queues(),
         "coaching.svg": coaching(),
+        "servers.svg": servers(),
         "cta.svg": cta(),
         "wordmark.svg": footer_wordmark(),
         "pugz-mark.svg": mark_file(),
         **{f"{name}.svg": eyebrow(label) for name, label in EYEBROWS.items()},
+        **{f"{name}.svg": badge(label, color) for name, (label, color) in BADGES.items()},
     }
     for stale in OUT.glob("*.svg"):
         if stale.name not in files:
