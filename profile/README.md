@@ -7,6 +7,7 @@
 **PUGZ** is the competitive home of *THE FINALS*: PUGs, ranked ladders, scrims, tournaments, a league, coaching and stats in one place.<br><br>
 Join queues and play matches through Discord, then track your rating, results and match history on the website.<br><br>
 The platform brings together skill-tiered queues, a 1v1 ladder, team management, scrim scheduling, tournaments, a seasonal league and coaching. The status of each area is listed below.<br><br>
+Everything is built around the full competitive journey: meet other competitive players in the queues, form a team, grow together through scrims and coaching, then put your team to the test in a league season.<br><br>
 Zero profit. Every euro PUGZ takes in goes back in: hosting first, then prize pools.
 
 Organisers can already run their tournaments on their own server with the PUGZ bot. Next, we plan to bring PUGs to other communities' servers too, creating a global ecosystem with shared queues, leaderboards, server competitions and much more.
