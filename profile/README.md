@@ -110,9 +110,9 @@ Organisers can already run their tournaments on their own server with the PUGZ b
 - **Promotions and demotions.** Your rank changes as soon as your rating crosses a rank threshold.
 - **Season settings.** Each season has its own starting rating, points per scoreline, team-strength adjustments, placement settings and ranks. Changes to rating rules trigger a recalculation for that season.
 - **Placement matches.** Complete the season's required placement matches to appear on the leaderboard.
-- **Leaving a match.** If you leave an active match, you still receive a loss if your team loses.
+- **Leaving a match.** If you leave an active match and a replacement player takes your spot, you still receive a loss if your team loses.
 - **Result corrections.** Corrections, voids and late disputes recalculate the season automatically.
-- **Season resets.** Everyone starts unranked, rank roles are cleared and re-earned, and past seasons stay browsable with their own ranks. A match counts for the season it began in.
+- **Season resets.** Everyone starts unranked, rank roles are cleared and re-earned, and past seasons stay on the website with their final leaderboards and ranks. A match that starts before a new season begins still counts for the old one.
 - **A 1v1 ladder.** Its own rating and rank, with matchmaking by rating: the bot pairs you with the closest opponent and widens the search the longer you wait.
 - **Cash prizes.** We aim to give away cash prizes for the top spots on the leaderboard every season, as well as in the tournaments we host ourselves. Prizes can also be given away as Multibucks codes.
 
@@ -154,8 +154,9 @@ One queue for every level means most matches are decided before they start. The 
 <td width="50%" valign="top">
 
 ### Teams
-**Manage your roster and track your team's activity.**
+**Find a team or new teammates, manage your roster and track your team's activity.**
 
+- **Find a team or teammates.** Teams that are recruiting say what they need: role, class, minimum rank, region and playing times. Browse and filter them, then apply with your classes and availability.
 - **Rosters.** A captain, players and subs, with your team tag on every profile. Players apply or join by invite link.
 - **Team pages.** Season stats, recent matches, trophies, a career timeline and a recruiting note.
 - **Stay in touch.** Team chat and an inbox that also reaches you by Discord DM.
@@ -200,7 +201,7 @@ Third-party tournament organizers also host tournaments on PUGZ with real prize 
 
 **See one on the site:** the [PUGZ Beta Cup Invitational](https://pugz.gg/tournaments/pugz-beta-cup-invitational-gmkx).
 
-- **Tournament formats.** Single and double elimination, round robin and Swiss, groups into playoffs, or Cashout lobbies. Seeding and brackets are automatic.
+- **Tournament formats.** Single and double elimination, round robin and Swiss, groups into playoffs, or Cashout lobbies. Seeding can be done manually or automatically. Brackets are generated and updated fully automatically.
 - **Sign up your team.** Register on the site or with a join code in Discord. Check-in opens before the start, and a waitlist holds the spare teams.
 - **A room for every match.** Report, confirm or dispute the result, with a map veto where the format calls for it.
 - **Host your own.** Other communities can run their tournaments with the PUGZ bot on their own server.
@@ -232,9 +233,9 @@ Entry is free. The winner of each division's final wins the cash prize.
 - **Divisions.** Division 1 at the top, down to Division 4. When more teams join than fit, a division splits into groups. Nobody is turned away, and every division still has one playoff and one prize.
 - **Placement.** New teams play a placement weekend before the season. Returning teams keep the division they earned.
 - **Promotion and relegation.** Both finalists move up a division. The bottom teams of the regular season move down.
-- **Rank limits.** Every player on the roster must fit the division's rank limit, based on their Embark ranked league. A Ruby team never plays in a Platinum division.
+- **Rank limits.** Every player on the roster must fit the division's rank limit, based on their Embark rank. A Ruby team never plays in a Platinum division.
 - **Rosters.** Three players and up to two subs, one team per season. Rosters lock after week 4, and players need two regular-season matches to play in the playoffs.
-- **Weekly scheduling.** Captains agree a match time on the match panel. Without an agreement, the default slot on Sunday evening applies.
+- **Weekly scheduling.** Matches are played at a set day and time each week. Captains can agree on a different date and time on the match panel.
 - **Prizes and history.** Every division has a cash prize for the winner of its final, and the higher the division, the bigger the prize. Every division champion receives the champion role and a mark on their profile.
 
 <div align="center">
