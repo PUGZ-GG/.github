@@ -4,18 +4,13 @@
 
 <br>
 
-**PUGZ is the competitive home of *THE FINALS*.**<br>
-PUGs, ranked ladders, scrims, tournaments, a league, coaching and stats, in one place.<br>
-The bot runs every game on Discord. The website keeps the score.
-
+**PUGZ** is the competitive home of *THE FINALS*: PUGs, ranked ladders, scrims, tournaments, a league, coaching and stats in one place.<br><br>
+Join queues and play matches through Discord, then track your rating, results and match history on the website.<br><br>
+The platform brings together skill-tiered queues, a 1v1 ladder, team management, scrim scheduling, tournaments, a seasonal league and coaching. The status of each area is listed below.<br><br>
 **Zero profit.** Every euro PUGZ takes in goes back in: hosting first, then prize pools.
 
-<br>
+Organisers can already run their tournaments on their own server with the PUGZ bot. Next, we plan to bring PUGs to other communities' servers too, creating a global ecosystem with shared queues, leaderboards, server competitions and much more.
 
-<table>
-<tr><td align="center" width="25%"><b>PUGs</b><br><sub>3v3 and 1v1 queues, split by skill tier</sub></td><td align="center" width="25%"><b>Ratings</b><br><sub>Seasons, ranks and live leaderboards</sub></td><td align="center" width="25%"><b>Teams &amp; scrims</b><br><sub>Rosters, scheduling, bot-run scrim rooms</sub></td><td align="center" width="25%"><b>Tournaments</b><br><sub>Six formats, brackets run by the bot</sub></td></tr>
-<tr><td align="center" width="25%"><b>League</b><br><sub>Divisions, promotion and Finals Night</sub></td><td align="center" width="25%"><b>Coaching</b><br><sub>Approved coaches, booked and paid on site</sub></td><td align="center" width="25%"><b>Support &amp; rules</b><br><sub>Tickets, warnings and a staff portal</sub></td><td align="center" width="25%"><b>Your server</b><br><sub>PUGZ tournaments on your own Discord</sub></td></tr>
-</table>
 
 <br>
 
@@ -25,7 +20,7 @@ The bot runs every game on Discord. The website keeps the score.
 
 <img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/eyebrow-platform.svg?v=eeaa2df6" alt="The platform">
 
-## Discord for the games. The website for everything around them.
+## Discord for matches. The website for everything around them.
 
 </div>
 
@@ -34,25 +29,29 @@ The bot runs every game on Discord. The website keeps the score.
 <td width="50%" valign="top">
 
 ### On Discord
+**Queues, match coordination and support in Discord.**
 
-- **One queue panel.** Join with one click, see the slots fill live, get a ping when a queue is one short. Queues stay inside your region.
-- **Pre-match lobby.** Join the lobby voice channel to ready up, vote the map, pick a host, share the code. No-shows are replaced from the queue.
-- **Live matches.** Team voice channels, substitutes and a button to call staff. The ongoing board shows every match, scrim and session running now.
-- **Results and rematches.** One team reports, the other confirms, disputes go to staff. Then run it back, shuffle, or queue again.
-- **Ranks as roles.** Your rank and tier are Discord roles that change the moment you cross a line.
-- **Support.** Tickets in private channels, player reports with the match attached, an interactive rules post with your own warnings one click away.
+- **Match queues.** One panel, one click to join or leave, and a ping when a queue is a player short. 3v3 queues by skill tier, a 1v1 queue matched by rating, and queues kept inside your region.
+- **Pre-match lobbies.** When a queue fills, join the lobby voice channel to confirm you are ready. Vote on a map, select a host and share the lobby code. Players who miss the ready check are replaced from the queue.
+- **Live matches.** Team voice channels, team panels, substitutes and a button to call staff. The ongoing board shows every match, scrim and coaching session running now.
+- **Result reporting.** One team reports, the other confirms. Disputes go to staff, who can set, void or correct a result with a reason on record.
+- **Rematches.** Run it back with the same teams or shuffled, or go straight back to the queue.
+- **Tournaments and scrims.** Brackets, match rooms and scrim blocks, all run by the bot.
+- **Support and rules.** Tickets in private channels, player reports with the match attached, full transcripts. An interactive rules post shows what each rule costs and your own warnings.
 
 </td>
 <td width="50%" valign="top">
 
 ### On the web
+**Ratings, player profiles and community tools on the website.**
 
-- **Leaderboards.** Per season and ladder, with the tier races beside the whole ladder, movement since yesterday and form.
-- **Player profiles.** Rating, match history, your THE FINALS rank, trophies, badges and linked Steam, Twitch and Embark accounts.
-- **Match pages.** Every match as a timeline, from the queue pop to the confirmed result.
-- **Teams, tournaments and coaching.** Rosters, live brackets and booking, tied to the profile you already have.
+- **Leaderboards by season.** Podium, the tier races beside the whole ladder, a 1v1 board, movement since yesterday, form and player search.
+- **Player profiles.** PUG rating, match history, your THE FINALS rank, trophies and badges, linked Steam, Twitch and Embark accounts, and a bio.
+- **Match pages.** A timeline of each match, from lobby creation to the confirmed result.
+- **Teams, tournaments and coaching.** Rosters, live brackets and a coach directory, all tied to the profile you already have.
 - **Queue from the site.** The home page shows the real queues: join, leave and follow your match from the browser.
-- **Staff portal.** Matches, queues, warnings, tickets, tournaments and server settings in one place, on desktop or phone. Access follows Discord roles, and every change lands in an audit log.
+- **A staff portal.** Manage live and finished matches, queues, warnings, bans and tickets, on desktop or phone. Access follows Discord roles, and every change lands in an audit log.
+- **One login.** Sign in with Discord. Use your existing Discord account to access the platform.
 
 </td>
 </tr>
@@ -74,15 +73,30 @@ The bot runs every game on Discord. The website keeps the score.
 
 <br>
 
+<img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/eyebrow-fair.svg?v=e0b407e2" alt="Built to be fair">
+
+## Match rules and moderation
+
+</div>
+
+| Area | How it works |
+|---|---|
+| **Warnings with points** | Every rule has a cost in points. Points add up to queue bans, timeouts and bans, on a ladder anyone can read in the rules post. |
+| **Missed ready checks and disputed results** | Players who miss a ready check are replaced and receive escalating penalties for repeat offences. Results require confirmation from the opposing team or a staff decision. |
+| **Saved match progress** | Queues, matches and timers are stored in the database so they can be restored after a restart or deployment. |
+| **Moderation records** | Staff can review match timelines, moderation cases and an audit log of changes made through the staff portal. |
+| **Queue controls** | Join or leave a queue using its buttons. The queue panel updates to show the current players. |
+| **Data deletion** | Players can request deletion of their player data. |
+
+<div align="center">
+
+<br>
+
 <img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/eyebrow-rating.svg?v=ffc23de2" alt="Ratings, seasons and queues">
 
-## Ratings, tiers and ladders
+## PUG ratings, seasons and queues
 
 <img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/rating.svg?v=303f5c43" alt="How the PUG rating works. Each scoreline is worth its own points, beating a stronger team pays more, your first matches of a season move your rating further, and your rank changes the moment you cross a threshold." width="900">
-
-<br><br>
-
-<img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/queues.svg?v=a948b647" alt="A 3v3 queue for each tier, S, A and B, with players joining and leaving like on the queue panel in Discord. Press Join and you are put in your tier's queue; cross the next tier's line and you move up at once. Each tier races for its own leaderboard spot and its own prizes." width="900">
 
 <br><br>
 
@@ -92,12 +106,34 @@ The bot runs every game on Discord. The website keeps the score.
 
 <br>
 
-- **Three tiers for 3v3.** S, A and B, each with its own queue. You play against your own level, so matches stay close.
-- **Placed by rules, never by choice.** Your THE FINALS ranked history and your last PUGZ season decide where you start, with a placement check after 15 matches.
+- **Ranks on Discord and the website.** Your rank appears as a Discord role, a profile badge and a leaderboard entry. Roles include the rating threshold, such as Pro (1600+), and rank changes are shown in the post-match panel.
+- **Promotions and demotions.** Your rank changes as soon as your rating crosses a rank threshold.
+- **Season settings.** Each season has its own starting rating, points per scoreline, team-strength adjustments, placement settings and ranks. Changes to rating rules trigger a recalculation for that season.
+- **Placement matches.** Complete the season's required placement matches to appear on the leaderboard.
+- **Leaving a match.** If you leave an active match, you still receive a loss if your team loses.
+- **Result corrections.** Corrections, voids and late disputes recalculate the season automatically.
+- **Season resets.** Everyone starts unranked, rank roles are cleared and re-earned, and past seasons stay browsable with their own ranks. A match counts for the season it began in.
+- **A 1v1 ladder.** Its own rating and rank, with matchmaking by rating: the bot pairs you with the closest opponent and widens the search the longer you wait.
+- **Cash prizes.** We aim to give away cash prizes for the top spots on the leaderboard every season, as well as in the tournaments we host ourselves. Prizes can also be given away as Multibucks codes.
+
+<br>
+
+<div align="center">
+
+### Queues by skill
+
+<img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/queues.svg?v=a948b647" alt="A 3v3 queue for each tier, S, A and B, with players joining and leaving like on the queue panel in Discord. Press Join and you are put in your tier's queue; cross the next tier's line and you move up at once. Each tier races for its own leaderboard spot and its own prizes." width="900">
+
+</div>
+
+<br>
+
+One queue for every level means most matches are decided before they start. The main 3v3 queue is split into three tiers by skill, S, A and B, so every match stays close.
+
+- **Your own tier.** You only queue with players in your tier. No playing up, no playing down.
+- **Placed by rules, never by choice.** Your Embark ranked history and your last PUGZ season decide where you start, with a placement check after 15 matches.
 - **Move up at the line.** Cross the next tier's start and you move up at once, mid-season. Nobody drops during a season.
-- **A prize race per tier.** Each tier has its own leaderboard race and its own cash prize, so the B tier is worth winning too.
-- **A 1v1 ladder.** Its own rating and rank, with matchmaking by rating: the bot pairs you with the closest opponent, widening the search the longer you wait.
-- **Seasons that reset clean.** New ranks every season, placement matches, past seasons stay browsable. Corrections, voids and late disputes recalculate the season by themselves.
+- **A prize race per tier.** Each tier races for its own leaderboard spot and its own cash prize.
 
 <div align="center">
 
@@ -109,7 +145,7 @@ The bot runs every game on Discord. The website keeps the score.
 
 <img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/eyebrow-teams.svg?v=5aea2e9c" alt="Teams and scrims">
 
-## Teams and scrims
+## Teams and scrim scheduling
 
 </div>
 
@@ -118,21 +154,23 @@ The bot runs every game on Discord. The website keeps the score.
 <td width="50%" valign="top">
 
 ### Teams
+**Manage your roster and track your team's activity.**
 
-- **Rosters.** A captain, players and subs, your tag on every profile. Join by application or invite link.
-- **Team pages.** Season stats, recent results, trophies and a career timeline.
-- **Team chat and inbox,** with the urgent ones as a Discord DM.
-- **Connections.** Connect with teams you trust and challenge them directly.
+- **Rosters.** A captain, players and subs, with your team tag on every profile. Players apply or join by invite link.
+- **Team pages.** Season stats, recent matches, trophies, a career timeline and a recruiting note.
+- **Stay in touch.** Team chat and an inbox that also reaches you by Discord DM.
+- **Connections.** Connect two teams and they can challenge each other directly.
 
 </td>
 <td width="50%" valign="top">
 
 ### Scrims
+**Arrange practice matches with other teams.**
 
-- **Find opponents.** Post your free slots, send requests and challenges, set a minimum rank.
-- **3v3 and 12 Mans,** with stand-ins when someone drops.
-- **Run by the bot.** A category, a locked text channel and voice per side, opened 15 minutes before the start.
-- **Behaviour ratings.** Blind ratings after every scrim, and a scrim record on the team page.
+- **Find opponents.** Post when your team is free, send requests and challenges, and set a minimum rank.
+- **3v3 and 12 Mans.** Both formats, with stand-ins when someone drops.
+- **Run by the bot.** Each scrim gets a category, a locked text channel and a voice channel per side.
+- **Feedback and history.** Teams can submit blind behaviour ratings after a scrim. Completed scrims are recorded in the team's history.
 
 </td>
 </tr>
@@ -142,9 +180,13 @@ The bot runs every game on Discord. The website keeps the score.
 
 <br>
 
+<img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/divider.svg?v=d319395b" alt="" width="900">
+
+<br>
+
 <img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/eyebrow-tournaments.svg?v=7dc8483d" alt="Tournaments">
 
-## Tournaments
+## Community tournaments
 
 <img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/tournaments.svg?v=ed2915ae" alt="A tournament moves from registration to check-in to live to completed. A bracket of eight seeds runs quarter-finals, semi-finals and a final, and the champion is recorded on every profile." width="900">
 
@@ -152,15 +194,23 @@ The bot runs every game on Discord. The website keeps the score.
 
 <br>
 
-- **Six formats.** Single and double elimination, round robin, Swiss, groups into playoffs, and Cashout lobbies. Seeding and brackets are automatic.
-- **Sign up anywhere.** On the site or with a join code in Discord. Check-in before the start, a waitlist for spare teams.
-- **A room for every match.** Report, confirm or dispute, with a map veto where the format calls for it.
-- **Practice runs.** Staff rehearse a whole cup with made-up teams before the real one.
-- **Prizes and history.** Prize pools are listed before sign-up. Winners get a Discord role and a trophy on their profile.
+Community tournaments run by the bot: sign up in Discord or on the site, check in before the start, and follow every bracket as results come in. Staff can rehearse a whole cup with practice teams before the real one.
 
-**See one live:** the [PUGZ Beta Cup Invitational](https://pugz.gg/tournaments/pugz-beta-cup-invitational-gmkx).
+Third-party tournament organizers also host tournaments on PUGZ with real prize money.
+
+**See one on the site:** the [PUGZ Beta Cup Invitational](https://pugz.gg/tournaments/pugz-beta-cup-invitational-gmkx).
+
+- **Tournament formats.** Single and double elimination, round robin and Swiss, groups into playoffs, or Cashout lobbies. Seeding and brackets are automatic.
+- **Sign up your team.** Register on the site or with a join code in Discord. Check-in opens before the start, and a waitlist holds the spare teams.
+- **A room for every match.** Report, confirm or dispute the result, with a map veto where the format calls for it.
+- **Host your own.** Other communities can run their tournaments with the PUGZ bot on their own server.
+- **Prizes and history.** Prize pools are listed before registration. Tournament winners receive a Discord role, and their results are recorded on team and player profiles.
 
 <div align="center">
+
+<br>
+
+<img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/divider.svg?v=d319395b" alt="" width="900">
 
 <br>
 
@@ -174,11 +224,18 @@ The bot runs every game on Discord. The website keeps the score.
 
 <br>
 
-A seasonal 3v3 league, planned next. One Bo3 a week in your division for seven weeks, then the semi-finals and **Finals Night**: every division final on one evening, back to back.
+A seasonal 3v3 league run by the bot. Teams play one match a week in their division, and every season ends with the semi-finals and Finals Night: every division final on one evening, back to back.
 
-- **Free to enter.** Every division has a cash prize, bigger the higher you play.
-- **Four divisions, rank limits.** Every player fits the division's limit, so a Ruby team never plays in a Platinum division.
-- **Promotion and relegation.** Both finalists move up, the bottom teams move down.
+Entry is free. The winner of each division's final wins the cash prize.
+
+- **Seasons.** About 13 weeks, three seasons a year. Seven weeks of regular season with one Bo3 a week, then semi-finals for the top 4 and a Bo5 final.
+- **Divisions.** Division 1 at the top, down to Division 4. When more teams join than fit, a division splits into groups. Nobody is turned away, and every division still has one playoff and one prize.
+- **Placement.** New teams play a placement weekend before the season. Returning teams keep the division they earned.
+- **Promotion and relegation.** Both finalists move up a division. The bottom teams of the regular season move down.
+- **Rank limits.** Every player on the roster must fit the division's rank limit, based on their Embark ranked league. A Ruby team never plays in a Platinum division.
+- **Rosters.** Three players and up to two subs, one team per season. Rosters lock after week 4, and players need two regular-season matches to play in the playoffs.
+- **Weekly scheduling.** Captains agree a match time on the match panel. Without an agreement, the default slot on Sunday evening applies.
+- **Prizes and history.** Every division has a cash prize for the winner of its final, and the higher the division, the bigger the prize. Every division champion receives the champion role and a mark on their profile.
 
 <div align="center">
 
@@ -190,7 +247,7 @@ A seasonal 3v3 league, planned next. One Bo3 a week in your division for seven w
 
 <img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/eyebrow-coaching.svg?v=19dd4b98" alt="Coaching">
 
-## Coaching and VOD reviews
+## Individual coaching and VOD reviews
 
 <img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/coaching.svg?v=14771547" alt="A verified coach with specialties and reviews, a calendar showing the next free slot, and a booking that moves from requested to confirmed, paid, completed and reviewed." width="900">
 
@@ -198,12 +255,17 @@ A seasonal 3v3 league, planned next. One Bo3 a week in your division for seven w
 
 <br>
 
-Players get better, coaches get a place to work. Coaches set their own prices and hours, PUGZ brings the players and the tools.
+Coaching on PUGZ is built for both sides: players who want to improve, and coaches looking for a place to offer paid sessions. Coaches set their own schedules, accept or decline sessions and choose their own prices. PUGZ provides the infrastructure and the players to make it work.
 
-- **Staff-approved coaches,** with their verified peak league, specialties and reviews from real sessions.
-- **Book instantly** from the coach's weekly availability. Chat about the booking before the session.
-- **A private voice room** for every session, opened by the bot 15 minutes before the start.
-- **Safe payments.** Checkout runs through Stripe. The coach is paid after you confirm the session, and reported problems are reviewed first.
+<br>
+
+Browse staff-approved coaches for one-on-one sessions and VOD reviews. Compare their experience, specialties, packages and availability before booking.
+
+- **Staff-approved coaches.** Staff review coaches before they are listed. Profiles show their verified peak league, session reviews and specialties, including Light, Medium, Heavy, aim, game sense, team play and VOD review.
+- **Availability and packages.** Coaches publish weekly availability, you see the next free slot up front and book instantly. Packages say how long they run and what is included.
+- **Payments and payouts.** Checkout runs through Stripe and card details never touch our servers. The coach sells the session and PUGZ takes a fee. The coach's payout is released after you confirm the session. Reported problems are reviewed before the payout is released.
+- **Booking chat and a private room.** Chat with your coach about the booking, and get a private voice room for the session, opened by the bot 15 minutes before the start.
+- **Session reviews.** Only players who finished a session can review, and coaches can reply.
 
 <div align="center">
 
@@ -219,31 +281,11 @@ Players get better, coaches get a place to work. Coaches set their own prices an
 
 </div>
 
-PUGZ keeps nothing. Every euro that comes in, from donations and platform fees, goes back into the community:
+PUGZ keeps nothing. Every euro that comes in, from donations and platform fees, goes back into the community.
 
 | First | Then | Always |
 |---|---|---|
 | **Hosting.** Servers, the database, backups and monitoring. | **Prize pools.** What is left goes to season and tournament prizes. | **€0 profit.** Nothing is kept. |
-
-Want to help? Donate from the [website](https://pugz.gg).
-
-<div align="center">
-
-<br>
-
-<img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/eyebrow-rules.svg?v=2fde167a" alt="Rules and trust">
-
-## Rules everyone can see
-
-</div>
-
-| Rule | How it works |
-|---|---|
-| **Warnings with points** | Every rule has a cost in points. Points add up to queue bans, timeouts and bans, on a ladder anyone can read in the rules post. |
-| **Ready checks and results** | Miss a ready check and you are replaced, with escalating bans for repeats. A result needs the other team or a staff decision, and every staff call has a reason on record. |
-| **Nothing lost on a restart** | Queues, matches and timers live in the database. A restart or a deploy picks up exactly where it left off. |
-| **Staff on the record** | Match timelines, moderation cases and an audit log of every change in the staff portal. |
-| **Your data** | Players can ask for their data to be erased. |
 
 <div align="center">
 
@@ -263,36 +305,73 @@ Want to help? Donate from the [website](https://pugz.gg).
 
 <br>
 
-- **Tournaments on your server, today.** Add the bot and your sign-ups, check-in, brackets and match rooms run on your Discord. Your moderators manage it on the PUGZ website, limited to your server, and the results count on every profile.
-- **PUGs on your server, next.** After the public launch: your own queues, your staff, one shared profile and rating for every player, and leaderboards where servers compete with each other.
+Organisers can already run their tournaments on their own Discord server with the PUGZ bot. PUGs on your own server are planned for after the public launch.
+
+<table>
+<tr>
+<td width="50%" valign="top">
+
+### Tournaments on your server
+**Built and in testing. Add the bot and play it on your server.**
+
+- **Your server, your tournament.** Add the PUGZ bot to your Discord. Sign-ups, check-in, brackets and match rooms run there.
+- **Moderate from our website.** Seeding, results, disputes and check-in are managed on the PUGZ website and in the staff portal, with the same tools our own staff use.
+- **Your staff.** Your moderators get access through your Discord roles, limited to your server.
+- **Results that count.** Winners and results are recorded on team and player profiles.
+
+</td>
+<td width="50%" valign="top">
+
+### PUGs on your server
+**Planned. Coming after the public launch.**
+
+- **Queues in your server.** The queue panel in your channels, with lobbies, voice channels, results and ratings run by the bot.
+- **Your staff, your rules.** Your moderators handle matches, disputes and tickets for your server.
+- **One profile everywhere.** Players keep one PUGZ profile, rating and match history across every server they play in.
+- **Shared leaderboards.** Compare your community with others, and compete server against server.
+
+</td>
+</tr>
+</table>
+
 
 <div align="center">
 
 <br>
 
+<img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/divider.svg?v=d319395b" alt="" width="900">
+
+<br>
+
 <img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/eyebrow-status.svg?v=17d1f1e2" alt="Development status">
 
-## Where we are
+## Development status
 
 </div>
 
-PUGZ is in **closed beta**: everything below marked in testing is built and being played end to end on our own server.
+PUGZ is in **closed beta**. The core platform is built and being tested end to end on our own server. Public access will follow testing.
 
-| Area | Status |
-|---|---|
-| Queues, lobbies, live matches, results and rematches | <img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/badge-in-testing.svg?v=8580337b" alt="In testing"> |
-| Ratings, seasons, leaderboards and rank roles | <img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/badge-in-testing.svg?v=8580337b" alt="In testing"> |
-| Skill tiers for 3v3 and the 1v1 ladder | <img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/badge-in-testing.svg?v=8580337b" alt="In testing"> |
-| Player profiles, trophies, badges and linked accounts | <img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/badge-in-testing.svg?v=8580337b" alt="In testing"> |
-| Teams, scrim scheduling and bot-run scrims | <img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/badge-in-testing.svg?v=8580337b" alt="In testing"> |
-| Tournaments, on our server and yours | <img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/badge-in-testing.svg?v=8580337b" alt="In testing"> |
-| Coaching and donations | <img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/badge-in-testing.svg?v=8580337b" alt="In testing"> |
-| Tickets, warnings, rules post and staff portal | <img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/badge-in-testing.svg?v=8580337b" alt="In testing"> |
-| Tournament dashboard and staff seats | <img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/badge-in-progress.svg?v=1e2ce5d9" alt="In progress"> |
-| League | <img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/badge-planned.svg?v=04ed5b09" alt="Planned"> |
-| PUGs on your own server | <img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/badge-planned.svg?v=04ed5b09" alt="Planned"> |
+| Area | Where | Status |
+|---|---|---|
+| Queues and queue bans | Discord, web | <img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/badge-in-testing.svg?v=8580337b" alt="In testing"> |
+| Pre-match lobbies, ready-up and map votes | Discord | <img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/badge-in-testing.svg?v=8580337b" alt="In testing"> |
+| Live matches and team voice channels | Discord, web | <img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/badge-in-testing.svg?v=8580337b" alt="In testing"> |
+| Results, disputes and evidence | Discord, web | <img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/badge-in-testing.svg?v=8580337b" alt="In testing"> |
+| Post-match lobby and rematch | Discord | <img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/badge-in-testing.svg?v=8580337b" alt="In testing"> |
+| PUG ratings, seasons and leaderboards | Discord, web | <img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/badge-in-testing.svg?v=8580337b" alt="In testing"> |
+| Tiered queues and the 1v1 ladder | Discord, web | <img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/badge-in-testing.svg?v=8580337b" alt="In testing"> |
+| Player profiles and linked accounts | Web | <img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/badge-in-testing.svg?v=8580337b" alt="In testing"> |
+| Support tickets, warnings and the rules post | Discord, web | <img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/badge-in-testing.svg?v=8580337b" alt="In testing"> |
+| Staff portal | Web | <img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/badge-in-testing.svg?v=8580337b" alt="In testing"> |
+| Teams, scrim scheduling and bot-run scrims | Discord, web | <img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/badge-in-testing.svg?v=8580337b" alt="In testing"> |
+| Tournaments | Discord, web | <img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/badge-in-testing.svg?v=8580337b" alt="In testing"> |
+| Tournament dashboard and staff seats | Web | <img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/badge-in-progress.svg?v=1e2ce5d9" alt="In progress"> |
+| League | Discord, web | <img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/badge-planned.svg?v=04ed5b09" alt="Planned"> |
+| Coaching and donations | Web | <img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/badge-in-testing.svg?v=8580337b" alt="In testing"> |
+| Tournaments on your own server | Discord, web | <img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/badge-in-testing.svg?v=8580337b" alt="In testing"> |
+| PUGs on your own server | Discord, web | <img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/badge-planned.svg?v=04ed5b09" alt="Planned"> |
 
-**Next up:** Tournament dashboard → League → PUGs on your own server
+**Next up, in order:** Tournament dashboard → League → PUGs on your own server
 
 <div align="center">
 
@@ -308,7 +387,7 @@ PUGZ is in **closed beta**: everything below marked in testing is built and bein
 
 </div>
 
-A Discord bot, a website and a background worker on one PostgreSQL database. The bot is the only one that changes match data; the website sends it commands. Database notifications keep everything in step, and a durable job queue handles the background work and the integrations.
+The website, Discord bot and background worker share a PostgreSQL database. The bot manages all changes to match data; actions on the website are sent to it as commands. Database notifications keep the services updated, while a durable job queue handles background tasks and external integrations.
 
 <div align="center">
 
@@ -324,10 +403,10 @@ A Discord bot, a website and a background worker on one PostgreSQL database. The
 | **Bot** | Node.js 24, discord.js v14, Components v2 |
 | **Website** | Fastify 5, React 19, Vite, Tailwind CSS v4 |
 | **Database** | PostgreSQL 18, Prisma |
-| **Background jobs** | pg-boss, on the same database |
+| **Background jobs** | pg-boss, running on the same database |
 | **Payments** | Stripe and Stripe Connect |
-| **Quality** | Integration tests against a real database, including restarts and races |
-| **Built for** | 100+ players in queues and matches at once |
+| **Quality** | vitest integration tests against a real database, including restarts and races |
+| **Designed for** | 100+ players in queues and matches at once |
 
 <div align="center">
 

@@ -1298,7 +1298,7 @@ def mark_file() -> str:
 EYEBROWS = {
     "eyebrow-platform": "THE PLATFORM",
     "eyebrow-flow": "HOW A MATCH WORKS",
-    "eyebrow-rules": "RULES AND TRUST",
+    "eyebrow-fair": "BUILT TO BE FAIR",
     "eyebrow-rating": "RATINGS, SEASONS AND QUEUES",
     "eyebrow-teams": "TEAMS AND SCRIMS",
     "eyebrow-tournaments": "TOURNAMENTS",
