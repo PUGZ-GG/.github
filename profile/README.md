@@ -4,13 +4,16 @@
 
 <br>
 
-**PUGZ** is the competitive home of *THE FINALS*: PUGs, ranked ladders, scrims, tournaments, a league, coaching and stats in one place.<br><br>
-Join queues and play matches through Discord, then track your rating, results and match history on the website.<br><br>
-The platform brings together skill-tiered queues, a 1v1 ladder, team management, scrim scheduling, tournaments, a seasonal league and coaching. The status of each area is listed below.<br><br>
-Everything is built around the full competitive journey: meet other competitive players in the queues, form a team, grow together through scrims and coaching, then put your team to the test in a league season.<br><br>
-Zero profit. Every euro PUGZ takes in goes back in: hosting first, then prize pools.
-
-Organisers can already run their tournaments on their own server with the PUGZ bot. Next, we plan to bring PUGs to other communities' servers too, creating a global ecosystem with shared queues, leaderboards, server competitions and much more.
+**PUGZ** is the competitive home of *THE FINALS*. One platform bringing together PUGs, ranked ladders, scrims, tournaments, leagues, coaching, team management and player statistics.<br><br>
+Our goal is simple: **bring the entire competitive experience together in one place.** Whether you're taking your first steps into competitive play or you're a seasoned veteran, PUGZ is built to help you grow, compete and reach your potential, both as an individual player and as part of a team.<br><br>
+Jump into skill-based queues, compete against other players, track your performance and climb the rankings. Meet teammates, build your own team, schedule scrims, improve through coaching and put your skills to the test in tournaments and seasonal leagues.<br><br>
+**Everything is connected.** From your first PUG to competing at the highest level, PUGZ provides the tools and opportunities to grow as a player or team.<br><br>
+**Built for the community. Not for profit.**<br>
+PUGZ is independently developed and funded out of our own pockets. Every euro the platform generates is reinvested into keeping it running, improving its features and funding competitive prize pools. We don't take profits.<br><br>
+**One platform. A connected competitive ecosystem.**<br>
+Tournament organizers can already host their own competitions directly from their Discord servers using the PUGZ bot.<br>
+Our next step is bringing PUGs to other communities as well, connecting Discord servers through shared queues, rankings and leaderboards. The long-term vision is a global competitive ecosystem where communities can compete, collaborate and grow together.<br><br>
+Below, you'll find an overview of everything PUGZ offers and the current development status of each feature.
 
 
 <br>
