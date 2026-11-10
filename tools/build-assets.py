@@ -37,19 +37,18 @@ INK_950, INK_925, INK_900, INK_850 = "#050516", "#070719", "#0d0d26", "#121233"
 TEXT, MUTED, FAINT = "#f0f0fb", "#a2a2c3", "#7c7ca0"
 CYAN, BLUE, VIOLET, VIOLET_600, PINK = "#3de3ff", "#4c6bff", "#9b5cff", "#8b4dff", "#f47cf4"
 GREEN, RED, AMBER, GOLD, INK_TEXT = "#63f0b5", "#ff8fa3", "#ffcc4d", "#ffd36b", "#07071a"
-# The PUG rating ladder as it is set for the current season (PUG settings, Ratings): a name, the
-# rating it starts at and its colour. Staff can change all of it per season.
+# The PUG rating ladder of a tiered season (TIER_RANKS in packages/shared/src/domain/tiers.ts):
+# a name, the rating it starts at, its colour and its tier. Staff can change all of it per season.
 TIERS = [  # lowest first
-    ("Rookie", "<750", "#748192", "rookie"),
-    ("Prospect", "750+", "#658CB9", "prospect"),
-    ("Contender", "850+", "#449ED7", "contender"),
-    ("Challenger", "950+", "#26B7D3", "challenger"),
-    ("Pro", "1050+", "#25CFBF", "pro"),
-    ("Elite", "1150+", "#64DE8C", "elite"),
-    ("Star", "1250+", "#98E36B", "star"),
-    ("All-Star", "1350+", "#D8DF44", "allstar"),
-    ("Superstar", "1500+", "#FFD547", "superstar"),
-    ("Legend", "1650+", "#FF7F16", "legend"),
+    ("Rookie", "<1150", "#6583A3", "rookie", "B"),
+    ("Prospect", "1150+", "#6194C4", "prospect", "B"),
+    ("Contender", "1300+", "#58A5E4", "contender", "B"),
+    ("Challenger", "1450+", "#4DBF74", "challenger", "A"),
+    ("Pro", "1600+", "#5ECD6B", "pro", "A"),
+    ("Elite", "1750+", "#74DA5C", "elite", "A"),
+    ("Star", "1900+", "#E6D441", "star", "S"),
+    ("All-Star", "2050+", "#FFB90E", "allstar", "S"),
+    ("Legend", "2200+", "#FF8C1E", "legend", "S"),
 ]
 
 DISCORD_GLYPH = (
@@ -326,7 +325,7 @@ def banner() -> str:
         for i, (x, sw, op) in enumerate([(430, 34, ".55"), (520, 90, ".35"), (650, 22, ".7"), (730, 120, ".28"), (860, 46, ".45")], 1)
     )
     live, live_w = tag(left, 38, "IN CLOSED BETA", AMBER, dot=True)
-    comm, _ = tag(left + live_w + 10, 38, "COMMUNITY PUGS", CYAN)
+    comm, _ = tag(left + live_w + 10, 38, "THE COMPETITIVE HUB", CYAN)
     vx, vy, vw, vh = MARK_VIEW
     mx, my, mw = 566, 84, 300
     s = mw / vw
@@ -353,9 +352,9 @@ def banner() -> str:
         "</g>"
         f"{live}{comm}"
         + text(DISPLAY, word, word_size, left - 4, 188, "url(#wordFill)", tracking=-0.025)
-        + text(HEADING, "Pick-up games for THE FINALS.", 27, left, 238, TEXT)
-        + text(BODY, "Play matches through Discord. Track your rating,", 15, left, 274, MUTED)
-        + text(BODY, "results and match history on the website.", 15, left, 296, MUTED)
+        + text(HEADING, "The competitive home of THE FINALS.", 27, left, 238, TEXT)
+        + text(BODY, "PUGs, scrims, tournaments, coaching and seasons.", 15, left, 274, MUTED)
+        + text(BODY, "Played on Discord. Tracked on the web.", 15, left, 296, MUTED)
         + button(left, 322, "Join the Discord")
         + f'<rect x=".5" y=".5" width="{w - 1}" height="{h - 1}" rx="23.5" fill="none" stroke="#fff" stroke-opacity=".1"/>'
     )
@@ -382,7 +381,7 @@ def banner() -> str:
         "@keyframes sheen{0%{transform:translateX(-520px) skewX(-20deg)}55%,100%{transform:translateX(1300px) skewX(-20deg)}}"
         + PULSE_CSS
     )
-    return svg(w, h, "PUGZ", "PUGZ. Pick-up games for THE FINALS. In closed beta. Join the Discord.", body, defs, style)
+    return svg(w, h, "PUGZ", "PUGZ. The competitive home of THE FINALS: PUGs, scrims, tournaments, coaching and seasons. In closed beta. Join the Discord.", body, defs, style)
 
 
 def eyebrow(label: str) -> str:
@@ -455,18 +454,18 @@ def flow_visual(i: int, cx: float, top: float) -> str:
         out += text(LABEL, "VS", 10, cx, top + 23, TEXT, anchor="middle", tracking=0.08)
         return out + text(MONO, "CODE 4F7K2Q", 10.5, cx, top + 54, FAINT, anchor="middle")
     if i == 3:  # Result: the score, reported and confirmed.
-        out = text(DISPLAY, "2–1", 26, cx, top + 30, TEXT, anchor="middle")
+        out = text(DISPLAY, "2–1", 20, cx, top + 24, TEXT, anchor="middle")
         x0 = cx - (12 + BODY.width("Confirmed", 11)) / 2
         for r, label in enumerate(("Reported", "Confirmed")):
-            y = top + 46 + r * 15
+            y = top + 42 + r * 15
             out += tick(x0 + 4, y - 4, GREEN, 0.8) + text(BODY, label, 11, x0 + 12, y, MUTED)
         return out
     # Rank: up a rank, with the points gained.
-    name, _, color, kind = TIERS[4]
-    out = shield(cx - 22, top, 40, color, kind)
-    out += f'<polyline points="{cx + 6},{top + 16} {cx + 12},{top + 10} {cx + 18},{top + 16}" fill="none" stroke="{GREEN}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>'
-    out += text(MONO, "+14", 17, cx + 24, top + 22, GREEN)
-    return out + text(BODY_BOLD, name, 12, cx - 22, top + 56, color, anchor="middle") + text(BODY, "rank up", 11, cx + 8, top + 38, MUTED)
+    name, _, color, kind, _t = TIERS[4]
+    out = shield(cx - 20, top + 2, 30, color, kind)
+    out += f'<polyline points="{cx + 4},{top + 15} {cx + 9},{top + 10} {cx + 14},{top + 15}" fill="none" stroke="{GREEN}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>'
+    out += text(MONO, "+14", 14, cx + 19, top + 18, GREEN)
+    return out + text(BODY_BOLD, name, 11, cx - 20, top + 49, color, anchor="middle") + text(BODY, "rank up", 11, cx + 4, top + 34, MUTED)
 
 
 def flow() -> str:
@@ -619,20 +618,29 @@ def shield(cx: float, top: float, height: float, color: str, kind: str) -> str:
 
 
 def tiers() -> str:
-    """The rating ladder: ten ranks, lowest to highest, each with its threshold. A highlight climbs it."""
-    w, h = 900, 372
+    """The rating ladder: nine ranks in three tiers, lowest to highest, each with its threshold. A highlight climbs it."""
+    w, h = 900, 400
     n = len(TIERS)
     col_w = (w - 96) / n
     base, shield_h = 306, 52
     out = [
         text(HEADING, "Climb the ladder.", 22, 48, 54, TEXT)
-        + text(BODY, "Ranks are Discord roles. Cross a threshold and your rank changes right away.", 14, 48, 78, MUTED)
+        + text(BODY, "Three ranks per tier. Cross a line and your rank, and your tier, change right away.", 14, 48, 78, MUTED)
     ]
+    tier_colors = {"B": "#58A5E4", "A": "#5ECD6B", "S": "#FFB90E"}
+    for k, letter in enumerate("BAS"):
+        x0 = 48 + col_w * 3 * k + 6
+        bw_ = col_w * 3 - 12
+        c = tier_colors[letter]
+        out.append(
+            f'<rect x="{x0:.1f}" y="{base + 58}" width="{bw_:.1f}" height="2" rx="1" fill="{c}" fill-opacity=".55"/>'
+            + text(LABEL, f"TIER {letter}", 11, x0 + bw_ / 2, base + 80, c, anchor="middle", tracking=0.16)
+        )
     glow_defs = ""
     glows = ""
-    for i, (name, threshold, color, kind) in enumerate(TIERS):
+    for i, (name, threshold, color, kind, _tier) in enumerate(TIERS):
         cx = 48 + col_w * (i + 0.5)
-        block_h = 26 + i * 15
+        block_h = 26 + i * 17
         bx, by, bw = cx - col_w / 2 + 5, base - block_h, col_w - 10
         shield_top = by - 8 - shield_h
         out.append(
@@ -649,7 +657,7 @@ def tiers() -> str:
         )
     body = panel(w, h, INK_925) + card(1, 1, w - 2, h - 2, 24, "none") + glows + "".join(out)
     style = cycle_css("climb", n, 14)
-    return svg(w, h, "The PUG rating ladder", "Ten ranks from Rookie to Legend, set per season by staff: " + ", ".join(f"{t[0]} {t[1]}" for t in TIERS) + ". Ranks are Discord roles and change the moment your rating crosses a threshold.", body, glow_defs, style)
+    return svg(w, h, "The PUG rating ladder", "Nine ranks in three tiers, from Rookie to Legend, set per season by staff. Tier B: Rookie, Prospect, Contender. Tier A: Challenger, Pro, Elite. Tier S: Star, All-Star, Legend. Thresholds: " + ", ".join(f"{t[0]} {t[1]}" for t in TIERS) + ". Ranks are Discord roles and change the moment your rating crosses a threshold; crossing into the next tier moves you up a tier.", body, glow_defs, style)
 
 
 # --- Architecture diagram -------------------------------------------------------------------------
@@ -1008,10 +1016,11 @@ def league() -> str:
 
 
 # Tiered queues: in progress, so only the idea is shown (no thresholds or numbers yet).
+# Every change is one player joining or leaving; only a pop clears the queue at once.
 QUEUE_TIERS = [  # tier, colour, how the count moves over one loop: (players, from %, to %)
-    ("S", "#ff4d7d", [(1, 0, 18), (2, 18, 42), (1, 42, 66), (2, 66, 84), (1, 84, 100)]),  # one joins, leaves, joins
-    ("A", CYAN, [(3, 0, 14), (4, 14, 34), (5, 34, 52), (4, 52, 72), (3, 72, 100)]),  # two join, two leave
-    ("B", "#d6e0ff", [(5, 0, 30), (6, 30, 46), (0, 46, 58), (2, 58, 72), (4, 72, 86), (5, 86, 100)]),  # pops, fills again
+    ("S", "#ff4d7d", [(1, 0, 20), (2, 20, 26), (3, 26, 48), (2, 48, 70), (1, 70, 100)]),  # two quick joins, two leave
+    ("A", CYAN, [(3, 0, 12), (4, 12, 30), (5, 30, 50), (4, 50, 64), (3, 64, 100)]),
+    ("B", "#d6e0ff", [(5, 0, 24), (6, 24, 34), (0, 34, 50), (1, 50, 54), (2, 54, 58), (3, 58, 70), (4, 70, 84), (5, 84, 100)]),  # pops, then quick joins
 ]
 QUEUE_LOOP = 14  # seconds
 
@@ -1029,7 +1038,7 @@ def queues() -> str:
     w, h = 900, 352
     out = (
         text(HEADING, "Queue in your tier.", 22, 48, 54, TEXT)
-        + text(BODY, "Press Join and you are put in your tier's queue. Your tier is set when a season starts.", 14, 48, 78, MUTED)
+        + text(BODY, "Press Join and you are put in your tier's queue. Cross the next tier's line and you move up at once.", 14, 48, 78, MUTED)
     )
     # The panel: a Discord message with the violet accent bar down its left edge.
     px, py, pw_, ph = 48, 104, 804, 200
@@ -1074,10 +1083,10 @@ def queues() -> str:
         + text(LABEL, "Join 3v3", 15, px + pw_ - 145, py + 104, INK_TEXT)
         + text(BODY, "Your tier is on /stats", 12.5, px + pw_ - 112, py + 144, FAINT, anchor="middle")
     )
-    out += text(BODY, "Each tier gets its own leaderboard and its own prizes.", 13, w / 2, 334, MUTED, anchor="middle")
+    out += text(BODY, "Each tier races for its own leaderboard spot and its own prizes.", 13, w / 2, 334, MUTED, anchor="middle")
     body = panel(w, h, INK_925) + card(1, 1, w - 2, h - 2, 24, "none") + out
     style = ".join{animation:join 2.2s ease-in-out infinite}@keyframes join{0%,100%{opacity:0}50%{opacity:.85}}" + states_css + PULSE_CSS
-    return svg(w, h, "Tiered queues", "A 3v3 queue for each tier, S, A and B, with players joining and leaving like on the queue panel in Discord. Press Join and you are put in your tier's queue; your tier is set when a season starts. Each tier gets its own leaderboard and its own prizes.", body, "", style)
+    return svg(w, h, "Tiered queues", "A 3v3 queue for each tier, S, A and B, with players joining and leaving like on the queue panel in Discord. Press Join and you are put in your tier's queue; cross the next tier's line and you move up at once. Each tier gets its own leaderboard race and its own prizes.", body, "", style)
 
 
 def servers() -> str:
@@ -1260,6 +1269,55 @@ def cta() -> str:
     return svg(w, h, "Join the Discord", "Join the PUGZ Discord for launch updates, community discussions and access when public queues open.", body, defs, style)
 
 
+def profit() -> str:
+    """Where every euro goes: in, hosting, prize pools, and nothing kept. A coin travels the track."""
+    w, h = 900, 236
+    track_y = 150
+    xs = [130, 350, 570, 790]
+    steps = [
+        ("IN", "Donations and fees", CYAN),
+        ("FIRST", "Hosting", BLUE),
+        ("THEN", "Prize pools", VIOLET),
+        ("ALWAYS", "Profit", PINK),
+    ]
+    out = (
+        text(HEADING, "Where every euro goes.", 22, 48, 54, TEXT)
+        + text(BODY, "Everything that comes in goes back into the community. Nothing is kept.", 14, 48, 78, MUTED)
+        + f'<rect x="{xs[0]}" y="{track_y - 1.5}" width="{xs[-1] - xs[0]}" height="3" rx="1.5" fill="url(#brand)" opacity=".55"/>'
+    )
+    for x, (label, title, color) in zip(xs, steps):
+        out += (
+            f'<circle cx="{x}" cy="{track_y}" r="22" fill="{INK_900}" stroke="{color}" stroke-width="1.6"/>'
+            + text(LABEL, label, 9.5, x, 112, color, anchor="middle", tracking=0.18)
+            + text(BODY_BOLD, title, 13, x, 196, TEXT, anchor="middle")
+        )
+    # The icons inside the nodes.
+    x = xs[0]  # a coin
+    out += f'<circle cx="{x}" cy="{track_y}" r="9" fill="none" stroke="{CYAN}" stroke-width="2"/>' + text(BODY_BOLD, "€", 11, x, track_y + 4, CYAN, anchor="middle")
+    x = xs[1]  # a server: three stacked units
+    out += "".join(f'<rect x="{x - 10}" y="{track_y - 10 + k * 7.5}" width="20" height="5" rx="1.5" fill="{BLUE}" opacity="{.95 - k * .2:.2f}"/>' for k in range(3))
+    x = xs[2]  # a trophy
+    out += (f'<path d="M{x - 8} {track_y - 10}h16v5a8 8 0 0 1-16 0z" fill="{VIOLET}"/>'
+            f'<path d="M{x - 8} {track_y - 8}h-4v2a4 4 0 0 0 4 4M{x + 8} {track_y - 8}h4v2a4 4 0 0 1-4 4" fill="none" stroke="{VIOLET}" stroke-width="1.8"/>'
+            f'<rect x="{x - 1.5}" y="{track_y + 2}" width="3" height="5" fill="{VIOLET}"/><rect x="{x - 6}" y="{track_y + 7}" width="12" height="3" rx="1" fill="{VIOLET}"/>')
+    out += text(DISPLAY, "€0", 15, xs[3], track_y + 5.5, PINK, anchor="middle")
+    out += text(BODY, "kept by PUGZ", 12, xs[3], 214, MUTED, anchor="middle")
+    out += text(BODY, "everything that comes in", 12, xs[0], 214, MUTED, anchor="middle")
+    out += text(BODY, "servers, database, backups", 12, xs[1], 214, MUTED, anchor="middle")
+    out += text(BODY, "seasons and tournaments", 12, xs[2], 214, MUTED, anchor="middle")
+    # A coin running from the start to the prize pools, again and again.
+    coin = (f'<g class="coin"><circle cx="{xs[0]}" cy="{track_y}" r="6" fill="{GOLD}"/>'
+            f'<circle cx="{xs[0]}" cy="{track_y}" r="11" fill="{GOLD}" opacity=".25" filter="url(#glow-sm)"/></g>')
+    body = panel(w, h, INK_925) + card(1, 1, w - 2, h - 2, 24, "none") + out + coin
+    dist = xs[2] - xs[0]
+    style = (
+        ".coin{animation:coin 4.5s cubic-bezier(.55,0,.45,1) infinite}"
+        f"@keyframes coin{{0%{{transform:translateX(0);opacity:0}}8%{{opacity:1}}45%{{transform:translateX({(xs[1] - xs[0])}px)}}"
+        f"55%{{transform:translateX({xs[1] - xs[0]}px)}}88%{{opacity:1}}100%{{transform:translateX({dist}px);opacity:0}}}}"
+    )
+    return svg(w, h, "Where every euro goes", "Where every euro goes: donations and fees come in, pay for hosting first, then go to season and tournament prize pools. PUGZ keeps nothing: zero profit.", body, BLUR_FILTERS, style)
+
+
 def footer_wordmark() -> str:
     w = 900
     word = "PUGZ"
@@ -1299,17 +1357,19 @@ EYEBROWS = {
     "eyebrow-servers": "FOR ORGANISERS",
     "eyebrow-status": "DEVELOPMENT STATUS",
     "eyebrow-stack": "UNDER THE HOOD",
+    "eyebrow-profit": "ZERO PROFIT",
 }
 
 
 # Status badges for the status table. A dark backing keeps them readable on GitHub's light theme too.
-BADGES = {"badge-in-testing": ("IN TESTING", "#63f0b5"), "badge-in-progress": ("IN PROGRESS", "#3de3ff"), "badge-planned": ("PLANNED", "#ffcc4d")}
+# Transparent, so they sit on GitHub's light and dark themes alike; mid-tone colours read on both.
+BADGES = {"badge-in-testing": ("IN TESTING", "#1fb57f"), "badge-in-progress": ("IN PROGRESS", "#1ea7d6"), "badge-planned": ("PLANNED", "#d99a0b"), "badge-in-refinement": ("IN REFINEMENT", "#9b6cf0")}
 
 
 def badge(label: str, color: str) -> str:
     _, tw = tag(0, 0, label, color, h=22, dot=True, size=9.5)
     w, h = int(tw + 4), 24
-    body = para(2, 1, tw, 22, 6, fill=INK_900) + tag(2, 1, label, color, h=22, dot=True, size=9.5)[0]
+    body = tag(2, 1, label, color, h=22, dot=True, size=9.5)[0]
     return svg(w, h, label.title(), f"Status: {label.lower()}", body, "", PULSE_CSS)
 
 
@@ -1347,6 +1407,7 @@ def main() -> None:
         "coaching.svg": coaching(),
         "servers.svg": servers(),
         "cta.svg": cta(),
+        "profit.svg": profit(),
         "wordmark.svg": footer_wordmark(),
         "pugz-mark.svg": mark_file(),
         **{f"{name}.svg": eyebrow(label) for name, label in EYEBROWS.items()},
