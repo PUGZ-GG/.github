@@ -284,7 +284,7 @@ Browse staff-approved coaches for one-on-one sessions and VOD reviews. Compare t
 
 ## Built for players, not for profit
 
-<img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/profit.svg?v=a90d2bf4" alt="Where every euro goes: donations and fees come in, pay for hosting first, then go to season and tournament prize pools. PUGZ keeps nothing: zero profit." width="900">
+<img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/profit.svg?v=bcff0639" alt="Where every euro goes: donations and fees come in, pay for hosting first, then go to season and tournament prize pools. PUGZ keeps nothing: zero profit." width="900">
 
 </div>
 
