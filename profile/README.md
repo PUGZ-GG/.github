@@ -5,7 +5,7 @@
 <br>
 
 **PUGZ** is the competitive home of *THE FINALS*. One platform bringing together PUGs, ranked ladders, scrims, tournaments, leagues, coaching, team management and player statistics.<br><br>
-Whether you’re new to competitive play or a seasoned veteran, PUGZ helps you improve, find teammates and compete. Join skill-based queues, track your performance and climb the rankings. Build a team, schedule scrims, learn from coaches and test your skills in tournaments and seasonal leagues, with a cash prize pool for every level.<br><br>
+Whether you’re new to competitive play or a seasoned veteran, PUGZ helps you improve, find teammates and compete. Join skill-based queues, track your performance and climb the rankings. Build a team, schedule scrims, learn from coaches and test your skills in tournaments and seasonal leagues, with cash prize pools for every level.<br><br>
 **Built for the community. Not for profit.**<br>
 PUGZ is independently developed and funded out of our own pockets. Every euro the platform generates goes back into running it, improving its features and funding competitive prize pools. We take no income or profits.<br><br>
 **One platform. Connected communities.**<br>
