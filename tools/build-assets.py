@@ -1275,7 +1275,8 @@ def profit() -> str:
     One 7-second loop in plain CSS: a flat gold coin is minted at IN and eases (slow, fast, slow)
     to each stop; every arrival sends rings out from behind the circle. Hosting takes its share
     (the coin shrinks a touch), the prize pool spends the rest (a gold pulse, the circle turns
-    gold and the coin dissolves), and only wind travels on to the €0 of profit.
+    gold and the coin dissolves), and only wind travels on to the €0 of profit, which dims to a
+    dusty pink as the air arrives.
     """
     w, h = 900, 236
     ty = 150
@@ -1287,6 +1288,7 @@ def profit() -> str:
         ("ALWAYS", "Profit", PINK),
     ]
     T = 7.0
+    ASH = "#c99ccf"  # the dusty pink the profit dims to
     ease = "cubic-bezier(.65,0,.35,1)"
     spring = "cubic-bezier(.3,1.3,.5,1)"
     ring_ease = "cubic-bezier(.2,.7,.3,1)"
@@ -1342,14 +1344,24 @@ def profit() -> str:
         if i == 2:
             out += f'<circle class="gglow" cx="{x}" cy="{ty}" r="22" fill="{GOLD}" opacity="0" filter="url(#glow-sm)"/>'
         out += (
-            f'<circle class="{"gnode" if i == 2 else ""}" cx="{x}" cy="{ty}" r="22" fill="{INK_900}" stroke="{color}" stroke-width="1.6"/>'
-            + text(LABEL, label, 9.5, x, 112, color, anchor="middle", tracking=0.18)
+            f'<circle class="{ {2: "gnode", 3: "pnode"}.get(i, "")}" cx="{x}" cy="{ty}" r="22" fill="{INK_900}" stroke="{color}" stroke-width="1.6"/>'
+            + text(LABEL, label, 9.5, x, 112, color, anchor="middle", tracking=0.18,
+                   extra={2: 'class="gtag"', 3: 'class="ptag"'}.get(i, ""))
             + text(BODY_BOLD, title, 13, x, 196, TEXT, anchor="middle")
         )
     gold_frames = lambda on, off: [(0, off), (t2e, off), (gold_in, on), (gold_out - 1.8, on + f";animation-timing-function:{ease}"), (gold_out, off)]
     kf("gnode", gold_frames(f"fill:#2b252a;stroke:{GOLD}", f"fill:{INK_900};stroke:{VIOLET}"), origin=False)
     kf("gicon", gold_frames(f"color:{GOLD}", f"color:{VIOLET}"), origin=False)
     kf("gglow", gold_frames("opacity:.45", "opacity:0"), origin=False)
+    kf("gtag", gold_frames(f"fill:{GOLD}", f"fill:{VIOLET}"), origin=False)
+    # Only air reaches the profit: its circle, €0 and label dim to a dusty pink, and come back
+    # just before the next coin.
+    dim_s, back_s = gone + .6, gone + 2.42
+    dim = lambda on, off: [(0, off), (dim_s, off + f";animation-timing-function:{ease}"), (dim_s + .9, on),
+                           (back_s, on + f";animation-timing-function:{ease}"), (back_s + .5, off)]
+    kf("pnode", dim(f"stroke:{ASH}", f"stroke:{PINK}"), origin=False)
+    kf("ptag", dim(f"fill:{ASH}", f"fill:{PINK}"), origin=False)
+    kf("pzero", dim(f"fill:{ASH}", f"fill:{PINK}"), origin=False)
 
     # The icons inside the nodes.
     x = xs[0]  # a coin
@@ -1362,7 +1374,7 @@ def profit() -> str:
             f'<path d="M{x - 8} {ty - 10}h16v5a8 8 0 0 1-16 0z" fill="currentColor"/>'
             f'<path d="M{x - 8} {ty - 8}h-4v2a4 4 0 0 0 4 4M{x + 8} {ty - 8}h4v2a4 4 0 0 1-4 4" fill="none" stroke="currentColor" stroke-width="1.8"/>'
             f'<rect x="{x - 1.5}" y="{ty + 2}" width="3" height="5" fill="currentColor"/><rect x="{x - 6}" y="{ty + 7}" width="12" height="3" rx="1" fill="currentColor"/></g></g>')
-    out += f'<g class="ic3">{text(DISPLAY, "€0", 15, xs[3], ty + 5.5, PINK, anchor="middle")}</g>'
+    out += f'<g class="ic3">{text(DISPLAY, "€0", 15, xs[3], ty + 5.5, PINK, anchor="middle", extra='class="pzero"')}</g>'
     out += text(BODY, "kept by PUGZ", 12, xs[3], 214, MUTED, anchor="middle")
     out += text(BODY, "everything that comes in", 12, xs[0], 214, MUTED, anchor="middle")
     out += text(BODY, "servers, database, backups", 12, xs[1], 214, MUTED, anchor="middle")
