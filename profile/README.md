@@ -190,7 +190,7 @@ One queue for every level means most matches are decided before they start. The 
 
 ## Community tournaments
 
-<img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/tournaments.svg?v=ed2915ae" alt="A tournament moves from registration to check-in to live to completed. A bracket of eight seeds runs quarter-finals, semi-finals and a final, and the champion is recorded on every profile." width="900">
+<img src="https://raw.githubusercontent.com/PUGZ-GG/.github/main/profile/assets/tournaments.svg?v=78bcbb8c" alt="Tournament formats on PUGZ: single elimination, double elimination, round robin, Swiss, groups into playoffs and Cashout lobbies. The card morphs from one format to the next; in each, winners light up match by match and the line runs on to the champion." width="900">
 
 </div>
 

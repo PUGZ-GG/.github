@@ -847,87 +847,535 @@ def architecture() -> str:
     return svg(w, h, "PUGZ architecture", desc, body, arrow_defs(), style)
 
 
+# --- Tournaments: one card that morphs between six formats --------------------------------------
+# Drawn and timed like the approved design preview. Plain SVG animation (SMIL), so it plays inside
+# a README image where no script runs: every move, line and glow is worked out here on one shared
+# timeline. The loop is simulated twice and the second pass is kept, so its end joins its start.
+
+def _s(x, y, name, **o):
+    return {"x": x, "y": y, "w": 158, "h": 26, "name": name, "meta": "", "win": False, **o}
+
+
+def _row(x, y, name, meta, win=False):
+    return {"x": x, "y": y, "w": 158, "h": 22, "name": name, "meta": meta, "win": win}
+
+
+def _box(x, y, name, meta, **o):
+    return {"x": x, "y": y, "w": 124, "h": 48, "name": name, "meta": meta, "win": False, "box": True, **o}
+
+
+T_FORMATS = [
+    {
+        "name": "Single elimination",
+        "labels": [(0, 52, "Quarter-finals"), (200, 52, "Semi-finals"), (400, 52, "Final")],
+        "slots": [
+            _s(0, 76, "Seed 1", win=True), _s(0, 104, "Seed 8"), _s(0, 140, "Seed 4"), _s(0, 168, "Seed 5", win=True),
+            _s(0, 204, "Seed 3", win=True), _s(0, 232, "Seed 6"), _s(0, 268, "Seed 2", win=True), _s(0, 296, "Seed 7"),
+            _s(200, 108, "Seed 1", win=True), _s(200, 136, "Seed 5"), _s(200, 236, "Seed 3"), _s(200, 264, "Seed 2", win=True),
+            _s(400, 172, "Seed 1", win=True), _s(400, 200, "Seed 2"),
+        ],
+        "links": [(0, 8, 1), (3, 9, 0), (4, 10, 0), (6, 11, 0), (8, 12, 1), (11, 13, 0), (12, "c", 1)],
+        "champ": {"x": 600, "y": 150, "w": 172, "title": "Champion", "who": "Seed 1", "line": "Recorded on every profile, forever."},
+    },
+    {
+        "name": "Double elimination",
+        "labels": [(0, 52, "Upper bracket"), (0, 202, "Lower bracket"), (400, 52, "Grand final")],
+        "slots": [
+            _s(0, 76, "Seed 1", win=True), _s(0, 104, "Seed 4"), _s(0, 140, "Seed 2", win=True), _s(0, 168, "Seed 3"),
+            _s(200, 108, "Seed 1", win=True), _s(200, 136, "Seed 2"),
+            _s(0, 226, "Seed 3", win=True, meta="from upper"), _s(0, 254, "Seed 4", meta="from upper"),
+            _s(200, 240, "Seed 2", meta="from upper"), _s(200, 268, "Seed 3", win=True),
+            _s(400, 172, "Seed 1", win=True), _s(400, 200, "Seed 3"),
+        ],
+        # drops (upper-bracket losers) are shown by the "from upper" note: timed, not drawn
+        "links": [(0, 4, 1), (2, 5, 0), (1, 7, 0, {"drop": True}), (3, 6, 0, {"drop": True}), (4, 10, 1),
+                  (5, 8, 0, {"drop": True}), (6, 9, 0), (9, 11, 0), (10, "c", 1)],
+        "champ": {"x": 600, "y": 150, "w": 172, "title": "Champion", "who": "Seed 1", "line": "Lose once and you drop to the lower bracket."},
+    },
+    {
+        "name": "Round robin",
+        "labels": [(0, 52, "Standings"), (255, 52, "W–L"), (318, 52, "Pts")],
+        "slots": [{"x": 0, "y": 76 + i * 36, "w": 360, "h": 30, "name": n, "meta": f"{wl}   {p:>2}", "win": win, "rr": True}
+                  for i, (n, wl, p, win) in enumerate([("Seed 1", "5–0", 15, True), ("Seed 3", "4–1", 12, True), ("Seed 2", "3–2", 9, False),
+                                                       ("Seed 5", "2–3", 6, False), ("Seed 4", "1–4", 3, False), ("Seed 6", "0–5", 0, False)])],
+        "links": [(0, "c", 1)],
+        "champ": {"x": 430, "y": 120, "w": 200, "title": "Leader", "who": "Seed 1 · 5–0", "line": "Everyone plays everyone. The top two meet in the final."},
+    },
+    {
+        "name": "Swiss",
+        "labels": [(0, 52, "Round 1"), (150, 52, "Round 2"), (300, 52, "Round 3"), (450, 52, "Result")],
+        "slots": [
+            _box(0, 176, "0–0", "8 teams"),
+            _box(150, 116, "1–0", "4 teams"), _box(150, 236, "0–1", "4 teams"),
+            _box(300, 76, "2–0", "2 teams"), _box(300, 176, "1–1", "4 teams"), _box(300, 276, "0–2", "2 teams"),
+            _box(450, 106, "Advance", "2–0 and 2–1", win=True), _box(450, 246, "Out", "1–2 and 0–2", out=True),
+        ],
+        "links": [(0, 1, 1), (0, 2, 0), (1, 3, 1), (1, 4, 0), (2, 4, 1), (2, 5, 0), (3, 6, 1), (4, 6, 1), (4, 7, 0), (5, 7, 0), (6, "c", 1)],
+        "champ": {"x": 610, "y": 106, "w": 172, "title": "Qualified", "who": "4 teams", "line": "Two wins and you are through. Two losses and you are out."},
+    },
+    {
+        "name": "Groups into playoffs",
+        "labels": [(0, 52, "Groups"), (200, 52, "Semi-finals"), (400, 52, "Final")],
+        "frames": [(-8, 70, 174, 130, "Group A"), (-8, 208, 174, 130, "Group B")],
+        "slots": [
+            _row(0, 92, "Seed 1", "3–0", True), _row(0, 118, "Seed 4", "2–1", True), _row(0, 144, "Seed 5", "1–2"), _row(0, 170, "Seed 8", "0–3"),
+            _row(0, 230, "Seed 2", "3–0", True), _row(0, 256, "Seed 3", "2–1", True), _row(0, 282, "Seed 6", "1–2"), _row(0, 308, "Seed 7", "0–3"),
+            _s(200, 118, "Seed 1", win=True), _s(200, 146, "Seed 3"), _s(200, 246, "Seed 2", win=True), _s(200, 274, "Seed 4"),
+            _s(400, 182, "Seed 1", win=True), _s(400, 210, "Seed 2"),
+        ],
+        "links": [(0, 8, 1, {"lane": 188}), (5, 9, 0, {"lane": 196}), (4, 10, 0, {"lane": 180}), (1, 11, 0, {"lane": 172}), (8, 12, 1), (10, 13, 0), (12, "c", 1)],
+        "champ": {"x": 600, "y": 160, "w": 172, "title": "Champion", "who": "Seed 1", "line": "The top two of each group reach the playoffs."},
+    },
+    {
+        "name": "Cashout lobbies",
+        "labels": [(0, 52, "Round 1"), (240, 52, "Round 2")],
+        "frames": [(-8, 70, 174, 130, "Lobby A"), (-8, 208, 174, 130, "Lobby B"), (232, 138, 174, 130, "Lobby C"), (432, 148, 174, 84, "Final round")],
+        "slots": [
+            _row(0, 92, "Seed 1", "$46,200", True), _row(0, 118, "Seed 6", "$38,900", True), _row(0, 144, "Seed 4", "$21,300"), _row(0, 170, "Seed 7", "$12,050"),
+            _row(0, 230, "Seed 2", "$51,700", True), _row(0, 256, "Seed 3", "$44,100", True), _row(0, 282, "Seed 5", "$30,400"), _row(0, 308, "Seed 8", "$9,750"),
+            _row(240, 160, "Seed 2", "$62,400", True), _row(240, 186, "Seed 1", "$57,800", True), _row(240, 212, "Seed 3", "$40,100"), _row(240, 238, "Seed 6", "$22,600"),
+            _s(440, 170, "Seed 2", win=True), _s(440, 198, "Seed 1"),
+        ],
+        "links": [((0, 1), 9, 0, {"from": (166, 116), "to": (232, 182)}), ((4, 5), 10, 1, {"from": (166, 254), "to": (232, 226)}),
+                  ((8, 9), 12, 1, {"from": (406, 184), "to": (432, 197)}), (12, "c", 1)],
+        "champ": {"x": 628, "y": 145, "w": 160, "title": "Champion", "who": "Seed 2", "line": "The top two of each lobby advance. The last two settle it 1v1."},
+    },
+]
+
+SOFT = "#cacae2"
+T_SPEED = 0.3      # px per ms: the light along lines and across boxes
+T_MORPH = 850      # ms for a piece to reach its new place
+T_WAVE = 0.55      # ms of delay per px from the left: everything moves as one wave
+T_EASE = ".65 0 .35 1"
+T_LIN = "0 0 1 1"
+
+
+class _Track:
+    """One animated value over the simulated time. Segments: (start, end, to, spline)."""
+
+    def __init__(self, init):
+        self.init = init
+        self.segs: list[tuple[float, float, object, str]] = []
+
+    def to(self, t, dur, value, spline=T_EASE):
+        self.segs.append((t, t + max(dur, .5), value, spline))
+
+    def set(self, t, value):
+        self.segs.append((t, t + .5, value, T_LIN))
+
+    def window(self, a, b):
+        """Points (time, value, spline into this point) over [a, b], starting from the value at a."""
+        segs = sorted(self.segs, key=lambda s: s[0])
+        cur, pts = self.init, []
+        for t0, t1, v, sp in segs:
+            if t1 <= a:
+                cur = v
+                continue
+            if t0 >= b:
+                break
+            if not pts:
+                pts.append((a, cur, T_LIN))
+            pts.append((max(t0, a), cur, T_LIN))
+            pts.append((min(t1, b), v, sp))
+            cur = v
+        if not pts:
+            pts.append((a, cur, T_LIN))
+        pts.append((b, cur, T_LIN))
+        return pts
+
+
+def _fmt(v):
+    if isinstance(v, tuple):
+        return " ".join(f"{x:.2f}".rstrip("0").rstrip(".") for x in v)
+    if isinstance(v, float):
+        return f"{v:.3f}".rstrip("0").rstrip(".")
+    return str(v)
+
+
+def _smil(track, a, T, attr, kind="animate", extra=""):
+    pts = track.window(a, a + T)
+    # keyTimes must rise strictly
+    times, vals, splines, last = [], [], [], -1.0
+    for i, (t, v, sp) in enumerate(pts):
+        k = (t - a) / T
+        if i and k <= last:
+            k = min(last + 1e-5, 1.0) if i < len(pts) - 1 else 1.0
+            if k <= last:
+                continue
+        times.append(k); vals.append(_fmt(v)); last = k
+        if i:
+            splines.append(sp)
+    times[0], times[-1] = 0.0, 1.0
+    if len(set(vals)) == 1:
+        return ""  # never changes
+    kt = ";".join(f"{k:.5f}".rstrip("0").rstrip(".") or "0" for k in times)
+    if kind == "motion":
+        return (f'<animateMotion dur="{T / 1000:.3f}s" repeatCount="indefinite" calcMode="spline" keyPoints="{";".join(vals)}" '
+                f'keyTimes="{kt}" keySplines="{";".join(splines)}" {extra}/>')
+    tag_ = "animateTransform" if kind != "animate" else "animate"
+    typ = f' type="{kind}"' if kind != "animate" else ""
+    return (f'<{tag_} attributeName="{attr}"{typ} dur="{T / 1000:.3f}s" repeatCount="indefinite" calcMode="spline" '
+            f'values="{";".join(vals)}" keyTimes="{kt}" keySplines="{";".join(splines)}" {extra}/>')
+
+
+def _link_path(f, link):
+    frm, to, _hot, *rest = link
+    o = rest[0] if rest else {}
+    sl = f["slots"]
+    if "from" in o:
+        x1, y1 = o["from"]
+    elif isinstance(frm, tuple):
+        x1 = max(sl[k]["x"] + sl[k]["w"] for k in frm)
+        y1 = sum(sl[k]["y"] + sl[k]["h"] / 2 for k in frm) / len(frm)
+    else:
+        x1, y1 = sl[frm]["x"] + sl[frm]["w"], sl[frm]["y"] + sl[frm]["h"] / 2
+    if "to" in o:
+        x2, y2 = o["to"]
+    elif to == "c":
+        x2, y2 = f["champ"]["x"], f["champ"]["y"] + f["champ"]["h"] / 2
+    else:
+        x2, y2 = sl[to]["x"], sl[to]["y"] + sl[to]["h"] / 2
+    mx = o.get("lane", round((x1 + x2) / 2))
+    d = f"M{x1:g} {y1:g}H{mx:g}V{y2:g}H{x2:g}"
+    return d, x1, abs(mx - x1) + abs(y2 - y1) + abs(x2 - mx)
+
+
+def _schedule(f):
+    """When each match is decided and each line runs, as in the preview: a match (boxes stacked
+    tight in one column) is decided once every side has arrived; its winner lights, the light
+    crosses the box, and the lines out of the match leave together."""
+    sl, n = f["slots"], len(f["slots"])
+    group = list(range(n))
+    order = sorted(range(n), key=lambda k: (sl[k]["x"], sl[k]["y"]))
+    for j in range(1, n):
+        a, b = sl[order[j - 1]], sl[order[j]]
+        if a["x"] == b["x"] and b["y"] - (a["y"] + a["h"]) <= 4:
+            group[order[j]] = group[order[j - 1]]
+    members = lambda g: [k for k in range(n) if group[k] == g]
+    arrival = [0.0] * n
+    done: set[int] = set()
+    incoming = lambda k: [i for i, l in enumerate(f["links"]) if l[1] == k]
+    decided = lambda g: max(arrival[k] for k in members(g))
+    ready = lambda g: all(i in done for k in members(g) for i in incoming(k))
+
+    def leaves(g):
+        w = next((k for k in members(g) if sl[k]["win"]), None)
+        return decided(g) + (sl[w]["w"] / T_SPEED if w is not None else 0)
+
+    draws, champ_at = [], 0.0
+    pending = list(range(len(f["links"])))
+    while pending:
+        nxt = [i for i in pending if all(ready(group[k]) for k in (f["links"][i][0] if isinstance(f["links"][i][0], tuple) else (f["links"][i][0],)))]
+        if not nxt:
+            break
+        for i in nxt:
+            l = f["links"][i]
+            srcs = l[0] if isinstance(l[0], tuple) else (l[0],)
+            t0 = max(leaves(group[k]) for k in srcs)
+            drop = len(l) > 3 and l[3].get("drop")
+            if drop:
+                dur = 450
+            else:
+                d, x1, ln = _link_path(f, l)
+                dur = ln / T_SPEED
+                draws.append({"d": d, "x1": x1, "len": ln, "t0": t0, "dur": dur, "hot": bool(l[2]), "champ": l[1] == "c"})
+            if l[1] == "c":
+                champ_at = max(champ_at, t0 + dur)
+            else:
+                arrival[l[1]] = max(arrival[l[1]], t0 + dur)
+            done.add(i)
+        pending = [i for i in pending if i not in done]
+    lit = {k: decided(group[k]) for k in range(n) if sl[k]["win"]}
+    return draws, lit, champ_at
+
+
 def tournaments() -> str:
-    w, h = 900, 400
-    # Stage stepper along the top: the real tournament states.
-    stages = [("REGISTRATION", CYAN), ("CHECK-IN", VIOLET), ("LIVE", GREEN), ("COMPLETED", GOLD)]
-    x, stepper, overlays = 48, "", ""
-    for i, (label, color) in enumerate(stages):
-        base, tw = tag(x, 26, label, color, h=26, dot=(label == "LIVE"), size=10.5)
-        stepper += base
-        overlays += f'<g class="stage stage{i}">{para(x - 2, 24, tw + 4, 30, 6, fill=color, fill_opacity=".28", stroke=color, stroke_width="1.5")}</g>'
+    """Tournament formats: single and double elimination, round robin, Swiss, groups into
+    playoffs and Cashout lobbies, morphing into one another on a loop."""
+    W, H, OX, OY = 900, 404, 55, 26
+    F = T_FORMATS
+    for f in F:
+        c = f["champ"]
+        c["lines"] = BODY.wrap(c["line"], 12, c["w"] - 32)
+        c["h"] = max(104, 72 + 16 * len(c["lines"]))
+    start = T_MORPH * .85
+    sched = [_schedule(f) for f in F]
+    span = [start + s[2] for s in sched]  # each format lasts until its line reaches the champion
+    T = sum(span)
+    starts = []
+    acc = 0.0
+    for cyc in range(2):
+        for i in range(len(F)):
+            starts.append((acc, i))
+            acc += span[i]
+    wave = lambda x: max(0.0, x) * T_WAVE
+    last = F[-1]
+
+    # ---- slots ----
+    NS = max(len(f["slots"]) for f in F)
+    out_slots = []
+    for k in range(NS):
+        d0 = last["slots"][k] if k < len(last["slots"]) else None
+        vis0 = d0 is not None
+        pos = _Track((d0["x"], d0["y"]) if d0 else (0.0, 0.0))
+        scl = _Track((1.0, 1.0) if vis0 else (0.0, 0.0))
+        wid = _Track(d0["w"] if d0 else 158)
+        hei = _Track(d0["h"] if d0 else 26)
+        glow = _Track(1.0 if (d0 and d0["win"]) else 0.0)
+        clip = _Track(d0["w"] if (d0 and d0["win"]) else 0)
+        texts = {i: _Track(1.0 if (i == len(F) - 1 and vis0) else 0.0) for i, f in enumerate(F) if k < len(f["slots"])}
+        fills = {i: _Track(TEXT if (i == len(F) - 1 and d0 and d0["win"]) else None) for i in texts}
+        cur = dict(d0) if d0 else None
+        shown_text = len(F) - 1 if vis0 else None
+        lit_now = bool(d0 and d0["win"])
+        visible = vis0
+        for S, i in starts:
+            f = F[i]
+            d = f["slots"][k] if k < len(f["slots"]) else None
+            cx = cur["x"] if cur else 0
+            if lit_now:
+                glow.to(S + wave(cx), 120, 0.0, T_LIN)
+                clip.set(S + wave(cx) + 130, 0)
+                glow.set(S + wave(cx) + 140, 1.0)
+                lit_now = False
+            if d is None:
+                if visible:
+                    pos.to(S + wave(cx), 400, (cur["x"] + cur["w"] / 2, cur["y"] + cur["h"] / 2))
+                    scl.to(S + wave(cx), 400, (0.0, 0.0))
+                    visible = False
+                continue
+            if not visible:
+                pos.set(S, (d["x"] + d["w"] / 2, d["y"] + d["h"] / 2))
+                wid.set(S, d["w"]); hei.set(S, d["h"])
+                pos.to(S + wave(d["x"]), T_MORPH, (d["x"], d["y"]))
+                scl.to(S + wave(d["x"]), T_MORPH, (1.0, 1.0))
+                if shown_text is not None:
+                    texts[shown_text].set(S, 0.0)
+                texts[i].set(S + 1, 1.0)
+                visible = True
+            else:
+                pos.to(S + wave(d["x"]), T_MORPH, (d["x"], d["y"]))
+                wid.to(S + wave(d["x"]), T_MORPH, d["w"]); hei.to(S + wave(d["x"]), T_MORPH, d["h"])
+                at = S + wave(cx) + 160
+                if shown_text is not None and shown_text != i:
+                    texts[shown_text].set(at, 0.0)
+                texts[i].set(at + 1, 1.0)
+            fills[i].set(S, MUTED if not d.get("box") else (FAINT if d.get("out") else SOFT))
+            shown_text = i
+            cur = dict(d)
+            lit = sched[i][1]
+            if k in lit:
+                t = S + start + lit[k]
+                clip.set(t - 1, 0)
+                clip.to(t, d["w"] / T_SPEED, d["w"], T_LIN)
+                fills[i].set(t, TEXT)
+                lit_now = True
+        a = T  # keep the second pass
+        g = []
+        size = _smil(wid, a, T, "width") + _smil(hei, a, T, "height")
+        g.append(f'<g transform="translate({_fmt(pos.init)})">{_smil(pos, a, T, "transform", "translate")}'
+                 f'<g transform="scale({_fmt(scl.init)})">{_smil(scl, a, T, "transform", "scale")}')
+        g.append(f'<rect width="{wid.init}" height="{hei.init}" rx="7" fill="#0f0f28" stroke="#fff" stroke-opacity=".07">{size}</rect>')
+        g.append(f'<clipPath id="sc{k}"><rect width="{clip.init}" height="60" x="-2" y="-2">{_smil(clip, a, T, "width")}</rect></clipPath>')
+        g.append(f'<rect width="{wid.init}" height="{hei.init}" rx="7" fill="none" stroke="url(#slotGlow)" stroke-width="1.5" '
+                 f'clip-path="url(#sc{k})" opacity="{glow.init}">{size}{_smil(glow, a, T, "opacity")}</rect>')
+        for i, tr in texts.items():
+            d = F[i]["slots"][k]
+            base = MUTED if not d.get("box") else (FAINT if d.get("out") else SOFT)
+            fl = fills[i]
+            if fl.init is None:
+                fl.init = base
+            if d.get("box"):
+                name = text(LABEL, d["name"], 15, 11, 22, "currentColor")
+                meta = text(BODY, d["meta"], 10.5, 11, 38, FAINT)
+            else:
+                cy = d["h"] / 2 + 12.5 * BODY_BOLD.cap / 2
+                name = text(BODY_BOLD, d["name"], 12.5, 11, cy, "currentColor")
+                meta = text(BODY, d["meta"], 11.5, d["w"] - 11, cy, FAINT, anchor="end") if d["meta"] else ""
+            g.append(f'<g opacity="{tr.init}" color="{fl.init}">{_smil(tr, a, T, "opacity")}{_smil(fl, a, T, "color")}{name}{meta}</g>')
+        g.append("</g></g>")
+        out_slots.append("".join(g))
+
+    # ---- labels (a missing one rests on the nearest label of the format, with its words) ----
+    out_labels = []
+    for k in range(4):
+        def lab(f, from_pos):
+            if k < len(f["labels"]):
+                return f["labels"][k]
+            return min(f["labels"], key=lambda L: math.hypot(L[0] - from_pos[0], L[1] - from_pos[1]))
+        init = lab(last, (0, 0))
+        pos = _Track((init[0], init[1]))
+        words = {}
+        cur = init
+        for S, i in starts:
+            L = lab(F[i], (cur[0], cur[1]))
+            pos.to(S + wave(L[0]), T_MORPH, (L[0], L[1]))
+            for w_ in {L[2]} | set(words):
+                words.setdefault(w_, _Track(1.0 if w_ == init[2] else 0.0))
+            for w_, tr in words.items():
+                tr.set(S, 1.0 if w_ == L[2] else 0.0)
+            cur = L
+        g = f'<g transform="translate({_fmt(pos.init)})">{_smil(pos, T, T, "transform", "translate")}'
+        for w_, tr in words.items():
+            g += f'<g opacity="{tr.init}">{_smil(tr, T, T, "opacity")}{text(BODY_BOLD, w_.upper(), 10.5, 0, 9, FAINT, tracking=0.16)}</g>'
+        out_labels.append(g + "</g>")
+
+    # ---- frames (groups and lobbies): shrink to a point and grow from one ----
+    out_frames = []
+    for k in range(4):
+        def fr(f):
+            fs = f.get("frames", [])
+            return fs[k] if k < len(fs) else None
+        d0 = fr(last)
+        pos = _Track((d0[0], d0[1]) if d0 else (0.0, 0.0))
+        wid, hei = _Track(d0[2] if d0 else 0), _Track(d0[3] if d0 else 0)
+        titles: dict[str, _Track] = {}
+        cur, gone = d0, d0 is None
+        for S, i in starts:
+            d = fr(F[i])
+            if d is None:
+                if not gone:
+                    pos.to(S + wave(cur[0]), T_MORPH, (cur[0] + cur[2] / 2, cur[1] + cur[3] / 2))
+                    wid.to(S + wave(cur[0]), T_MORPH, 0); hei.to(S + wave(cur[0]), T_MORPH, 0)
+                    gone = True
+                continue
+            if gone:
+                pos.set(S, (d[0] + d[2] / 2, d[1] + d[3] / 2)); wid.set(S, 0); hei.set(S, 0)
+                gone = False
+            pos.to(S + wave(d[0]), T_MORPH, (d[0], d[1]))
+            wid.to(S + wave(d[0]), T_MORPH, d[2]); hei.to(S + wave(d[0]), T_MORPH, d[3])
+            titles.setdefault(d[4], _Track(1.0 if d0 and d0[4] == d[4] else 0.0))
+            for t_, tr in titles.items():
+                tr.set(S, 1.0 if t_ == d[4] else 0.0)
+            cur = d
+        size = _smil(wid, T, T, "width") + _smil(hei, T, T, "height")
+        g = (f'<g transform="translate({_fmt(pos.init)})">{_smil(pos, T, T, "transform", "translate")}'
+             f'<clipPath id="fc{k}"><rect width="{wid.init}" height="{hei.init}">{size}</rect></clipPath>'
+             f'<rect width="{wid.init}" height="{hei.init}" rx="12" fill="#fff" fill-opacity=".015" stroke="#fff" stroke-opacity=".1" stroke-dasharray="3 3">{size}</rect>'
+             f'<g clip-path="url(#fc{k})">')
+        for t_, tr in titles.items():
+            g += f'<g opacity="{tr.init}">{_smil(tr, T, T, "opacity")}{text(BODY_BOLD, t_.upper(), 9.5, 10, 15, FAINT, tracking=0.16)}</g>'
+        out_frames.append(g + "</g></g>")
+
+    # ---- lines: drawn like a fuse, and pulled away left to right as the next format arrives ----
+    out_links = []
+    uid = 0
+    line_tracks: dict = {}
+    for idx, (S, i) in enumerate(starts):
+        if idx >= len(F) * 2:
+            break
+        nxt = starts[idx + 1][0] if idx + 1 < len(starts) else starts[-1][0] + span[starts[-1][1]]
+        for dr in sched[i][0]:
+            ln = dr["len"]
+            key = (i, dr["d"])
+            # one element per line per format; both passes write into the same track
+            lt = line_tracks.setdefault(key, {"mask": _Track(0.0 if i == len(F) - 1 else ln), "spark": _Track(1.0 if i == len(F) - 1 else 0.0),
+                                                  "sop": _Track(0.0), "dr": dr})
+            t0 = S + start + dr["t0"]
+            lt["mask"].set(t0 - 1, ln)
+            lt["mask"].to(t0, dr["dur"], 0.0, T_LIN)
+            lt["mask"].to(nxt + dr["x1"] * T_WAVE, ln / (T_SPEED * 1.6), -ln, T_LIN)
+            lt["spark"].set(t0 - 1, 0.0)
+            lt["spark"].to(t0, dr["dur"], 1.0, T_LIN)
+            lt["sop"].to(t0, dr["dur"] * .08, 1.0, T_LIN)
+            lt["sop"].to(t0 + dr["dur"] * .9, dr["dur"] * .1, 0.0, T_LIN)
+    for (i, dpath), lt in line_tracks.items():
+        uid += 1
+        dr = lt["dr"]
+        ln = dr["len"]
+        stroke = GOLD if dr["champ"] else ("url(#hotLine)" if dr["hot"] else "#fff")
+        sop = "" if dr["hot"] or dr["champ"] else ' stroke-opacity=".16"'
+        dash = ' stroke-dasharray="5 5"' if dr["hot"] or dr["champ"] else ""
+        march = '<animate attributeName="stroke-dashoffset" values="20;0" dur="0.9s" repeatCount="indefinite"/>' if dash else ""
+        out_links.append(
+            f'<mask id="lm{uid}" maskUnits="userSpaceOnUse" x="-40" y="-40" width="880" height="440">'
+            f'<path d="{dpath}" fill="none" stroke="#fff" stroke-width="8" stroke-dasharray="{ln:.1f} {ln:.1f}" stroke-dashoffset="{_fmt(lt["mask"].init)}">'
+            f'{_smil(lt["mask"], T, T, "stroke-dashoffset")}</path></mask>'
+            f'<path d="{dpath}" mask="url(#lm{uid})" fill="none" stroke="{stroke}"{sop} stroke-width="{1.6 if dash else 1.2}"{dash}>{march}</path>'
+        )
+        if dr["hot"]:
+            col = GOLD if dr["champ"] else PINK
+            out_links.append(
+                f'<g opacity="0">{_smil(lt["sop"], T, T, "opacity")}<circle r="5" fill="{col}" opacity=".35" filter="url(#spark)"/><circle r="2.2" fill="#fff"/>'
+                f'{_smil(lt["spark"], T, T, "", "motion", f"path=\"{dpath}\"")}</g>')
+
+    # ---- champion card ----
+    c0 = last["champ"]
+    pos = _Track((c0["x"], c0["y"]))
+    cw, chh = _Track(c0["w"]), _Track(c0["h"])
+    lit = _Track(1.0)
+    words = {i: _Track(1.0 if i == len(F) - 1 else 0.0) for i in range(len(F))}
+    cur = c0
+    for S, i in starts:
+        c = F[i]["champ"]
+        lit.to(S + wave(cur["x"]), 350, 0.0, T_LIN)
+        pos.to(S + wave(c["x"]), T_MORPH, (c["x"], c["y"]))
+        cw.to(S + wave(c["x"]), T_MORPH, c["w"]); chh.to(S + wave(c["x"]), T_MORPH, c["h"])
+        for j, tr in words.items():
+            tr.set(S, 1.0 if j == i else 0.0)
+        lit.to(S + start + sched[i][2], 350, 1.0, T_LIN)
+        cur = c
+    csize = _smil(cw, T, T, "width") + _smil(chh, T, T, "height")
+    champ = (f'<g transform="translate({_fmt(pos.init)})">{_smil(pos, T, T, "transform", "translate")}'
+             f'<rect width="{c0["w"]}" height="{c0["h"]}" rx="14" fill="{GOLD}" fill-opacity=".4" opacity="1" filter="url(#halo)">{csize}{_smil(lit, T, T, "opacity")}</rect>'
+             f'<rect width="{c0["w"]}" height="{c0["h"]}" rx="14" fill="#0d0d22" stroke="{GOLD}" stroke-opacity=".35">{csize}</rect>'
+             f'<rect width="{c0["w"]}" height="{c0["h"]}" rx="14" fill="none" stroke="{GOLD}" stroke-opacity=".85" opacity="1">{csize}{_smil(lit, T, T, "opacity")}</rect>'
+             f'<rect x="14" y="-1" width="44" height="2" rx="1" fill="{GOLD}"/>'
+             + para(16, 16, 13, 22, 4, fill=GOLD))
+    for i, tr in words.items():
+        c = F[i]["champ"]
+        champ += (f'<g opacity="{tr.init}">{_smil(tr, T, T, "opacity")}'
+                  + text(LABEL, c["title"].upper(), 11, 40, 31, GOLD, tracking=0.16)
+                  + text(BODY_BOLD, c["who"], 13, 16, 58, TEXT)
+                  + "".join(text(BODY, ln_, 12, 16, 76 + j * 16, MUTED) for j, ln_ in enumerate(c["lines"]))
+                  + "</g>")
+    champ += "</g>"
+
+    # ---- the format name: the old one lifts away, the new one's letters roll in from the right ----
+    name_g = ""
+    nx = 790  # right edge, stage coordinates
+    for i, f in enumerate(F):
+        letters, pen = [], 0.0
+        for ch in f["name"]:
+            gid, adv = LABEL.glyph(ch, 17)
+            letters.append((ch, gid, pen))
+            pen += adv
+        x0, n, chars = nx - pen, len(letters), ""
+        for m, (ch, gid, px) in enumerate(letters):
+            if ch == " ":
+                continue
+            tr = _Track((0.0, 0.0) if i == len(F) - 1 else (0.0, 24.0))
+            for S, j in starts:
+                if j == i:
+                    tr.set(S, (0.0, 24.0))
+                    tr.to(S + 200 + (n - 1 - m) * 14, 420, (0.0, 0.0), ".2 .8 .3 1")
+                if (j - 1) % len(F) == i:
+                    tr.to(S, 260, (0.0, -24.0), ".55 0 .75 .3")
+            chars += f'<g transform="translate({_fmt(tr.init)})">{_smil(tr, T, T, "transform", "translate")}<use href="#{gid}" x="{x0 + px:.1f}" y="31"/></g>'
+        name_g += f'<g fill="{TEXT}">{chars}</g>'
+    name_box = (f'<clipPath id="nameClip"><rect x="440" y="14" width="352" height="22"/></clipPath>'
+                + text(BODY_BOLD, "FORMAT", 10, 790, 9, FAINT, anchor="end", tracking=0.18)
+                + f'<g clip-path="url(#nameClip)">{name_g}</g>')
+
+    # ---- stage chips ----
+    chips, x = "", 0
+    for label, color in [("REGISTRATION", CYAN), ("CHECK-IN", VIOLET), ("LIVE", GREEN), ("COMPLETED", GOLD)]:
+        part, tw = tag(x, 0, label, color, h=26, dot=(label == "LIVE"), size=10.5)
+        chips += part
         x += tw + 26
-        if i < len(stages) - 1:
-            stepper += f'<polyline points="{x - 20},{39} {x - 12},{39} {x - 16},{35} {x - 12},{39} {x - 16},{43}" fill="none" stroke="{FAINT}" stroke-width="1.5" stroke-linecap="round"/>'
-    # Bracket: 8 seeds, quarter-finals -> semi-finals -> final -> champion.
-    sw, sh = 168, 26
-    cols = [48, 262, 476]
-    top, pitch = 92, 68
-    qf = [top + i * pitch + 28 for i in range(4)]  # centres of the four quarter-finals
-    sf = [(qf[0] + qf[1]) / 2, (qf[2] + qf[3]) / 2]
-    fn = (sf[0] + sf[1]) / 2
-    seeds = [("Seed 1", "Seed 8"), ("Seed 4", "Seed 5"), ("Seed 3", "Seed 6"), ("Seed 2", "Seed 7")]
-    winners = {"qf": [0, 1, 0, 0]}
+        if label != "COMPLETED":
+            chips += f'<polyline points="{x - 20},13 {x - 12},13 {x - 16},9 {x - 12},13 {x - 16},17" fill="none" stroke="{FAINT}" stroke-width="1.5" stroke-linecap="round"/>'
 
-    def slot(xx: float, cy: float, label: str, hot: bool, placeholder: bool = False) -> str:
-        yy = cy - sh / 2
-        stroke = 'url(#brand)' if hot else "#fff"
-        sop = "1" if hot else ".1"
-        fill = f'<rect x="{xx}" y="{yy}" width="{sw}" height="{sh}" rx="8" fill="{INK_900}" stroke="{stroke}" stroke-opacity="{sop}" stroke-width="{1.4 if hot else 1}"/>'
-        col = TEXT if hot else (FAINT if placeholder else MUTED)
-        return fill + text(BODY_BOLD, label, 12, xx + 12, cy + 4.2, col)
-
-    lines_dim, lines_hot, slots = "", "", ""
-    for i, (a, b) in enumerate(seeds):
-        c = qf[i]
-        win = winners["qf"][i]
-        slots += slot(cols[0], c - 15, a, win == 0) + slot(cols[0], c + 15, b, win == 1)
-        # connector to the semi-final
-        target = sf[i // 2]
-        mid = cols[0] + sw + 22
-        path = f"M{cols[0] + sw} {c - 15 + (30 if win else 0)}H{mid}V{target - (15 if i % 2 == 0 else -15)}H{cols[1]}"
-        if i == 0:
-            lines_hot += f'<path d="{path}" class="flow" fill="none" stroke="url(#brand)" stroke-width="2" stroke-dasharray="7 6"/>'
-        else:
-            lines_dim += f'<path d="{path}" fill="none" stroke="#fff" stroke-opacity=".14" stroke-width="1.5"/>'
-    semis = [("Seed 1", "Seed 5"), ("Seed 3", "Seed 2")]
-    for j, (a, b) in enumerate(semis):
-        c = sf[j]
-        slots += slot(cols[1], c - 15, a, j == 0) + slot(cols[1], c + 15, b, False)
-        target = fn
-        mid = cols[1] + sw + 22
-        path = f"M{cols[1] + sw} {c - 15}H{mid}V{target - (15 if j == 0 else -15)}H{cols[2]}"
-        if j == 0:
-            lines_hot += f'<path d="{path}" class="flow" fill="none" stroke="url(#brand)" stroke-width="2" stroke-dasharray="7 6"/>'
-        else:
-            lines_dim += f'<path d="{path}" fill="none" stroke="#fff" stroke-opacity=".14" stroke-width="1.5"/>'
-    slots += slot(cols[2], fn - 15, "Seed 1", True) + slot(cols[2], fn + 15, "Winner SF2", False, True)
-    champ_x = cols[2] + sw + 44
-    # A flat line has no bounding box, so a gradient can't paint it: this last leg is gold.
-    lines_hot += f'<path d="M{cols[2] + sw} {fn - 15}H{champ_x}" class="flow" fill="none" stroke="{GOLD}" stroke-width="2" stroke-dasharray="7 6"/>'
-    live_tag, _ = tag(cols[1], sf[1] - 15 - sh / 2 - 26, "LIVE", GREEN, h=20, dot=True, size=9.5)
-    # Round labels.
-    labels = "".join(
-        text(LABEL, name, 10.5, x0, 80, FAINT, tracking=0.16)
-        for name, x0 in (("QUARTER-FINALS", cols[0]), ("SEMI-FINALS", cols[1]), ("FINAL", cols[2]))
+    defs = (
+        f'<linearGradient id="slotGlow" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="{CYAN}"/><stop offset=".55" stop-color="{VIOLET}"/><stop offset="1" stop-color="{PINK}"/></linearGradient>'
+        f'<linearGradient id="hotLine" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="790" y2="0"><stop offset="0" stop-color="{BLUE}"/><stop offset="1" stop-color="{VIOLET}"/></linearGradient>'
+        '<filter id="spark" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="3"/></filter>'
+        '<filter id="halo" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="10"/></filter>'
     )
-    # Champion card.
-    cw, ch = 900 - champ_x - 40, 104
-    cy = fn - ch / 2
-    champion = (
-        f'<rect x="{champ_x}" y="{cy}" width="{cw}" height="{ch}" rx="14" fill="{INK_900}" stroke="{GOLD}" stroke-opacity=".5"/>'
-        f'<rect x="{champ_x + 14}" y="{cy + 1}" width="48" height="2" fill="{GOLD}"/>'
-        + para(champ_x + 16, cy + 22, 22, 26, 6, fill=GOLD)
-        + text(LABEL, "CHAMPION", 11, champ_x + 48, cy + 40, GOLD, tracking=0.16)
-        + "".join(text(BODY, line, 12, champ_x + 16, cy + 68 + i * 16, MUTED) for i, line in enumerate(BODY.wrap("Recorded on every profile, forever.", 12, cw - 32)))
-    )
-    body = panel(w, h, INK_925) + stepper + overlays + labels + lines_dim + lines_hot + slots + live_tag + champion
-    style = (
-        cycle_css("stage", len(stages), 8)
-        + ".flow{animation:flow 1.4s linear infinite}@keyframes flow{to{stroke-dashoffset:-26}}"
-        + PULSE_CSS
-    )
-    return svg(w, h, "Tournaments", "A tournament moves from registration to check-in to live to completed. A bracket of eight seeds runs quarter-finals, semi-finals and a final, and the champion is recorded on every profile.", body, "", style)
+    stage = (f'<g transform="translate({OX} {OY})">' + chips + name_box + "".join(out_frames) + "".join(out_labels)
+             + "".join(out_links) + "".join(out_slots) + champ + "</g>")
+    body = panel(W, H, INK_925) + card(1, 1, W - 2, H - 2, 24, "none") + stage
+    return svg(W, H, "Tournaments", "Tournament formats on PUGZ: single elimination, double elimination, round robin, Swiss, groups into playoffs and Cashout lobbies. The card morphs from one format to the next; in each, winners light up match by match and the line runs on to the champion.", body, defs, PULSE_CSS)
 
 
 # The league (docs/plans/2026-11-02-league-format.md): divisions, prizes and rank limits as announced.
