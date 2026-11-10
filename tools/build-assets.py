@@ -160,6 +160,8 @@ HEADING = Face("archivo", "archivo-latin-wdth-normal.woff2", {"wght": 700, "wdth
 BODY = Face("archivo", "archivo-latin-wdth-normal.woff2", {"wght": 500, "wdth": 100})
 BODY_BOLD = Face("archivo", "archivo-latin-wdth-normal.woff2", {"wght": 700, "wdth": 100})
 LABEL = Face("archivo", "archivo-latin-wdth-normal.woff2", {"wght": 800, "wdth": 100})
+H2 = LABEL  # the profit card's heading, as on the site (Archivo 800)
+LEAD = Face("archivo", "archivo-latin-wdth-normal.woff2", {"wght": 400, "wdth": 100})
 BLACK = Face("archivo", "archivo-latin-wdth-normal.woff2", {"wght": 900, "wdth": 125})
 MONO = Face("jetbrains-mono", "jetbrains-mono-latin-wght-normal.woff2", {"wght": 600})
 
@@ -1272,23 +1274,27 @@ def cta() -> str:
 def profit() -> str:
     """Where every euro goes: in, hosting, prize pools, and nothing kept.
 
-    One 7-second loop in plain CSS: a flat gold coin is minted at IN and eases (slow, fast, slow)
-    to each stop; every arrival sends rings out from behind the circle. Hosting takes its share
-    (the coin shrinks a touch), the prize pool spends the rest (a gold pulse, the circle turns
-    gold and the coin dissolves), and only wind travels on to the €0 of profit, which dims to a
-    dusty pink as the air arrives.
+    Drawn and timed like the approved design preview. One 7-second loop in plain CSS: a flat
+    gold coin is minted at IN and eases (slow, fast, slow) to each stop; every arrival sends rings
+    out from behind the circle. Hosting takes its share (the coin shrinks a touch), the prize pool
+    spends the rest (a gold pulse, the circle and its label turn gold and the coin dissolves), and
+    only wind travels on to the €0 of profit, which dims to a dusty pink as the air arrives.
     """
-    w, h = 900, 236
-    ty = 150
-    xs = [130, 350, 570, 790]
+    w, h = 900, 262
+    pad = 28
+    col = (w - 2 * pad - 3 * 8) / 4
+    xs = [round(pad + col / 2 + i * (col + 8), 1) for i in range(4)]
+    ty = 167          # the rail and the circles' centres
+    R = 23            # circle radius (46 px, as on the site)
     steps = [
-        ("IN", "Donations and fees", CYAN),
-        ("FIRST", "Hosting", BLUE),
-        ("THEN", "Prize pools", VIOLET),
-        ("ALWAYS", "Profit", PINK),
+        ("IN", "Donations and fees", "everything that comes in", CYAN),
+        ("FIRST", "Hosting", "servers, database, backups", BLUE),
+        ("THEN", "Prize pools", "seasons and tournaments", VIOLET),
+        ("ALWAYS", "Profit", "kept by PUGZ", PINK),
     ]
-    T = 7.0
+    PANEL = "#09091f"
     ASH = "#c99ccf"  # the dusty pink the profit dims to
+    T = 7.0
     ease = "cubic-bezier(.65,0,.35,1)"
     spring = "cubic-bezier(.3,1.3,.5,1)"
     ring_ease = "cubic-bezier(.2,.7,.3,1)"
@@ -1299,35 +1305,44 @@ def profit() -> str:
     gone = 3.92               # the coin has dissolved at THEN; the wind leaves
     gold_in, gold_out = 3.95, 4.07 + 1.8
     always = gone + .95       # the air reaches the €0
+    dim_s, back_s = gone + .6, gone + 2.42
 
     def p(t: float) -> str:
         return f"{max(0.0, min(100.0, t / T * 100)):.2f}%"
 
     css: list[str] = []
 
-    def kf(name: str, frames: list[tuple[float, str]], cls: str | None = None, origin: bool = True) -> None:
+    def kf(name: str, frames: list[tuple[float, str]], origin: bool = True) -> None:
         body = "".join(f"{p(t)}{{{v}}}" for t, v in frames)
         if frames[0][0] > 0:
             body = f"0%{{{frames[0][1]}}}" + body
         if frames[-1][0] < T:
             body += f"100%{{{frames[-1][1]}}}"
         box = "transform-box:fill-box;transform-origin:center;" if origin else ""
-        css.append(f".{cls or name}{{{box}animation:{name} {T}s linear infinite}}@keyframes {name}{{{body}}}")
+        css.append(f".{name}{{{box}animation:{name} {T}s linear infinite}}@keyframes {name}{{{body}}}")
 
+    gold_frames = lambda on, off: [(0, off), (t2e, off), (gold_in, on), (gold_out - 1.8, on + f";animation-timing-function:{ease}"), (gold_out, off)]
+    dim = lambda on, off: [(0, off), (dim_s, off + f";animation-timing-function:{ease}"), (dim_s + .9, on),
+                           (back_s, on + f";animation-timing-function:{ease}"), (back_s + .5, off)]
+
+    # The card, the heading and the rail.
     out = (
-        text(HEADING, "Where every euro goes.", 22, 48, 54, TEXT)
-        + text(BODY, "Everything that comes in goes back into the community. Nothing is kept.", 14, 48, 78, MUTED)
-        + f'<rect x="{xs[0]}" y="{ty - 1.5}" width="{xs[-1] - xs[0]}" height="3" rx="1.5" fill="url(#brand)" opacity=".55"/>'
+        f'<rect x=".5" y=".5" width="{w - 1}" height="{h - 1}" rx="18" fill="{PANEL}" stroke="#fff" stroke-opacity=".08"/>'
+        f'<rect x="{pad}" y="0" width="40" height="2" rx="1" fill="url(#accent)"/>'
+        + text(H2, "Where every euro goes.", 28, pad, 30 + 28 * H2.cap + 4, TEXT)
+        + text(LEAD, "Everything that comes in goes back into the community. Nothing is kept.", 15, pad, 80, MUTED)
+        + f'<rect x="{xs[0]}" y="{ty - 1}" width="{xs[-1] - xs[0]}" height="2" rx="1" fill="url(#rail)" opacity=".85"/>'
     )
 
-    # Pulses: two rings and a soft bloom behind each circle, plus a small bump of its icon.
+    # Pulses behind each circle: two glowing rings and a soft bloom, plus a small bump of the icon.
     pulses = [(0, 0.0, CYAN, False), (1, t1e, BLUE, False), (2, t2e, GOLD, False), (3, always, PINK, True)]
     for i, t, color, soft in pulses:
         peak = .45 if soft else .85
         x = xs[i]
-        out += f'<circle class="bl{i}" cx="{x}" cy="{ty}" r="24" fill="{color}" opacity="0" filter="url(#glow-sm)"/>'
+        out += f'<circle class="bl{i}" cx="{x}" cy="{ty}" r="{R + 6}" fill="url(#bloom{i})" opacity="0"/>'
         for k, (delay, to, op) in enumerate([(0, 2.3, peak), (.16, 1.8, peak * .7)]):
-            out += f'<circle class="r{i}{k}" cx="{x}" cy="{ty}" r="22" fill="none" stroke="{color}" stroke-width="2" opacity="0"/>'
+            out += (f'<g class="r{i}{k}" opacity="0"><circle cx="{x}" cy="{ty}" r="{R}" fill="none" stroke="{color}" stroke-width="4" filter="url(#soft)"/>'
+                    f'<circle cx="{x}" cy="{ty}" r="{R}" fill="none" stroke="{color}" stroke-width="2"/></g>')
             a = t + delay
             kf(f"r{i}{k}", [(0, "opacity:0;transform:scale(1)"), (a, f"opacity:{op};transform:scale(1);animation-timing-function:{ring_ease}"),
                             (a + .9, f"opacity:0;transform:scale({to})")])
@@ -1338,51 +1353,46 @@ def profit() -> str:
         kf(f"ic{i}", [(0, "transform:scale(1)"), (t, f"transform:scale(1);animation-timing-function:{spring}"),
                       (t + .18, f"transform:scale({bump});animation-timing-function:ease-out"), (t + .52, "transform:scale(1)")])
 
-    # The nodes. The prize pool's circle turns gold when the coin is spent there, and fades back
-    # to violet as the wind leaves it.
-    for i, (x, (label, title, color)) in enumerate(zip(xs, steps)):
-        if i == 2:
-            out += f'<circle class="gglow" cx="{x}" cy="{ty}" r="22" fill="{GOLD}" opacity="0" filter="url(#glow-sm)"/>'
+    # The circles: a soft outer glow, the panel fill and a coloured border; labels above, names
+    # and lines below.
+    node_cls = {2: ("gglo", "gnode", "gtag"), 3: ("pglo", "pnode", "ptag")}
+    for i, (x, (label, title, line, color)) in enumerate(zip(xs, steps)):
+        glo, nd, tg = node_cls.get(i, ("", "", ""))
         out += (
-            f'<circle class="{ {2: "gnode", 3: "pnode"}.get(i, "")}" cx="{x}" cy="{ty}" r="22" fill="{INK_900}" stroke="{color}" stroke-width="1.6"/>'
-            + text(LABEL, label, 9.5, x, 112, color, anchor="middle", tracking=0.18,
-                   extra={2: 'class="gtag"', 3: 'class="ptag"'}.get(i, ""))
-            + text(BODY_BOLD, title, 13, x, 196, TEXT, anchor="middle")
+            f'<circle class="{glo}" cx="{x}" cy="{ty}" r="{R}" fill="none" stroke="{color}" stroke-width="4" opacity=".55" filter="url(#soft)"/>'
+            f'<circle class="{nd}" cx="{x}" cy="{ty}" r="{R - .75}" fill="{PANEL}" stroke="{color}" stroke-width="1.5"/>'
+            + text(BODY_BOLD, label, 11, x, ty - R - 13, color, anchor="middle", tracking=0.16, extra=f'class="{tg}"' if tg else "")
+            + text(BODY_BOLD, title, 15, x, ty + R + 25, TEXT, anchor="middle")
+            + text(LEAD, line, 13, x, ty + R + 44, MUTED, anchor="middle")
         )
-    gold_frames = lambda on, off: [(0, off), (t2e, off), (gold_in, on), (gold_out - 1.8, on + f";animation-timing-function:{ease}"), (gold_out, off)]
-    kf("gnode", gold_frames(f"fill:#2b252a;stroke:{GOLD}", f"fill:{INK_900};stroke:{VIOLET}"), origin=False)
-    kf("gicon", gold_frames(f"color:{GOLD}", f"color:{VIOLET}"), origin=False)
-    kf("gglow", gold_frames("opacity:.45", "opacity:0"), origin=False)
+    kf("gnode", gold_frames(f"fill:#2b252a;stroke:{GOLD}", f"fill:{PANEL};stroke:{VIOLET}"), origin=False)
+    kf("gglo", gold_frames(f"stroke:{GOLD}", f"stroke:{VIOLET}"), origin=False)
     kf("gtag", gold_frames(f"fill:{GOLD}", f"fill:{VIOLET}"), origin=False)
-    # Only air reaches the profit: its circle, €0 and label dim to a dusty pink, and come back
-    # just before the next coin.
-    dim_s, back_s = gone + .6, gone + 2.42
-    dim = lambda on, off: [(0, off), (dim_s, off + f";animation-timing-function:{ease}"), (dim_s + .9, on),
-                           (back_s, on + f";animation-timing-function:{ease}"), (back_s + .5, off)]
+    kf("gicon", gold_frames(f"color:{GOLD}", f"color:{VIOLET}"), origin=False)
     kf("pnode", dim(f"stroke:{ASH}", f"stroke:{PINK}"), origin=False)
+    kf("pglo", dim(f"stroke:{ASH}", f"stroke:{PINK}"), origin=False)
     kf("ptag", dim(f"fill:{ASH}", f"fill:{PINK}"), origin=False)
     kf("pzero", dim(f"fill:{ASH}", f"fill:{PINK}"), origin=False)
 
-    # The icons inside the nodes.
-    x = xs[0]  # a coin
-    out += (f'<g class="ic0"><circle cx="{x}" cy="{ty}" r="9" fill="none" stroke="{CYAN}" stroke-width="2"/>'
-            + text(BODY_BOLD, "€", 11, x, ty + 4, CYAN, anchor="middle") + "</g>")
-    x = xs[1]  # a server: three stacked units
-    out += '<g class="ic1">' + "".join(f'<rect x="{x - 10}" y="{ty - 10 + k * 7.5}" width="20" height="5" rx="1.5" fill="{BLUE}" opacity="{.95 - k * .2:.2f}"/>' for k in range(3)) + "</g>"
-    x = xs[2]  # a trophy, drawn in currentColor so it can turn gold
-    out += (f'<g class="gicon" style="color:{VIOLET}"><g class="ic2">'
-            f'<path d="M{x - 8} {ty - 10}h16v5a8 8 0 0 1-16 0z" fill="currentColor"/>'
-            f'<path d="M{x - 8} {ty - 8}h-4v2a4 4 0 0 0 4 4M{x + 8} {ty - 8}h4v2a4 4 0 0 1-4 4" fill="none" stroke="currentColor" stroke-width="1.8"/>'
-            f'<rect x="{x - 1.5}" y="{ty + 2}" width="3" height="5" fill="currentColor"/><rect x="{x - 6}" y="{ty + 7}" width="12" height="3" rx="1" fill="currentColor"/></g></g>')
-    out += f'<g class="ic3">{text(DISPLAY, "€0", 15, xs[3], ty + 5.5, PINK, anchor="middle", extra='class="pzero"')}</g>'
-    out += text(BODY, "kept by PUGZ", 12, xs[3], 214, MUTED, anchor="middle")
-    out += text(BODY, "everything that comes in", 12, xs[0], 214, MUTED, anchor="middle")
-    out += text(BODY, "servers, database, backups", 12, xs[1], 214, MUTED, anchor="middle")
-    out += text(BODY, "seasons and tournaments", 12, xs[2], 214, MUTED, anchor="middle")
+    # The icons (22 px, drawn on a 24 grid like the site's).
+    def icon(x: float, inner: str, cls: str, extra: str = "") -> str:
+        s = 22 / 24
+        return f'<g class="{cls}" {extra}><g transform="translate({x - 11:.1f} {ty - 11}) scale({s:.4f})">{inner}</g></g>'
+    out += icon(xs[0], f'<g fill="none" stroke="{CYAN}" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/>'
+                       '<path d="M15.2 8.6a4 4 0 1 0 0 6.8M7.5 11h6M7.5 13.2h5.2"/></g>', "ic0")
+    out += icon(xs[1], f'<rect x="4" y="4.5" width="16" height="4.5" rx="1.4" fill="{BLUE}" opacity=".9"/>'
+                       f'<rect x="4" y="10" width="16" height="4.5" rx="1.4" fill="{BLUE}" opacity=".75"/>'
+                       f'<rect x="4" y="15.5" width="16" height="4.5" rx="1.4" fill="{BLUE}" opacity=".6"/>'
+                       + "".join(f'<circle cx="7" cy="{cy}" r="1" fill="{PANEL}"/>' for cy in (6.75, 12.25, 17.75)), "ic1")
+    out += (f'<g class="gicon" style="color:{VIOLET}">'
+            + icon(xs[2], '<g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'
+                          '<path d="M8 4h8v5a4 4 0 0 1-8 0V4Z"/><path d="M8 6H5.5a2.5 2.5 0 0 0 2.6 3.4M16 6h2.5a2.5 2.5 0 0 1-2.6 3.4M12 13v3.5M8.5 20h7M9.5 20l.6-3.5h3.8l.6 3.5"/></g>', "ic2")
+            + "</g>")
+    out += f'<g class="ic3">{text(LABEL, "€0", 15, xs[3], ty + 15 * LABEL.cap / 2, PINK, anchor="middle", tracking=-0.02, extra="class=\"pzero\"")}</g>'
 
     # The wind: four streaks that end in a curl, and a few specks carried along, from the prize
     # pool to the €0.
-    a, L, r0, r1 = xs[2], xs[3] - xs[2], 26, 26
+    a, L, r0, r1 = xs[2], xs[3] - xs[2], R + 4, R + 4
     gusts = [(-9, -1, .9, .62, 1.6, 0, 3.5), (1, 1, 1.3, .78, 2, .14, 4.2), (10, 1, 1.1, .55, 1.4, .28, 3.0), (-3, -1, 1.6, .86, 1.2, .42, 4.6)]
     wind = ""
     for n, (y, k, ss, ee, sw, d, amp) in enumerate(gusts):
@@ -1391,13 +1401,13 @@ def profit() -> str:
         seg = (e0 - s0) / 3
         path = (f"M{s0:.1f} {y}C{s0 + seg * .5:.1f} {y - amp} {s0 + seg:.1f} {y + amp} {s0 + seg * 1.5:.1f} {y}"
                 f"S{s0 + seg * 2.5:.1f} {y - amp} {e0:.1f} {y}c7 0 11 {3 * k} 11 {8 * k}s-4 {7 * k}-9 {7 * k}s-7 {-3 * k}-5 {-7 * k}")
-        wind += f'<path class="w{n}" d="{path}" pathLength="100" fill="none" stroke="url(#windGrad)" stroke-width="{sw}" stroke-linecap="round" stroke-dasharray="42 142" stroke-dashoffset="42" opacity="0"/>'
+        wind += f'<path class="w{n}" d="{path}" pathLength="100" fill="none" stroke="url(#windGrad)" stroke-width="{sw}" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="42 142" stroke-dashoffset="42" opacity="0"/>'
         t0 = gone + d
         kf(f"w{n}", [(0, "stroke-dashoffset:42;opacity:0;transform:translateX(0)"),
                      (t0, "stroke-dashoffset:42;opacity:0;transform:translateX(0);animation-timing-function:cubic-bezier(.45,.05,.3,1)"),
                      (t0 + .3, "opacity:.95"), (t0 + 1.05, "opacity:.8"),
                      (t0 + 1.5, f"stroke-dashoffset:-100;opacity:0;transform:translateX({L * .12:.0f}px)")], origin=False)
-    specks = [(-8, .62, 2, CYAN), (6, .8, -3, PINK), (-2, .7, 4, "#c9b6ff"), (9, .9, -2, PINK), (-11, .58, 3, "#c9b6ff"), (3, .75, -4, PINK)]
+    specks = [(-8, .62, 2, "#c9b6ff"), (6, .8, -3, PINK), (-2, .7, 4, "#c9b6ff"), (9, .9, -2, PINK), (-11, .58, 3, "#c9b6ff"), (3, .75, -4, PINK)]
     for n, (y, reach, dy, color) in enumerate(specks):
         wind += f'<circle class="sp{n}" cx="{r0}" cy="{y}" r="1.5" fill="{color}" opacity="0"/>'
         t0, dur = gone + .12 + n * .09, 1.3 + (n % 3) * .12
@@ -1410,8 +1420,8 @@ def profit() -> str:
     # The coin: flat gold with a darker rim, a faint halo and a short trail while it moves.
     x0 = xs[0]
     glyph = text(LABEL, "€", 15, x0, ty + 15 * LABEL.cap / 2, "#8a5a0c", anchor="middle")
-    coin = (f'<g class="cmove"><rect class="trail" x="{x0 - 74}" y="{ty - 2}" width="74" height="4" rx="2" fill="url(#trailGrad)" opacity="0"/>'
-            f'<g class="cface"><circle cx="{x0}" cy="{ty}" r="18" fill="{GOLD}" opacity=".22" filter="url(#glow-sm)"/>'
+    coin = (f'<g class="cmove"><rect class="trail" x="{x0 - 74}" y="{ty - 2}" width="74" height="4" rx="2" fill="url(#trailGrad)" opacity="0" filter="url(#hair)"/>'
+            f'<g class="cface" opacity="0"><circle cx="{x0}" cy="{ty}" r="16" fill="{GOLD}" opacity=".35" filter="url(#soft)"/>'
             f'<circle cx="{x0}" cy="{ty}" r="13" fill="{GOLD}" stroke="#e9a93a" stroke-width="2"/>{glyph}</g></g>')
     d1, d2 = xs[1] - xs[0], xs[2] - xs[0]
     m1, m2 = (t1s + t1e) / 2, (t2s + t2e) / 2
@@ -1425,20 +1435,26 @@ def profit() -> str:
                  (t2s, f"transform:scale(.86);animation-timing-function:{ease}"), (m2, f"transform:scale(.96);animation-timing-function:{ease}"),
                  (t2e, "opacity:1;transform:scale(.86);filter:blur(0);animation-timing-function:ease-in"),
                  (gone, "opacity:0;transform:scale(.35);filter:blur(3px)")])
-    css.append(".trail{transform-box:fill-box;transform-origin:right center;animation:trail 7.0s linear infinite}")
     tr = lambda a0, a1: [(a0, f"opacity:0;transform:scaleX(.13);animation-timing-function:{ease}"),
                           ((a0 + a1) / 2, f"opacity:1;transform:scaleX(1);animation-timing-function:{ease}"), (a1, "opacity:0;transform:scaleX(.13)")]
     trail_frames = [(0, "opacity:0;transform:scaleX(.13)")] + tr(t1s, t1e) + tr(t2s, t2e)
-    css.append("@keyframes trail{" + "".join(f"{p(t)}{{{v}}}" for t, v in trail_frames) + "100%{opacity:0}}")
+    css.append(f".trail{{transform-box:fill-box;transform-origin:right center;animation:trail {T}s linear infinite}}"
+               "@keyframes trail{" + "".join(f"{p(t)}{{{v}}}" for t, v in trail_frames) + "100%{opacity:0}}")
 
-    defs = BLUR_FILTERS + (
+    blooms = "".join(f'<radialGradient id="bloom{i}"><stop offset="0" stop-color="{c}"/><stop offset=".68" stop-color="{c}" stop-opacity="0"/></radialGradient>'
+                     for i, c in enumerate([CYAN, BLUE, GOLD, PINK]))
+    defs = (
+        '<filter id="soft" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="4"/></filter>'
+        '<filter id="hair" x="-10%" y="-200%" width="120%" height="500%"><feGaussianBlur stdDeviation="1"/></filter>'
+        f'<linearGradient id="rail" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="{CYAN}"/><stop offset=".35" stop-color="{BLUE}"/>'
+        f'<stop offset=".68" stop-color="{VIOLET}"/><stop offset="1" stop-color="{PINK}"/></linearGradient>'
+        f'<linearGradient id="accent" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="{BLUE}"/><stop offset="1" stop-color="{PINK}"/></linearGradient>'
         f'<linearGradient id="windGrad" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="{L}" y2="0">'
         f'<stop offset="0" stop-color="#c9b6ff"/><stop offset=".55" stop-color="{VIOLET}"/><stop offset="1" stop-color="{PINK}"/></linearGradient>'
         f'<linearGradient id="trailGrad" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="{GOLD}" stop-opacity="0"/>'
-        f'<stop offset="1" stop-color="{GOLD}" stop-opacity=".55"/></linearGradient>'
+        f'<stop offset="1" stop-color="{GOLD}" stop-opacity=".55"/></linearGradient>' + blooms
     )
-    body = panel(w, h, INK_925) + card(1, 1, w - 2, h - 2, 24, "none") + out + coin
-    return svg(w, h, "Where every euro goes", "Where every euro goes: donations and fees come in, pay for hosting first, then go to season and tournament prize pools. PUGZ keeps nothing: zero profit.", body, defs, "".join(css))
+    return svg(w, h, "Where every euro goes", "Where every euro goes: donations and fees come in, pay for hosting first, then go to season and tournament prize pools. PUGZ keeps nothing: zero profit.", out + coin, defs, "".join(css))
 
 
 def footer_wordmark() -> str:
