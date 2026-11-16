@@ -2087,6 +2087,469 @@ def profit() -> str:
     return svg(w, h, "Where every euro goes", "Where every euro goes: donations and fees come in, pay for hosting first, then go to season and tournament prize pools. PUGZ keeps nothing: zero profit.", out + coin, defs, "".join(css))
 
 
+ELITE, STAR_C = TIERS[5][2], TIERS[6][2]
+
+def pc_shield(cx, cy, s, color):
+    return (f'<path transform="translate({cx} {cy}) scale({s})" d="M0 -10L8.5 -6.6V0.8C8.5 6 0 10.5 0 10.5C0 10.5 -8.5 6 -8.5 0.8V-6.6Z" fill="{color}" fill-opacity=".25" stroke="{color}" stroke-width="1.6"/>'
+            f'<path transform="translate({cx} {cy}) scale({s})" d="M0 -4V4M-4 0H4" stroke="{color}" stroke-width="1.8" stroke-linecap="round"/>')
+
+def ptag(cx_left, y, label, color, size=14):
+    w = LABEL.width(label, size, 0.1) + 40
+    return para(cx_left, y, w, 28, 8, fill=color, fill_opacity=".22") + text(LABEL, label, size, cx_left + 20, y + 19.5, color if color != VIOLET else "#e4dcff", tracking=0.1), w
+
+def player_card(ox, oy, s, uid="pc"):
+    """The real /card player card (packages/core/src/cards/render.ts), 640 x 900, redrawn in vector."""
+    W, H = 640, 900
+    shape = "0,0 596,0 640,44 640,900 44,900 0,856"
+    o = (f'<polygon points="{shape}" fill="url(#{uid}bg)"/>'
+         f'<g clip-path="url(#{uid}clip)">'
+         f'<g class="beam"><polygon points="268,0 436,0 116,900 -52,900" fill="#3de3ff" fill-opacity=".09"/>'
+         f'<polygon points="452,0 520,0 200,900 132,900" fill="#f47cf4" fill-opacity=".07"/></g>'
+         f'<circle cx="560" cy="860" r="260" fill="url(#{uid}glow)"/>'
+         f'<rect class="shine" x="-300" y="-100" width="180" height="1100" fill="url(#sheen)" transform="rotate(20 320 450)"/></g>'
+         f'<polygon points="{shape}" fill="none" stroke="url(#brand)" stroke-width="3"/>')
+    o += text(HEADING, "1788", 82, 44, 110, TEXT)
+    o += pc_shield(58, 142, 1.05, ELITE) + text(LABEL, "ELITE", 17, 80, 149, ELITE, tracking=0.2)
+    o += text(LABEL, "SEASON 1", 14, 594, 54, MUTED, tracking=0.2, anchor="end") + text(HEADING, "#12", 34, 594, 98, TEXT, tracking=0.12, anchor="end")
+    o += (f'<g class="ring" style="transform-origin:320px 288px"><circle cx="320" cy="288" r="108" fill="none" stroke="url(#{uid}ring)" stroke-width="6"/></g>'
+          f'<circle cx="320" cy="288" r="99" fill="#25254d"/>' + text(BLACK, "V", 86, 320, 320, TEXT, anchor="middle"))
+    o += text(BLACK, "VEXA", 62, 320, 478, TEXT, anchor="middle")
+    t1w = LABEL.width("BETA TESTER", 14, 0.1) + 40; t2w = LABEL.width("NSF · CAPTAIN", 14, 0.1) + 40
+    x0 = 320 - (t1w + t2w + 12) / 2
+    o += ptag(x0, 502, "BETA TESTER", VIOLET)[0] + ptag(x0 + t1w + 12, 502, "NSF · CAPTAIN", PINK)[0]
+    o += f'<rect x="60" y="560" width="520" height="1.5" fill="url(#{uid}line)"/>'
+    stats = [("95", "MATCHES"), ("67%", "WIN RATE"), ("61%", "ROUNDS"), ("9", "BEST STREAK"), ("1812", "PEAK"), ("3", "TROPHIES")]
+    for i, (v, k) in enumerate(stats):
+        cx, r = [134, 320, 506][i % 3], i // 3
+        o += text(HEADING, v, 32, cx, 616 + r * 76, TEXT, anchor="middle") + text(LABEL, k, 11.5, cx, 640 + r * 76, FAINT, tracking=0.16, anchor="middle")
+    o += text(LABEL, "NEXT RANK", 13, 46, 758, MUTED, tracking=0.16)
+    sw = LABEL.width("STAR", 13, 0.16)
+    o += (text(LABEL, "STAR", 13, 594, 758, STAR_C, tracking=0.16, anchor="end") + pc_shield(594 - sw - 14, 753, .8, STAR_C)
+          + text(LABEL, "112 TO", 13, 594 - sw - 28, 758, MUTED, tracking=0.16, anchor="end"))
+    o += (f'<rect x="46" y="771" width="548" height="10" rx="5" fill="#fff" fill-opacity=".07"/>'
+          f'<rect class="bar" x="46" y="771" width="137" height="10" rx="5" fill="url(#brand)"/>')
+    o += text(BODY_BOLD, "EU   /   PC   /   MOUSE & KEYBOARD", 15, 46, 858, MUTED)
+    o += mark(474, 838, 34) + text(BLACK, "PUGZ", 22, 594, 860, TEXT, anchor="end")
+    return f'<g transform="translate({ox} {oy}) scale({s})">{o}</g>'
+
+def card_defs(uid="pc"):
+    return (f'<clipPath id="{uid}clip"><polygon points="0,0 596,0 640,44 640,900 44,900 0,856"/></clipPath>'
+            f'<linearGradient id="{uid}bg" x1="0" y1="0" x2=".4" y2="1"><stop offset="0" stop-color="#17173f"/><stop offset=".55" stop-color="#0b0b24"/><stop offset="1" stop-color="#0d0b2a"/></linearGradient>'
+            f'<radialGradient id="{uid}glow"><stop offset="0" stop-color="#9b5cff" stop-opacity=".35"/><stop offset="1" stop-color="#9b5cff" stop-opacity="0"/></radialGradient>'
+            f'<linearGradient id="{uid}ring" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3de3ff"/><stop offset=".5" stop-color="#4c6bff"/><stop offset="1" stop-color="#f47cf4"/></linearGradient>'
+            f'<linearGradient id="{uid}line" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".5" stop-color="#fff" stop-opacity=".18"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>'
+            '<linearGradient id="sheen" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".5" stop-color="#fff" stop-opacity=".08"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>')
+
+CARD_CSS = (".beam{animation:beam 9s ease-in-out infinite}@keyframes beam{50%{transform:translateX(40px)}}"
+            ".ring{transform-box:view-box;animation:ring 12s linear infinite}@keyframes ring{to{transform:rotate(360deg)}}"
+            ".bar{transform-box:fill-box;transform-origin:0 50%;animation:barfill 6s cubic-bezier(.2,.8,.2,1) infinite}"
+            "@keyframes barfill{0%{transform:scaleX(.1)}30%,100%{transform:scaleX(1)}}"
+            ".shine{animation:shine 6s ease-in-out infinite}@keyframes shine{0%,50%{transform:translateX(0)}95%,100%{transform:translateX(1300px)}}")
+
+def result_card(bx, by, bw, bh, cls=True):
+    o = card(bx, by, bw, bh, 16, INK_900) + text(LABEL, "PUG-1291 · 3V3", 10, bx + 20, by + 36, MUTED, tracking=0.14)
+    _, cw0 = tag(0, 0, "CONFIRMED", GREEN, h=22, dot=True, size=9)
+    o += tag(bx + bw - 20 - cw0, by + 21, "CONFIRMED", GREEN, h=22, dot=True, size=9)[0]
+    top = by + 92 + (bh - 290) / 3
+    for i, (name, score, delta, col, avg) in enumerate([("Night Shift", "2", "+18", GREEN, "avg 1694"), ("Cashout Kings", "1", "−18", RED, "avg 1702")]):
+        y = top + i * 70; win = i == 0
+        o += (f'<rect x="{bx + 16}" y="{y - 30}" width="{bw - 32}" height="56" rx="10" fill="#fff" fill-opacity="{".06" if win else ".025"}"'
+              + (f' stroke="{VIOLET}" stroke-opacity=".5"' if win else "") + "/>"
+              + text(HEADING, name, 15, bx + 32, y + 2, TEXT if win else MUTED) + text(BODY, f"3 players · {avg}", 11, bx + 32, y + 18, FAINT)
+              + text(MONO, score, 30, bx + bw - 36, y + 10, TEXT if win else FAINT, anchor="end"))
+        o += f'<g class="delta delta{i}">' + text(MONO, delta, 11.5, bx + bw - 66, y + 10, col, anchor="end") + "</g>"
+    o += (text(BODY, "Map", 11.5, bx + 20, by + bh - 52, FAINT) + text(BODY_BOLD, "Monaco · Final Round", 12.5, bx + 20, by + bh - 34, TEXT)
+          + text(BODY, "Both teams confirmed the score.", 11.5, bx + 20, by + bh - 12, MUTED))
+    return o
+
+CAP = "Drawn by PUGZ from real match data. Post them anywhere, or let a link unfurl into one."
+DESC = "The PUGZ player card with rating, rank, stats and progress to the next rank; a match result card both teams confirmed, with rating changes; and the live leaderboard's top three on a podium."
+
+def recap_card(x, y, w, h):
+    o = card(x, y, w, h, 16, INK_900) + text(LABEL, "/RECAP · WEEK 12", 10, x + 44, y + 36, MUTED, tracking=0.14)
+    o += text(HEADING, "The week in PUGs", 17, x + 44, y + 66, TEXT)
+    stories = [("Biggest climb", "Kairo", "+146", GREEN), ("Longest streak", "Night Shift", "9 wins", GOLD), ("Upset", "B-tier team", "beat #3", PINK), ("Most played", "Vexa", "31 games", CYAN)]
+    for i, (k, who, val, col) in enumerate(stories):
+        yy = y + 92 + i * 46
+        o += (f'<g class="st st{i}"><rect x="{x + 40}" y="{yy}" width="{w - 56}" height="38" rx="9" fill="#fff" fill-opacity=".04"/>'
+              f'<rect x="{x + 40}" y="{yy}" width="4" height="38" rx="2" fill="{col}"/>'
+              + text(LABEL, k.upper(), 8.5, x + 54, yy + 15, FAINT, tracking=0.14) + text(BODY_BOLD, who, 12.5, x + 54, yy + 31, TEXT)
+              + text(MONO, val, 12, x + w - 28, yy + 26, col, anchor="end") + "</g>")
+    return o
+
+RESULT_CSS = (".delta{animation:delta 6s ease-in-out infinite}.delta1{animation-delay:.2s}@keyframes delta{0%,20%{opacity:0}30%,90%{opacity:1}100%{opacity:0}}" + PULSE_CSS)
+
+
+def visuals() -> str:
+    """The pictures PUGZ draws, fanned like a hand of cards: a result card, the player card (as drawn by
+    packages/core/src/cards/render.ts) in front, and the weekly /recap behind on the right."""
+    w, h = 900, 476
+    s = 0.44
+    cx = (w - 640 * s) / 2
+    left = f'<g transform="rotate(-6 204 237)"><g class="fanL">{result_card(70, 92, 268, 290)}</g></g>'
+    right = f'<g transform="rotate(6 696 237)"><g class="fanR">{recap_card(562, 92, 268, 290)}</g></g>'
+    front = f'<g class="float">{player_card(cx, 30, s)}</g>'
+    body = left + right + front + text(BODY, "Drawn by PUGZ from real match data. Post them anywhere, or let a link unfurl into one.", 13, w / 2, 456, MUTED, anchor="middle")
+    css = (CARD_CSS + RESULT_CSS
+           + ".st{animation:st 8s ease-out infinite backwards}.st1{animation-delay:.4s}.st2{animation-delay:.8s}.st3{animation-delay:1.2s}"
+           "@keyframes st{0%{opacity:0;transform:translateX(-8px)}8%{opacity:1;transform:none}92%{opacity:1}100%{opacity:0}}"
+           ".float{animation:float 6s ease-in-out infinite}@keyframes float{50%{transform:translateY(-6px)}}"
+           ".fanL{animation:fanL 6s ease-in-out infinite}@keyframes fanL{50%{transform:translate(-8px,4px)}}"
+           ".fanR{animation:fanR 6s ease-in-out infinite}@keyframes fanR{50%{transform:translate(8px,4px)}}")
+    desc = ("The PUGZ player card with rating, rank, stats and progress to the next rank, in front of a match result card "
+            "both teams confirmed and the weekly recap: biggest climb, longest streak, upset and most played.")
+    return svg(w, h, "Pictures PUGZ draws", desc, panel(w, h, INK_925) + body, card_defs(), css)
+
+
+# --- The production desk (stream overlays) ------------------------------------------------------
+FW, FH = 528, 297
+def frame(layers=("onair", "bug", "lower", "bracket"), veto=False, ta="NSH", tb="CKG", series="BO3 · MAP 3", s1="1 – 1", s2="2 – 1"):
+    o = (f'<rect width="{FW}" height="{FH}" rx="14" fill="#0a0a22" stroke="#fff" stroke-opacity=".1"/>'
+         f'<rect width="{FW}" height="{FH}" rx="14" fill="url(#stage)"/>')
+    for x, y, ww, hh in [(60, 140, 90, 110), (170, 110, 60, 140), (390, 130, 120, 120), (250, 170, 110, 80)]:
+        o += f'<rect x="{x}" y="{y}" width="{ww}" height="{hh}" rx="4" fill="#fff" fill-opacity=".03"/>'
+    bugw = 300; bx = (FW - bugw) / 2
+    L = {}
+    L["onair"] = tag(16, 16, "ON AIR", RED, h=20, dot=True, size=9)[0]
+    L["bug"] = (para(bx, 14, bugw, 40, 10, fill=INK_950, fill_opacity=".92", stroke="#fff", stroke_opacity=".12")
+                + f'<rect x="{bx + 10}" y="53" width="{bugw - 20}" height="2" fill="url(#brand)"/>'
+                + text(HEADING, ta, 15, bx + 36, 40, TEXT) + text(HEADING, tb, 15, bx + bugw - 36, 40, TEXT, anchor="end")
+                + text(LABEL, series, 8.5, bx + bugw / 2, 70, FAINT, tracking=0.16, anchor="middle")
+                + '<g class="sA">' + text(MONO, s1, 18, bx + bugw / 2, 41, TEXT, anchor="middle") + "</g>"
+                + '<g class="sB" opacity="0">' + text(MONO, s2, 18, bx + bugw / 2, 41, CYAN, anchor="middle") + "</g>")
+    ly = FH - 62
+    L["lower"] = (para(16, ly, 250, 44, 10, fill=INK_950, fill_opacity=".92", stroke="#fff", stroke_opacity=".12")
+                  + f'<rect x="22" y="{ly}" width="4" height="44" fill="url(#brand)"/>'
+                  + text(LABEL, "ON THE DESK", 8.5, 38, ly + 17, FAINT, tracking=0.16) + text(HEADING, "Rook  &  Tempo", 14, 38, ly + 35, TEXT))
+    mx, my = FW - 150, 92
+    b = f'<rect x="{mx}" y="{my}" width="134" height="138" rx="8" fill="{INK_950}" fill-opacity=".85" stroke="#fff" stroke-opacity=".1"/>' + text(LABEL, "SEMI-FINALS", 8.5, mx + 12, my + 18, FAINT, tracking=0.16)
+    for i, (a, c, live) in enumerate([("NSH", "CKG", True), ("ORB", "LMN", False)]):
+        y = my + 30 + i * 54
+        b += (f'<rect x="{mx + 10}" y="{y}" width="72" height="20" rx="4" fill="#fff" fill-opacity=".05"/><rect x="{mx + 10}" y="{y + 22}" width="72" height="20" rx="4" fill="#fff" fill-opacity=".05"/>'
+              + text(BODY_BOLD, a, 10.5, mx + 18, y + 14, TEXT) + text(BODY_BOLD, c, 10.5, mx + 18, y + 36, TEXT)
+              + f'<path d="M{mx + 82} {y + 20}H{mx + 100}V{my + 72}H{mx + 112}" fill="none" stroke="#fff" stroke-opacity=".18"/>')
+        if live: b += f'<rect class="pulse" x="{mx + 9}" y="{y - 1}" width="74" height="44" rx="5" fill="none" stroke="{CYAN}" stroke-width="1.5"/>'
+    L["bracket"] = b + f'<rect x="{mx + 112}" y="{my + 62}" width="14" height="20" rx="4" fill="#fff" fill-opacity=".05"/>'
+    vx, vy = 300 - 236, FH - 62
+    v = f'<rect x="{FW - 236 - 16}" y="{vy}" width="236" height="44" rx="8" fill="{INK_950}" fill-opacity=".9" stroke="#fff" stroke-opacity=".1"/>'
+    for i, m in enumerate(["MON", "SEO", "SKY", "VEG", "KYO"]):
+        x = FW - 236 - 16 + 8 + i * 45; col = GREEN if i == 0 else RED
+        v += f'<rect x="{x}" y="{vy + 7}" width="39" height="30" rx="5" fill="{col}" fill-opacity=".12" stroke="{col}" stroke-opacity=".6"/>' + text(BODY_BOLD, m, 9.5, x + 19.5, vy + 26, TEXT if i == 0 else MUTED, anchor="middle")
+        if i: v += f'<path d="M{x + 6} {vy + 22}H{x + 33}" stroke="{RED}" stroke-width="1.6"/>'
+    L["veto"] = v
+    for k in layers + (("veto",) if veto else ()):
+        o += f'<g class="ly-{k}">{L[k]}</g>'
+    return o
+
+FRAME_DEFS = ('<radialGradient id="stage" cx=".3" cy=".25" r=".9"><stop offset="0" stop-color="#4c6bff" stop-opacity=".22"/>'
+              '<stop offset=".6" stop-color="#9b5cff" stop-opacity=".06"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>')
+
+T = 20  # seconds per loop, 4 scenes of 5 s
+
+def win(name, a, b, extra=""):
+    """Visible from a% to b% of the loop, with short fades."""
+    if a == 0:
+        frames = f"0%{{opacity:0}}1.2%,{b - 1.2}%{{opacity:1}}{b}%,100%{{opacity:0}}"
+    else:
+        frames = f"0%,{a}%{{opacity:0}}{a + 1.2}%,{b - 1.2}%{{opacity:1}}{b}%,100%{{opacity:0}}"
+    return f".{name}{{animation:{name} {T}s linear infinite{extra}}}@keyframes {name}{{{frames}}}"
+
+def pop(name, a, dx=-6, dur=1.2):
+    return (f".{name}{{animation:{name} {T}s ease-out infinite}}"
+            f"@keyframes {name}{{0%,{a}%{{opacity:0;transform:translateX({dx}px)}}{a + dur:.2f}%,100%{{opacity:1;transform:none}}}}")
+
+def draw(name, a, b):
+    return (f".{name}{{stroke-dasharray:100;animation:{name} {T}s ease-out infinite}}"
+            f"@keyframes {name}{{0%,{a}%{{stroke-dashoffset:100}}{b}%,100%{{stroke-dashoffset:0}}}}")
+
+def onfrom(name, a, b=99):
+    return f".{name}{{animation:{name} {T}s ease-out infinite}}@keyframes {name}{{0%,{a}%{{opacity:0}}{a + 1}%,{b - 1}%{{opacity:1}}{b}%,100%{{opacity:0}}}}"
+
+
+def scene_kit():
+    w, h = 900, 420
+    css = PULSE_CSS
+    # ---------------- Frame: four scenes ----------------
+    fx, fy = 340, 36
+    scenes = []
+    # Scene 0: live match, overlays switch on one by one.
+    s0 = frame(layers=("onair", "bug", "lower"), veto=True, ta="NMR", tb="SWV", series="THRONE · SERIES 3 · BO3", s1="1 – 0", s2="1 – 1")
+    scenes.append(s0)
+    # Shared pieces in the style of the cup pages (CupBracket / CupStandings).
+    def chip(x, y, t):
+        return (f'<rect x="{x}" y="{y}" width="26" height="17" rx="4" fill="#fff" fill-opacity=".06" stroke="#fff" stroke-opacity=".14"/>'
+                + text(LABEL, t, 7, x + 13, y + 11.5, TEXT, tracking=0.04, anchor="middle"))
+    def mcard(x, y, w, code, title, sub, rows, status="Final", gold=False, live=False, pre=""):
+        hgt = 46 + len(rows) * 22 + 4
+        o = (f'<rect x="{x}" y="{y}" width="{w}" height="{hgt}" rx="9" fill="#13132b" stroke="{GOLD if gold else "#fff"}" stroke-opacity="{".7" if gold else ".1"}"/>'
+             f'<rect x="{x + 10}" y="{y}" width="34" height="2" fill="url(#brand)"/>'
+             + text(MONO, code, 8.5, x + 10, y + 19, FAINT) + text(BODY_BOLD, " · " + title, 10, x + 10 + MONO.width(code, 8.5), y + 19, TEXT)
+             + text(BODY, sub, 8.5, x + 10, y + 33, FAINT))
+        if live:
+            o += f'<circle class="pulse" cx="{x + w - 30}" cy="{y + 30}" r="3" fill="{GREEN}"/>' + text(BODY_BOLD, "Live", 8.5, x + w - 10, y + 33, GREEN, anchor="end")
+        elif status:
+            o += text(BODY_BOLD, status, 8.5, x + w - 10, y + 33, MUTED, anchor="end")
+        o += f'<rect x="{x}" y="{y + 43}" width="{w}" height="1" fill="#fff" fill-opacity=".08"/>'
+        for i, (tg, name, val, strong, cls) in enumerate(rows):
+            yy = y + 47 + i * 22
+            if i:
+                o += f'<rect x="{x}" y="{yy - 1}" width="{w}" height="1" fill="#fff" fill-opacity=".05"/>'
+            o += f'<g class="{pre}r{i}">' + chip(x + 8, yy + 2, tg) + (text(BODY_BOLD, name, 9.5, x + 40, yy + 14, TEXT) if strong else text(BODY, name, 9.5, x + 40, yy + 14, MUTED)) + "</g>"
+            o += f'<g class="{pre}v{i}">' + (cls if cls else text(MONO, val, 9.5, x + w - 10, yy + 14, TEXT if strong else FAINT, anchor="end")) + "</g>"
+        return o, hgt
+    def arrow(x1, x2, y, label, cls=""):
+        return (f'<path class="{cls}" d="M{x1} {y}H{x2 - 5}" stroke="{CYAN}" stroke-width="1.5" pathLength="100"/>'
+                f'<g class="{cls}h"><polyline points="{x2 - 7},{y - 4} {x2 - 2},{y} {x2 - 7},{y + 4}" fill="none" stroke="{CYAN}" stroke-width="1.5"/>'
+                + text(BODY_BOLD, label, 7.5, (x1 + x2) / 2, y - 6, MUTED, anchor="middle") + "</g>")
+    def crown(cx, cy, filled):
+        d = f"M{cx - 6} {cy + 3}L{cx - 6} {cy - 3}L{cx - 3} {cy}L{cx} {cy - 4.5}L{cx + 3} {cy}L{cx + 6} {cy - 3}L{cx + 6} {cy + 3}Z"
+        return f'<path d="{d}" fill="{GOLD if filled else "none"}" stroke="{GOLD if filled else FAINT}" stroke-width="1"/>'
+    BG = f'<rect width="{FW}" height="{FH}" rx="14" fill="#0a0a22" stroke="#fff" stroke-opacity=".1"/><rect width="{FW}" height="{FH}" rx="14" fill="url(#stage)"/>'
+    # Scene 1: the Throne cycle, as on the cup page.
+    lw = LABEL.width("CYCLE 3", 8.5, .2)
+    s1 = BG + text(LABEL, "CYCLE 3", 8.5, 16, 32, MUTED, tracking=0.2)
+    s1 += f'<circle class="pulse" cx="{16 + lw + 10}" cy="29" r="3" fill="{GREEN}"/>' + text(BODY_BOLD, "Live", 9, 16 + lw + 17, 32, GREEN)
+    s1 += text(BODY, "Neon Mirage defends against Static Wolves", 9.5, 16 + lw + 44, 32, MUTED)
+    s1 += f'<rect x="16" y="42" width="{FW - 32}" height="1" fill="#fff" fill-opacity=".08"/>'
+    c1, _ = mcard(14, 62, 152, "M15", "Challenger Cashout", "Ranked Cashout · Bo1",
+                  [("SWV", "Static Wolves", "1st", True, ""), ("IRC", "Ironclad", "2nd", True, ""), ("VSX", "Velocity Syndicate", "3rd", False, ""), ("NSH", "Nightshift", "4th", False, "")], pre="ma")
+    c2, _ = mcard(192, 84, 138, "M16", "Challenger Final", "Final Round · Bo1", [("SWV", "Static Wolves", "1", True, ""), ("IRC", "Ironclad", "0", False, "")], pre="mb")
+    sy_ = 84 + 47 + 22 + 14
+    swv_score = ('<g class="tsA">' + text(MONO, "0", 9.5, 364 + 152 - 10, sy_, FAINT, anchor="end") + "</g>"
+                 + '<g class="tsB" opacity="0">' + text(MONO, "1", 9.5, 364 + 152 - 10, sy_, CYAN, anchor="end") + "</g>")
+    c3, _ = mcard(364, 84, 152, "M17", "Throne · Series 3", "Final Round · Bo3", [("NMR", "Neon Mirage", "1", True, ""), ("SWV", "Static Wolves", "", True, swv_score)], gold=True, live=True, pre="mc")
+    s1 += f'<g class="bk1">{c1}</g><g class="bk2">{c2}</g><g class="bk3">{c3}</g>' + arrow(167, 191, 130, "Top 2", "aw1") + arrow(331, 363, 130, "Winner", "aw2")
+    s1 += (f'<g class="crp"><path d="M440 178V196" stroke="{GOLD}" stroke-width="1.5"/><rect x="400" y="198" width="80" height="34" rx="8" fill="{GOLD}" fill-opacity=".06" stroke="{GOLD}" stroke-opacity=".7"/>'
+           + text(BODY_BOLD, "+1 Crown", 10, 440, 213, GOLD, anchor="middle") + text(BODY, "to the winner", 7.5, 440, 225, MUTED, anchor="middle") + "</g>")
+    # The bracket fills in: cards, then teams, then results, then the arrows to the next match.
+    css += pop("bk1", 25.4, 0) + pop("bk2", 32, 0) + pop("bk3", 37, 0)
+    css += "".join(pop(f"mar{i}", 26.4 + i * .8) for i in range(4)) + "".join(pop(f"mav{i}", 29.8 + i * .4, 6) for i in range(4))
+    css += draw("aw1", 31, 33) + pop("aw1h", 32.8, 0)
+    css += "".join(pop(f"mbr{i}", 33.4 + i * .8) for i in range(2)) + "".join(pop(f"mbv{i}", 35.2 + i * .4, 6) for i in range(2))
+    css += draw("aw2", 36.2, 38.2) + pop("aw2h", 38, 0)
+    css += "".join(pop(f"mcr{i}", 38.4 + i * .8) for i in range(2)) + "".join(pop(f"mcv{i}", 40.2 + i * .4, 6) for i in range(2))
+    css += pop("crp", 41.6, 0)
+    css += (f".tsA{{animation:tsA {T}s linear infinite}}@keyframes tsA{{0%,44%{{opacity:1}}44.5%,100%{{opacity:0}}}}"
+            f".tsB{{animation:tsB {T}s linear infinite}}@keyframes tsB{{0%,44%{{opacity:0}}44.5%,100%{{opacity:1}}}}")
+    scenes.append(s1)
+    # Scene 2: the Throne standings, as on the cup page; Static Wolves' Challenger Final win lands.
+    s2 = BG + text(LABEL, "DAY 2 · THE CHAMPIONSHIP", 8, 16, 30, GOLD, tracking=0.2) + text(BLACK, "The Throne", 17, 16, 52, TEXT)
+    cols = {"n": 22, "team": 44, "crowns": 232, "cf": 352, "avg": 446, "seed": 510}
+    hy = 76
+    s2 += '<g class="sth">' + (text(LABEL, "#", 7.5, cols["n"], hy, FAINT, tracking=0.14) + text(LABEL, "TEAM", 7.5, cols["team"], hy, FAINT, tracking=0.14)
+           + text(LABEL, "CROWNS", 7.5, cols["crowns"], hy, FAINT, tracking=0.14) + text(LABEL, "FINALS WON", 7.5, cols["cf"], hy, FAINT, tracking=0.14, anchor="end")
+           + text(LABEL, "AVG. CASHOUT", 7.5, cols["avg"], hy, FAINT, tracking=0.14, anchor="end") + text(LABEL, "SEED", 7.5, cols["seed"], hy, FAINT, tracking=0.14, anchor="end")) + "</g>"
+    css += pop("sth", 50.8, 0)
+    rows = [("SWV", "Static Wolves", 1, "1", "1.00", "2"), ("NMR", "Neon Mirage", 1, "1", "2.67", "4"), ("VSX", "Velocity Syndicate", 0, "1", "2.00", "1"),
+            ("NSH", "Nightshift", 0, "0", "3.00", "3"), ("IRC", "Ironclad", 0, "0", "3.33", "5")]
+    for i, (tg, name, cr, cf, avg, seed) in enumerate(rows):
+        y = 86 + i * 32
+        q = f'<g class="lr lr{i}"><rect x="12" y="{y}" width="{FW - 24}" height="1" fill="#fff" fill-opacity=".07"/>'
+        if i == 1:
+            q += f'<rect x="12" y="{y + 1}" width="{FW - 24}" height="31" fill="#fff" fill-opacity=".04"/><rect x="12" y="{y + 1}" width="2" height="31" fill="{GOLD}"/>'
+        q += text(MONO, str(i + 1), 9.5, cols["n"], y + 20, MUTED) + chip(cols["team"], y + 7, tg) + text(BODY_BOLD, name, 10, cols["team"] + 32, y + 19, TEXT)
+        if i == 1:
+            px = cols["team"] + 32 + BODY_BOLD.width(name, 10) + 8
+            q += f'<rect x="{px}" y="{y + 8}" width="72" height="16" rx="8" fill="{GOLD}" fill-opacity=".08" stroke="{GOLD}" stroke-opacity=".6"/>' + text(BODY_BOLD, "On the Throne", 7.5, px + 36, y + 19, GOLD, anchor="middle")
+        q += f'<g class="lc{i}">' + "".join(crown(cols["crowns"] + 6 + k * 17, y + 16, k < cr) for k in range(3))
+        if i == 0:
+            q += '<g class="old">' + text(MONO, cf, 10, cols["cf"], y + 20, TEXT, anchor="end") + "</g>"
+            q += '<g class="new" opacity="0">' + text(MONO, "2", 10, cols["cf"], y + 20, CYAN, anchor="end") + "</g>"
+            q += f'<g class="flash" opacity="0"><rect x="12" y="{y + 1}" width="{FW - 24}" height="31" rx="4" fill="none" stroke="{CYAN}" stroke-width="1.2"/>' + text(MONO, "+1", 9, cols["cf"] - 16, y + 20, CYAN, anchor="end") + "</g>"
+        else:
+            q += text(MONO, cf, 10, cols["cf"], y + 20, TEXT, anchor="end")
+        q += text(MONO, avg, 10, cols["avg"], y + 20, FAINT, anchor="end") + text(MONO, seed, 10, cols["seed"], y + 20, FAINT, anchor="end") + "</g></g>"
+        s2 += q
+        css += pop(f"lr{i}", 51.8 + i * 1.1, -14) + pop(f"lc{i}", 57.6 + i * .8, 8)
+    css += (f".old{{animation:old {T}s linear infinite}}@keyframes old{{0%,66%{{opacity:1}}66.5%,100%{{opacity:0}}}}"
+            f".new{{animation:new {T}s linear infinite}}@keyframes new{{0%,66%{{opacity:0}}66.5%,100%{{opacity:1}}}}"
+            f".flash{{animation:flash {T}s ease-out infinite}}@keyframes flash{{0%,66%{{opacity:0}}67%{{opacity:1}}73%{{opacity:1}}74.5%,100%{{opacity:0}}}}")
+    scenes.append(s2)
+    # Scene 3: up next.
+    s3 = (f'<rect width="{FW}" height="{FH}" rx="14" fill="#0a0a22" stroke="#fff" stroke-opacity=".1"/><rect width="{FW}" height="{FH}" rx="14" fill="url(#stage)"/>'
+          + mark(FW / 2 - 22, 46, 44) + text(LABEL, "UP NEXT · SERIES 3 · GAME 3", 11, FW / 2, 128, CYAN, tracking=0.2, anchor="middle")
+          + text(BLACK, "NEON MIRAGE  VS  STATIC WOLVES", 18, FW / 2, 172, TEXT, anchor="middle"))
+    for k, t in enumerate(["05:00", "04:59", "04:58", "04:57"]):
+        cls = f"cd cd{k}"
+        s3 += f'<g class="{cls}">' + text(MONO, t, 22, FW / 2, 218, TEXT, anchor="middle") + "</g>"
+        a = 75 + k * 6
+        css += f".cd{k}{{opacity:0;animation:cd{k} {T}s linear infinite}}@keyframes cd{k}{{0%,{a}%{{opacity:0}}{a + .01}%,{a + 6}%{{opacity:1}}{a + 6.01}%,100%{{opacity:0}}}}"
+    s3 += text(BODY, "Casters: Rook & Tempo", 12, FW / 2, 250, MUTED, anchor="middle")
+    scenes.append(s3)
+    chip, cwid = tag(0, 0, "LIVE CUP DATA", GREEN, h=20, dot=True, size=8)
+    for i in (1, 2, 3):
+        scenes[i] += tag(FW - 16 - cwid, FH - 34, "LIVE CUP DATA", GREEN, h=20, dot=True, size=8)[0]
+    # Overlay layers in scene 0 switch on one by one.
+    for k, key in enumerate(["bug", "lower", "veto"]):
+        css += onfrom(f"ly-{key}", 3 + k * 5, 25)
+    css += ".ly-onair{opacity:1}"
+    css += (f".sA{{animation:sA {T}s linear infinite}}@keyframes sA{{0%,18%{{opacity:1}}18.5%,100%{{opacity:0}}}}"
+            f".sB{{animation:sB {T}s linear infinite}}@keyframes sB{{0%,18%{{opacity:0}}18.5%,25%{{opacity:1}}26%,100%{{opacity:0}}}}")
+    return scenes, css
+
+
+NAMES = ["Overlays", "Bracket", "Standings", "Up next"]
+SUBS = ["Live match · Neon Mirage vs Static Wolves", "Throne · cycle 3", "The Throne table", "Series 3 · game 3"]
+
+def toggle(x, y, k=None, on=True):
+    o = f'<rect x="{x}" y="{y}" width="32" height="16" rx="8" fill="#fff" fill-opacity=".1"/>'
+    if k is None:
+        o += (f'<rect x="{x}" y="{y}" width="32" height="16" rx="8" fill="url(#brand)"/><circle cx="{x + 24}" cy="{y + 8}" r="5.5" fill="#fff"/>' if on
+              else f'<circle cx="{x + 8}" cy="{y + 8}" r="5.5" fill="#fff"/>')
+    else:
+        o += f'<g class="tg{k}"><rect x="{x}" y="{y}" width="32" height="16" rx="8" fill="url(#brand)"/></g><circle class="kn{k}" cx="{x + 8}" cy="{y + 8}" r="5.5" fill="#fff"/>'
+    return o
+
+def row(x, y, w, label, right=""):
+    return (f'<rect x="{x}" y="{y}" width="{w}" height="32" rx="8" fill="#fff" fill-opacity=".035"/>' + text(BODY_BOLD, label, 11.5, x + 12, y + 20, TEXT) + right)
+
+def desk_button(x, y, w, label, primary=True):
+    if primary:
+        return f'<rect x="{x}" y="{y}" width="{w}" height="34" rx="10" fill="url(#button)"/>' + text(LABEL, label, 12, x + w / 2, y + 22, INK_TEXT, anchor="middle")
+    return (f'<rect x="{x}" y="{y}" width="{w}" height="34" rx="10" fill="#fff" fill-opacity=".06" stroke="#fff" stroke-opacity=".15"/>'
+            + text(LABEL, label, 12, x + w / 2, y + 22, TEXT, anchor="middle"))
+
+def desk_panel(i, dx, dy, dw, dh, with_title=True):
+    """The contents of the desk for scene i (the menu changes with the screen)."""
+    x, w = dx + 14, dw - 28
+    o = ""
+    if with_title:
+        o += text(LABEL, "PRODUCTION DESK", 8.5, dx + 20, dy + 26, FAINT, tracking=0.16) + text(HEADING, NAMES[i], 17, dx + 20, dy + 50, TEXT) + text(BODY, SUBS[i], 10.5, dx + 20, dy + 67, MUTED)
+    top = dy + (84 if with_title else 22)
+    if i == 0:
+        for k, lab in enumerate(["Score bug", "Casters", "Map veto"]):
+            o += row(x, top + k * 40, w, lab, toggle(x + w - 44, top + k * 40 + 8, k))
+        o += row(x, top + 120, w, "Bracket corner", toggle(x + w - 44, top + 128, on=False))
+    elif i == 1:
+        for k, (code, name, st, col) in enumerate([("M15", "Challenger Cashout", "Done", MUTED), ("M16", "Challenger Final", "Done", MUTED), ("M17", "Throne · Series 3", "Live", GREEN)]):
+            right = text(BODY_BOLD, st, 10.5, x + w - 12, top + k * 40 + 20, col, anchor="end")
+            o += (f'<rect x="{x}" y="{top + k * 40}" width="{w}" height="32" rx="8" fill="#fff" fill-opacity="{".07" if k == 2 else ".035"}"' + (f' stroke="{GOLD}" stroke-opacity=".6"' if k == 2 else "") + "/>"
+                  + text(MONO, code, 9.5, x + 12, top + k * 40 + 20, FAINT) + text(BODY_BOLD, name, 11, x + 44, top + k * 40 + 20, TEXT) + right)
+        o += row(x, top + 120, w, "Follow the live match", toggle(x + w - 44, top + 128))
+    elif i == 2:
+        o += row(x, top, w, "Table", text(BODY, "The Throne", 11, x + w - 12, top + 20, MUTED, anchor="end"))
+        o += row(x, top + 40, w, "Highlight", text(BODY, "Static Wolves", 11, x + w - 12, top + 60, CYAN, anchor="end"))
+        o += row(x, top + 80, w, "Show crowns", toggle(x + w - 44, top + 88))
+        o += row(x, top + 120, w, "Show seeds", toggle(x + w - 44, top + 128))
+    else:
+        o += row(x, top, w, "Match", text(BODY, "NMR vs SWV", 11, x + w - 12, top + 20, MUTED, anchor="end"))
+        o += row(x, top + 40, w, "Countdown", text(MONO, "05:00", 11, x + w - 12, top + 60, CYAN, anchor="end"))
+        o += row(x, top + 80, w, "Casters", text(BODY, "Rook & Tempo", 11, x + w - 12, top + 100, MUTED, anchor="end"))
+        o += f'<rect x="{x}" y="{top + 120}" width="{w}" height="32" rx="8" fill="#fff" fill-opacity=".035"/>' + text(BODY, "Ready check waits for the stream", 10.5, x + 12, top + 140, FAINT)
+    btn = ["Put on air", "Show bracket", "Show standings", "Go live"][i]
+    o += desk_button(x, dy + dh - 48, w if i != 3 else (w - 8) / 2, btn) if i != 3 else (desk_button(x, dy + dh - 48, (w - 8) / 2, "Hold", False) + desk_button(x + (w + 8) / 2, dy + dh - 48, (w - 8) / 2, "Go live"))
+    return o
+
+def toggles_css():
+    c = ""
+    for k in range(3):
+        a = 3 + k * 5
+        c += onfrom(f"tg{k}", a, 25) + f".kn{k}{{animation:kn{k} {T}s ease-out infinite}}@keyframes kn{k}{{0%,{a}%{{transform:translateX(0)}}{a + 1}%,24%{{transform:translateX(16px)}}25%,100%{{transform:translateX(0)}}}}"
+    return c
+
+def data_flow(x_from, x_to, y, cls="pk", burst=False, clean=False):
+    if clean:
+        o = f'<path d="M{x_from} {y}H{x_to}" stroke="{CYAN}" stroke-opacity=".55" stroke-width="1.5"/>'
+    else:
+        o = f'<path d="M{x_from} {y}H{x_to}" stroke="{VIOLET}" stroke-opacity=".55" stroke-width="1.5" stroke-dasharray="3 4"/>'
+        o += f'<polyline points="{x_to + 6},{y - 4} {x_to},{y} {x_to + 6},{y + 4}" fill="none" stroke="{VIOLET}" stroke-width="1.5"/>'
+    for i in range(3):
+        o += f'<circle class="{cls} {cls}{i}" cx="{x_from}" cy="{y}" r="{2.4 if clean else 3.5}" fill="{CYAN}"/>'
+    dist = x_from - x_to
+    c = (f".{cls}{{opacity:0;animation:{cls} 1.8s linear infinite}}.{cls}1{{animation-delay:.6s}}.{cls}2{{animation-delay:1.2s}}"
+         f"@keyframes {cls}{{0%{{opacity:0;transform:translateX(0)}}10%{{opacity:1}}90%{{opacity:1}}100%{{opacity:0;transform:translateX(-{dist}px)}}}}")
+    return o, c
+
+def scene_wrap(scenes, fx, fy, mode):
+    body, css = "", ""
+    for i, sc in enumerate(scenes):
+        hide = ' opacity="0"' if i else ""
+        body += f'<g transform="translate({fx} {fy})"><g class="sc{i}"{hide}>{sc}</g></g>'
+        a, b = i * 25, (i + 1) * 25
+        if mode == "fade":
+            css += win(f"sc{i}", a, b)
+        elif mode == "wipe":
+            pre = f"0%,{a}%{{opacity:0;transform:translateX(60px)}}" if a else "0%{opacity:0;transform:translateX(60px)}"
+            css += (f".sc{i}{{animation:sc{i} {T}s cubic-bezier(.2,.8,.2,1) infinite}}@keyframes sc{i}{{{pre}{a + 2.5}%{{opacity:1;transform:none}}{b - 1}%{{opacity:1;transform:none}}{b}%,100%{{opacity:0;transform:translateX(-40px)}}}}")
+        else:  # zoom
+            pre = f"0%,{a}%{{opacity:0;transform:scale(.96)}}" if a else "0%{opacity:0;transform:scale(.96)}"
+            css += (f".sc{i}{{transform-origin:{FW / 2}px {FH / 2}px;animation:sc{i} {T}s ease-out infinite}}@keyframes sc{i}{{{pre}{a + 2}%{{opacity:1;transform:none}}{b - 1.2}%{{opacity:1;transform:none}}{b}%,100%{{opacity:0}}}}")
+    return body, css
+
+def panels_wrap(dx, dy, dw, dh, mode, with_title=True):
+    body, css = "", ""
+    for i in range(4):
+        hide = ' opacity="0"' if i else ""
+        body += f'<g class="dp{i}"{hide}>{desk_panel(i, dx, dy, dw, dh, with_title)}</g>'
+        a, b = i * 25, (i + 1) * 25
+        if mode == "slide":
+            pre = f"0%,{a}%{{opacity:0;transform:translateX({dw}px)}}" if a else f"0%{{opacity:0;transform:translateX({dw}px)}}"
+            css += (f".dp{i}{{animation:dp{i} {T}s cubic-bezier(.2,.8,.2,1) infinite}}@keyframes dp{i}{{{pre}{a + 2.5}%{{opacity:1;transform:none}}{b - 1}%{{opacity:1;transform:none}}{b}%,100%{{opacity:0;transform:translateX(-{dw}px)}}}}")
+        else:
+            css += win(f"dp{i}", a, b)
+    return body, css
+
+def dots(x, y):
+    o, c = "", ""
+    for i in range(4):
+        xx = x + i * 28
+        o += f'<rect x="{xx}" y="{y}" width="20" height="4" rx="2" fill="#fff" fill-opacity=".15"/><g class="dot{i}"{" opacity=\"0\"" if i else ""}><rect x="{xx}" y="{y}" width="20" height="4" rx="2" fill="url(#brand)"/></g>'
+        c += win(f"dot{i}", i * 25, (i + 1) * 25)
+    return o, c
+
+def caption_line(fx, fy):
+    return (f'<circle class="pulse" cx="{fx + 6}" cy="{fy + FH + 16}" r="3.5" fill="{GREEN}"/>' + text(BODY_BOLD, "Live data feed from running tournament", 11.5, fx + 16, fy + FH + 20, TEXT))
+
+CAPTION = "The desk's menu changes with the screen. Everything on screen comes straight from the tournament as results are confirmed."
+BROADCAST_DESC = "The production desk changes from overlay switches to bracket, standings and up-next controls, and the stream screen changes with it, fed live from the tournament."
+
+
+def broadcast() -> str:
+    """The production desk: a live tournament feed, the desk whose menu follows the scene, and the stream screen.
+
+    Four scenes loop (overlays, bracket, standings, up next); the bracket and standings are drawn like the cup pages
+    (CupBracket / CupStandings) and fill in as the data arrives."""
+    w, h = 900, 470
+    scenes, css = scene_kit()
+    fx, fy = 24, 86
+    dx, dy, dw, dh = 612, 86, 264, 297
+    sx, sy = dx, 24
+    top = (f'<rect x="{sx}" y="{sy}" width="{dw}" height="38" rx="12" fill="{GREEN}" fill-opacity=".07" stroke="{GREEN}" stroke-opacity=".45"/>'
+           + f'<circle class="pulse" cx="{sx + 18}" cy="{sy + 19}" r="4" fill="{GREEN}"/>' + text(BODY_BOLD, "PUGZ Beta Cup", 12, sx + 30, sy + 17, TEXT)
+           + text(BODY, "results, bracket and table, live", 10, sx + 30, sy + 31, MUTED))
+    vx = dx + dw / 2
+    top += f'<path d="M{vx} {sy + 38}V{dy}" stroke="{CYAN}" stroke-opacity=".55" stroke-width="1.5"/>'
+    for i in range(3):
+        top += f'<circle class="vp vp{i}" cx="{vx}" cy="{sy + 40}" r="2.4" fill="{CYAN}"/>'
+    css += (f".vp{{opacity:0;animation:vp 1.5s linear infinite}}.vp1{{animation-delay:.5s}}.vp2{{animation-delay:1s}}"
+            f"@keyframes vp{{0%{{opacity:0;transform:translateY(0)}}15%{{opacity:1}}85%{{opacity:1}}100%{{opacity:0;transform:translateY({dy - sy - 42}px)}}}}")
+    top += text(LABEL, "ON STREAM", 9, fx, sy + 24, FAINT, tracking=0.2) + text(HEADING, "What viewers see", 16, fx, sy + 44, TEXT)
+    body = top + f'<clipPath id="fclip"><rect x="{fx}" y="{fy}" width="{FW}" height="{FH}" rx="14"/></clipPath><clipPath id="dclip"><rect x="{dx}" y="{dy}" width="{dw}" height="{dh}" rx="16"/></clipPath>'
+    sb, c = scene_wrap(scenes, fx, fy, "wipe"); css += c
+    body += f'<rect x="{fx}" y="{fy}" width="{FW}" height="{FH}" rx="14" fill="#0a0a22"/><g clip-path="url(#fclip)">{sb}</g>'
+    pb, c = panels_wrap(dx, dy + 44, dw, dh - 44, "slide", with_title=False); css += c
+    body += card(dx, dy, dw, dh, 16, INK_900) + text(LABEL, "PRODUCTION DESK", 8.5, dx + 20, dy + 26, FAINT, tracking=0.16)
+    # A tab strip under the title shows where the menu is.
+    tx = dx + 14
+    for i, n in enumerate(NAMES):
+        tw = (dw - 28) / 4
+        body += text(BODY_BOLD, n, 9.5, tx + tw * i + tw / 2, dy + 48, MUTED, anchor="middle")
+        body += f'<g class="tab{i}"{" opacity=\"0\"" if i else ""}>' + text(BODY_BOLD, n, 9.5, tx + tw * i + tw / 2, dy + 48, TEXT, anchor="middle") + f'<rect x="{tx + tw * i + 6}" y="{dy + 56}" width="{tw - 12}" height="2" fill="url(#brand)"/></g>'
+        css += win(f"tab{i}", i * 25, (i + 1) * 25)
+    body += f'<rect x="{dx + 14}" y="{dy + 58}" width="{dw - 28}" height="1" fill="#fff" fill-opacity=".08"/>'
+    body += f'<g clip-path="url(#dclip)">' + pb + "</g>"
+    fl, c = data_flow(dx - 2, fx + FW, dy + 150, clean=True); body += fl; css += c
+    # The kind of data travelling changes with the scene.
+    for i, lab in enumerate(["SCORE", "BRACKET", "TABLE", "NEXT"]):
+        body += f'<g class="lb{i}"{" opacity=\"0\"" if i else ""}>' + text(LABEL, lab, 7, (dx + fx + FW) / 2 + 1, dy + 140, CYAN, tracking=0.12, anchor="middle") + "</g>"
+        css += win(f"lb{i}", i * 25, (i + 1) * 25)
+    d, c = dots(fx + FW - 108, fy + FH + 14); body += d; css += c
+    body += caption_line(fx, fy) + text(BODY, CAPTION, 13, w / 2, 446, MUTED, anchor="middle")
+    css += toggles_css()
+    return svg(w, h, "Production desk", BROADCAST_DESC, panel(w, h, INK_925) + body, FRAME_DEFS, css)
+
+
+
 def footer_wordmark() -> str:
     w = 900
     word = "PUGZ"
@@ -2127,6 +2590,8 @@ EYEBROWS = {
     "eyebrow-status": "DEVELOPMENT STATUS",
     "eyebrow-stack": "UNDER THE HOOD",
     "eyebrow-profit": "ZERO PROFIT",
+    "eyebrow-visuals": "SHARE YOUR GAME",
+    "eyebrow-broadcast": "ON STREAM",
 }
 
 
@@ -2177,6 +2642,8 @@ def main() -> None:
         "servers.svg": servers(),
         "cta.svg": cta(),
         "profit.svg": profit(),
+        "visuals.svg": visuals(),
+        "broadcast.svg": broadcast(),
         "wordmark.svg": footer_wordmark(),
         "pugz-mark.svg": mark_file(),
         **{f"{name}.svg": eyebrow(label) for name, label in EYEBROWS.items()},
